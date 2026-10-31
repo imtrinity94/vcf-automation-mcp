@@ -1,5 +1,7 @@
 # vcf-automation-mcp
 
+![vcf-automation-mcp](.github/social-preview.png)
+
 MCP server for **VCF Automation 9** (VM Apps organization). Every REST operation in the VCF Automation API set becomes one MCP tool: **696 operation tools** across 16 services, generated straight from the OpenAPI specs that VCF Automation serves at `https://<vcfa>/tenant/<org>/api-docs`.
 
 Sister project of [vcf-orchestrator-mcp](https://github.com/imtrinity94/vcf-orchestrator-mcp).

@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1280px; height: 640px; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #07111f;
+    color: #e8f0fb;
+    overflow: hidden;
+    position: relative;
+  }
+  /* soft colour fields */
+  .glow1 { position: absolute; width: 760px; height: 760px; left: -220px; top: -330px;
+    background: radial-gradient(circle, rgba(0,153,255,.38) 0%, rgba(0,153,255,0) 65%); }
+  .glow2 { position: absolute; width: 820px; height: 820px; right: -300px; bottom: -420px;
+    background: radial-gradient(circle, rgba(124,92,255,.40) 0%, rgba(124,92,255,0) 65%); }
+  .grid { position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse at 30% 40%, #000 30%, transparent 80%); }
+
+  .wrap { position: absolute; inset: 64px 64px; display: flex; gap: 40px; }
+  .left { flex: 1 1 auto; display: flex; flex-direction: column; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 600;
+    color: #8fd3ff; letter-spacing: .02em; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #39d98a; box-shadow: 0 0 14px #39d98a; }
+  h1 { font-family: 'Inter Display', 'Inter', sans-serif; font-size: 60px; font-weight: 800; letter-spacing: -.035em;
+    line-height: 1.05; margin-top: 24px; white-space: nowrap;
+    background: linear-gradient(92deg, #ffffff 0%, #bfe4ff 45%, #a99bff 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .tag { font-size: 27px; font-weight: 500; color: #b9c7da; margin-top: 22px; line-height: 1.38; max-width: 600px; }
+  .tag b { color: #fff; font-weight: 700; }
+
+  .stats { display: flex; gap: 14px; margin-top: auto; }
+  .stat { padding: 16px 22px; border-radius: 16px; background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.10); }
+  .stat .n { font-family: 'Inter Display', 'Inter'; font-size: 40px; font-weight: 800; letter-spacing: -.02em; color: #fff; }
+  .stat .l { font-size: 16px; font-weight: 500; color: #8ea0b8; margin-top: 2px; }
+
+  .foot { margin-top: 26px; display: flex; align-items: center; gap: 12px; font-size: 20px; color: #8ea0b8; font-weight: 500; }
+  .foot code { font-family: 'DejaVu Sans Mono', monospace; font-size: 18px; color: #d7e6f7;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); padding: 6px 12px; border-radius: 10px; }
+
+  /* right: terminal-ish card of tools */
+  .right { width: 470px; flex: 0 0 auto; display: flex; align-items: center; }
+  .card { width: 100%; border-radius: 22px; background: rgba(10,20,36,.78);
+    border: 1px solid rgba(143,211,255,.22);
+    box-shadow: 0 30px 80px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.06);
+    overflow: hidden; }
+  .bar { display: flex; align-items: center; gap: 8px; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,.07); }
+  .bar i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+  .bar span { margin-left: 10px; font-size: 15px; color: #7f91a9; font-weight: 500; }
+  .tools { padding: 16px 18px 18px; font-family: 'DejaVu Sans Mono', monospace; font-size: 15px; line-height: 2.05; }
+  .t { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+  .m { font-size: 12px; font-weight: 700; padding: 1px 7px; border-radius: 6px; width: 54px; text-align: center; font-family: 'Inter'; letter-spacing: .03em; }
+  .get { background: rgba(57,217,138,.16); color: #4ee59a; }
+  .post { background: rgba(0,153,255,.18); color: #5cc0ff; }
+  .put { background: rgba(255,184,77,.16); color: #ffc46b; }
+  .del { background: rgba(255,92,122,.16); color: #ff7d95; }
+  .nm { color: #dbe7f5; }
+  .svc { color: #a99bff; }
+  .more { color: #63758d; font-family: 'Inter'; font-size: 15px; margin-top: 6px; }
+</style>
+</head>
+<body>
+  <div class="glow1"></div><div class="glow2"></div><div class="grid"></div>
+  <div class="wrap">
+    <div class="left">
+      <div class="eyebrow"><span class="dot"></span>Model Context Protocol server</div>
+      <h1>vcf-automation-mcp</h1>
+      <div class="tag">Drive <b>VCF Automation 9</b> from Claude or any MCP client. Every REST operation is a tool.</div>
+      <div class="stats">
+        <div class="stat"><div class="n">696</div><div class="l">API tools</div></div>
+        <div class="stat"><div class="n">16</div><div class="l">services</div></div>
+        <div class="stat"><div class="n">1&times;</div><div class="l">setup, auto token refresh</div></div>
+      </div>
+      <div class="foot"><code>npx vcf-automation-mcp</code><span>github.com/imtrinity94</span></div>
+    </div>
+    <div class="right">
+      <div class="card">
+        <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span>tools/list</span></div>
+        <div class="tools">
+          <div class="t"><span class="m get">GET</span><span class="nm"><span class="svc">catalog_</span>get_catalog_items</span></div>
+          <div class="t"><span class="m post">POST</span><span class="nm"><span class="svc">catalog_</span>request_catalog_item_instances</span></div>
+          <div class="t"><span class="m get">GET</span><span class="nm"><span class="svc">deployment_</span>get_deployments</span></div>
+          <div class="t"><span class="m post">POST</span><span class="nm"><span class="svc">blueprint_</span>create_blueprint</span></div>
+          <div class="t"><span class="m post">POST</span><span class="nm"><span class="svc">iaas_</span>create_machine</span></div>
+          <div class="t"><span class="m put">PUT</span><span class="nm"><span class="svc">iaas_</span>update_project</span></div>
+          <div class="t"><span class="m post">POST</span><span class="nm"><span class="svc">abx_</span>post_action_runs</span></div>
+          <div class="t"><span class="m post">POST</span><span class="nm"><span class="svc">vro_</span>run_workflow</span></div>
+          <div class="t"><span class="m del">DEL</span><span class="nm"><span class="svc">deployment_</span>delete_deployment</span></div>
+          <div class="more">+ 687 more across 16 services</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
