@@ -1,0 +1,1346 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "Project Service API",
+    "description" : "Project Service exposes a REST API, providing access to operations with projects",
+    "license" : {
+      "name" : "Copyright (c) 2022-2025 Broadcom, Inc. All Rights Reserved.",
+      "url" : "https://www.vmware.com/cloud-solutions.html"
+    },
+    "version" : "2019-01-15"
+  },
+  "servers" : [ {
+    "url" : "https://vcfa.example.com",
+    "description" : "Generated server url"
+  } ],
+  "security" : [ {
+    "Authorization" : [ ]
+  } ],
+  "tags" : [ {
+    "name" : "About",
+    "description" : "About page API"
+  }, {
+    "name" : "Project",
+    "description" : "Project related APIs"
+  } ],
+  "paths" : {
+    "/project-service/api/projects/{id}/sync-principals" : {
+      "post" : {
+        "tags" : [ "Project" ],
+        "summary" : "Sync principals assigned to any project within user organization",
+        "operationId" : "syncProjectsPrincipals",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "The id of the project.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "apiVersion",
+          "in" : "query",
+          "description" : "The version of the API in yyyy-MM-dd format. For versioning information refer to /project-service/api/about.",
+          "schema" : {
+            "type" : "string",
+            "default" : "2019-01-15"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success'",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PrincipalRole"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden, the user lacks permissions"
+          },
+          "404" : {
+            "description" : "'Not found' if no project with the provided id"
+          }
+        }
+      }
+    },
+    "/project-service/api/projects" : {
+      "get" : {
+        "tags" : [ "Project" ],
+        "summary" : "Get all projects",
+        "description" : "Get all projects with specified paging parameters.",
+        "operationId" : "getAllProjects",
+        "parameters" : [ {
+          "name" : "excludeViewer",
+          "in" : "query",
+          "description" : "Filters projects based on the viewer role. When the value is true it will not return the projects in which the current user is only viewer and will ignore privileged roles: CodeStream:Developer and CodeStream:Executor, if the user has them. Else it will return all projects that the user can read. The default value is false.",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "excludeSupervisor",
+          "in" : "query",
+          "description" : "Filters projects based on the supervisor role. When the value istrue it will not return the projects in which the current user is having only supervisor role",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : true
+          }
+        }, {
+          "name" : "excludeNotSharedProjectsForMember",
+          "in" : "query",
+          "description" : "Filters projects based on the member role and the access to the resources of the project. When the value is true it will not return the projects in which the current user is only member and the project is not with shared resources.",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "withAnyPermission",
+          "in" : "query",
+          "description" : "Optional permissions that, if granted to the users, allow them access to the proper set of projects. If the user actually has any of those permissions, the 'excludeViewer' parameter has no effect.",
+          "required" : false,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }, {
+          "name" : "$select",
+          "in" : "query",
+          "description" : "Select a subset of properties to include in the response. Possible values for this parameter are id, name, description, operationTimeout, constraints. Id will always be included in the response",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "id,name,constraints"
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "description" : "Results page you want to retrieve (0..N)",
+          "schema" : {
+            "type" : "integer",
+            "default" : 0
+          },
+          "example" : 5
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "Number of records per page.",
+          "schema" : {
+            "type" : "integer",
+            "default" : 500
+          },
+          "example" : 100
+        }, {
+          "name" : "$orderby",
+          "in" : "query",
+          "description" : "Sorting criteria in the format: property (asc | desc). Default sort order is ascending.",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "apiVersion",
+          "in" : "query",
+          "description" : "The version of the API in yyyy-MM-dd format. For versioning information refer to /project-service/api/about.",
+          "schema" : {
+            "type" : "string",
+            "default" : "2019-01-15"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with projects on pages",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageOfProjects"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized, the user is not authenticated"
+          },
+          "403" : {
+            "description" : "Forbidden, the user lacks permissions"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Project" ],
+        "summary" : "Creates a project",
+        "operationId" : "create",
+        "parameters" : [ {
+          "name" : "validatePrincipals",
+          "in" : "query",
+          "description" : "If true, a limit of 20 principals is enforced. Additionally each principal is validated in the Identity provider and important rules for group email formats are enforced.",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "apiVersion",
+          "in" : "query",
+          "description" : "The version of the API in yyyy-MM-dd format. For versioning information refer to /project-service/api/about.",
+          "schema" : {
+            "type" : "string",
+            "default" : "2019-01-15"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "The project to create.",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ProjectSpecification"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "'Created' with the newly created project",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Project"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid Request - bad data"
+          },
+          "403" : {
+            "description" : "Forbidden, the user lacks permissions"
+          },
+          "409" : {
+            "description" : "Conflict, project with this name already exists"
+          }
+        }
+      }
+    },
+    "/project-service/api/projects/{id}/principals" : {
+      "patch" : {
+        "tags" : [ "Project" ],
+        "summary" : "Modifies principals assigned to a project",
+        "description" : "Modifies principals assigned to a project by id.",
+        "operationId" : "modifyProjectPrincipals",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "The id of the project.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "validatePrincipals",
+          "in" : "query",
+          "description" : "If true, a limit of 20 principals is enforced. Additionally each principal is validated in the Identity provider and important rules for group email formats are enforced.",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "syncPrincipals",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : true
+          }
+        }, {
+          "name" : "apiVersion",
+          "in" : "query",
+          "description" : "The version of the API in yyyy-MM-dd format. For versioning information refer to /project-service/api/about.",
+          "schema" : {
+            "type" : "string",
+            "default" : "2019-01-15"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "Principals",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ProjectPrincipalsAssignment"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with the Project",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Project"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid Request - bad data"
+          },
+          "403" : {
+            "description" : "Forbidden, the user lacks permissions"
+          },
+          "404" : {
+            "description" : "'Not found' if no project with the provided id",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Project"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/project-service/api/projects/{id}/cost" : {
+      "patch" : {
+        "tags" : [ "Project" ],
+        "summary" : "Modifies a project cost",
+        "description" : "Modifies the cost of a project specified by id.",
+        "operationId" : "modifyProjectCosts",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "The id of the project.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "apiVersion",
+          "in" : "query",
+          "description" : "The version of the API in yyyy-MM-dd format. For versioning information refer to /project-service/api/about.",
+          "schema" : {
+            "type" : "string",
+            "default" : "2019-01-15"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "Project cost",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ProjectCost"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with the Project",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Project"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden, the user lacks permissions"
+          },
+          "404" : {
+            "description" : "'Not found' if no project with the provided id"
+          }
+        }
+      }
+    },
+    "/project-service/api/projects/{id}" : {
+      "get" : {
+        "tags" : [ "Project" ],
+        "summary" : "Retrieves a project",
+        "description" : "Retrieves a project by id.",
+        "operationId" : "getProject",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "The id of the project.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "withAnyPermission",
+          "in" : "query",
+          "description" : "Optional permissions that, if granted to the users, allow them access to the proper set of projects. If the user actually has any of those permissions, the 'excludeViewer' parameter has no effect.",
+          "required" : false,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }, {
+          "name" : "apiVersion",
+          "in" : "query",
+          "description" : "The version of the API in yyyy-MM-dd format. For versioning information refer to /project-service/api/about.",
+          "schema" : {
+            "type" : "string",
+            "default" : "2019-01-15"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with the Project",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Project"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden, the user lacks permissions"
+          },
+          "404" : {
+            "description" : "'Not found' if no project with the provided id"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Project" ],
+        "summary" : "Deletes a project",
+        "description" : "Deletes a project by id.",
+        "operationId" : "deleteProject",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "The id of the project.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "apiVersion",
+          "in" : "query",
+          "description" : "The version of the API in yyyy-MM-dd format. For versioning information refer to /project-service/api/about.",
+          "schema" : {
+            "type" : "string",
+            "default" : "2019-01-15"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success'",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request, the project is not deleted"
+          },
+          "403" : {
+            "description" : "Forbidden, the user lacks permissions"
+          },
+          "409" : {
+            "description" : "Conflict, when the project is in use"
+          }
+        }
+      },
+      "patch" : {
+        "tags" : [ "Project" ],
+        "summary" : "Modifies a project",
+        "description" : "Modifies a project by id. Fields that can be modified: name, description, constraints, properties, cost, operation timeout, shared resources.",
+        "operationId" : "modifyProject",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "The id of the project.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "apiVersion",
+          "in" : "query",
+          "description" : "The version of the API in yyyy-MM-dd format. For versioning information refer to /project-service/api/about.",
+          "schema" : {
+            "type" : "string",
+            "default" : "2019-01-15"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "Project",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateProjectSpecification"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with the Project",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Project"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden, the user lacks permissions"
+          },
+          "404" : {
+            "description" : "'Not found' if no project with the provided id"
+          }
+        }
+      }
+    },
+    "/project-service/api/projects/{id}/resource-metadata" : {
+      "get" : {
+        "tags" : [ "Project" ],
+        "summary" : "Retrieves a resource metadata for a project",
+        "description" : "Retrieves a resource metadata for a project by id.",
+        "operationId" : "get",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Тhe id of the project.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "apiVersion",
+          "in" : "query",
+          "description" : "The version of the API in yyyy-MM-dd format. For versioning information refer to /project-service/api/about.",
+          "schema" : {
+            "type" : "string",
+            "default" : "2019-01-15"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'OK' with the ProjectResourceMetadata",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProjectResourceMetadata"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "'Not found' if no project with the provided id",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProjectResourceMetadata"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch" : {
+        "tags" : [ "Project" ],
+        "summary" : "Modifies a project resource metadata",
+        "description" : "Modifies the resources metadata of a project specified by id.",
+        "operationId" : "update",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Тhe id of the project.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "apiVersion",
+          "in" : "query",
+          "description" : "The version of the API in yyyy-MM-dd format. For versioning information refer to /project-service/api/about.",
+          "schema" : {
+            "type" : "string",
+            "default" : "2019-01-15"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "resource metadata",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ProjectResourceMetadata"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'OK' with the newly updated project resource metadata",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProjectResourceMetadata"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad request' on validation failure",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "'Not found' if no project with the provided id",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/project-service/api/about" : {
+      "get" : {
+        "tags" : [ "About" ],
+        "summary" : "Get about page",
+        "description" : "The page contains information about the supported API versions and the latest API version. The version parameter is optional but highly recommended.\nIf you do not specify explicitly an exact version, you will be calling the latest supported API version.\nHere is an example of a call which specifies the exact version you are using: `GET /project-service/api/projects?apiVersion=2019-01-15`",
+        "operationId" : "getAboutPage",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/About"
+                }
+              }
+            }
+          },
+          "406" : {
+            "description" : "Could not find acceptable representation"
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "PrincipalRole" : {
+        "required" : [ "email" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "ID of the user or id of the group in CSP",
+            "example" : "c493a95e-c4d1-4496-8595-e73902701c95:fe69d7ca-40a6-4de5-8f33-d462f4656938"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "The username of the user or display name of the group.\n When assigning a group, the email is expected to have the format displayName@domain.\n In the case where the display name in Identity provider is in the format:\n <li> name@domain - email should be written as name@domain@domain\n <li> name (and group has domain) - email should be written as name@domain\n <li> name (and group doesn't have domain) - email should be written as name@\n\nto ensure proper functioning.",
+            "example" : "administrator@vmware.com"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "Type of the principal. Currently supported 'user' (default) and 'group'.",
+            "example" : "user"
+          },
+          "role" : {
+            "type" : "string",
+            "description" : "Role of this member. Currently supported 'member', 'viewer', 'administrator', 'supervisor'.",
+            "example" : "member"
+          }
+        },
+        "description" : "A representation of a user or group."
+      },
+      "Condition" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "enum" : [ "TAG" ]
+          },
+          "enforcement" : {
+            "type" : "string",
+            "enum" : [ "HARD", "SOFT" ]
+          },
+          "occurrence" : {
+            "type" : "string",
+            "enum" : [ "MUST_OCCUR", "MUST_NOT_OCCUR" ]
+          },
+          "expression" : {
+            "$ref" : "#/components/schemas/Tag"
+          }
+        },
+        "description" : "Definition of a condition a constraint may have."
+      },
+      "Constraint" : {
+        "type" : "object",
+        "properties" : {
+          "conditions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Condition"
+            }
+          }
+        },
+        "description" : "Definition of a constraint that one resource may have.",
+        "example" : {
+          "network" : {
+            "conditions" : [ {
+              "type" : "TAG",
+              "enforcement" : "HARD",
+              "occurrence" : "MUST_OCCUR",
+              "expression" : {
+                "key" : "key",
+                "value" : "value"
+              }
+            } ]
+          }
+        }
+      },
+      "Principal" : {
+        "required" : [ "email" ],
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "description" : "The username of the user or display name of the group.\n When assigning a group, the email is expected to have the format displayName@domain.\n In the case where the display name in Identity provider is in the format:\n <li> name@domain - email should be written as name@domain@domain\n <li> name (and group has domain) - email should be written as name@domain\n <li> name (and group doesn't have domain) - email should be written as name@\n\nto ensure proper functioning.",
+            "example" : "administrator@vmware.com"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "Type of the principal. Currently supported 'user' (default) and 'group'.",
+            "example" : "user"
+          }
+        },
+        "description" : "A representation of a user or group.",
+        "example" : [ {
+          "email" : "advanceduser@vmware.com",
+          "type" : "user"
+        } ]
+      },
+      "ProjectCost" : {
+        "type" : "object",
+        "properties" : {
+          "cost" : {
+            "type" : "number",
+            "description" : "The cost of project."
+          },
+          "costSyncTime" : {
+            "type" : "string",
+            "description" : "The date as of which project cost is calculated. Timestamp format: YYYY-MM-DDThh:mm:ss.SSSZ",
+            "example" : "2011-12-03T10:15:30Z"
+          },
+          "costUnit" : {
+            "type" : "string",
+            "description" : "The unit of cost of project. This is a 3 letter currency code.",
+            "example" : "USD"
+          },
+          "message" : {
+            "type" : "string",
+            "description" : "The message regarding the project cost."
+          },
+          "code" : {
+            "type" : "string",
+            "description" : "The unique code for the message."
+          }
+        },
+        "description" : "A representation of a project cost."
+      },
+      "ProjectSpecification" : {
+        "required" : [ "name" ],
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "maxLength" : 255,
+            "minLength" : 0,
+            "type" : "string",
+            "description" : "A human-friendly name used as an identifier in APIs that support this option.",
+            "example" : "my-name"
+          },
+          "description" : {
+            "maxLength" : 2000,
+            "minLength" : 0,
+            "type" : "string",
+            "description" : "A human-friendly description.",
+            "example" : "my-description"
+          },
+          "administrators" : {
+            "type" : "array",
+            "description" : "List of administrator users associated with the project. Only administrators can manage project's configuration.",
+            "example" : [ {
+              "email" : "administrator@vmware.com",
+              "type" : "user"
+            } ],
+            "items" : {
+              "$ref" : "#/components/schemas/Principal"
+            }
+          },
+          "members" : {
+            "type" : "array",
+            "description" : "List of member users associated with the project. ",
+            "example" : [ {
+              "email" : "member@vmware.com",
+              "type" : "user"
+            } ],
+            "items" : {
+              "$ref" : "#/components/schemas/Principal"
+            }
+          },
+          "viewers" : {
+            "type" : "array",
+            "description" : "List of viewer users associated with the project. ",
+            "example" : [ {
+              "email" : "viewer@vmware.com",
+              "type" : "user"
+            } ],
+            "items" : {
+              "$ref" : "#/components/schemas/Principal"
+            }
+          },
+          "supervisors" : {
+            "type" : "array",
+            "description" : "List of supervisor users associated with the project. ",
+            "example" : [ {
+              "email" : "supervisor@vmware.com",
+              "type" : "user"
+            } ],
+            "items" : {
+              "$ref" : "#/components/schemas/Principal"
+            }
+          },
+          "users" : {
+            "type" : "array",
+            "description" : "List of users associated with the project. ",
+            "example" : [ {
+              "email" : "user@vmware.com",
+              "type" : "user"
+            } ],
+            "items" : {
+              "$ref" : "#/components/schemas/Principal"
+            }
+          },
+          "auditors" : {
+            "type" : "array",
+            "description" : "List of auditor users associated with the project. ",
+            "example" : [ {
+              "email" : "auditor@vmware.com",
+              "type" : "user"
+            } ],
+            "items" : {
+              "$ref" : "#/components/schemas/Principal"
+            }
+          },
+          "advancedUsers" : {
+            "type" : "array",
+            "description" : "List of advanced user users associated with the project. ",
+            "example" : [ {
+              "email" : "advanceduser@vmware.com",
+              "type" : "user"
+            } ],
+            "items" : {
+              "$ref" : "#/components/schemas/Principal"
+            }
+          },
+          "constraints" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/Constraint"
+            },
+            "description" : "List of constraints of the project.",
+            "example" : {
+              "network" : {
+                "conditions" : [ {
+                  "type" : "TAG",
+                  "enforcement" : "HARD",
+                  "occurrence" : "MUST_OCCUR",
+                  "expression" : {
+                    "key" : "key",
+                    "value" : "value"
+                  }
+                } ]
+              }
+            }
+          },
+          "properties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string",
+              "description" : "List of properties of the project, to be applied to any resource provisioned within the project.\n\nThe project placement policy is set through the property with key: __projectPlacementPolicy, which can take 1 of only 2 possible values DEFAULT or SPREAD. If not specified, it is set as DEFAULT.\n\nThe naming template of resources provisioned in this project can be specified through the property with key: __namingTemplate.\nHint: Avoid conflicting names by generating digits in names with ${######}\n\nYou can allow Terraform cloudzone mapping through the property with key: __allowTerraformCloudzoneMapping. It can be set to either true or false. By default, it is set to false.",
+              "example" : "{\"myproperty\":\"enforcement\",\"__projectPlacementPolicy\":\"SPREAD\",\"__namingTemplate\":\"my-resource-template-${######}\",\"__allowTerraformCloudzoneMapping\":\"true\"}"
+            },
+            "description" : "List of properties of the project, to be applied to any resource provisioned within the project.\n\nThe project placement policy is set through the property with key: __projectPlacementPolicy, which can take 1 of only 2 possible values DEFAULT or SPREAD. If not specified, it is set as DEFAULT.\n\nThe naming template of resources provisioned in this project can be specified through the property with key: __namingTemplate.\nHint: Avoid conflicting names by generating digits in names with ${######}\n\nYou can allow Terraform cloudzone mapping through the property with key: __allowTerraformCloudzoneMapping. It can be set to either true or false. By default, it is set to false.",
+            "example" : {
+              "myproperty" : "enforcement",
+              "__projectPlacementPolicy" : "SPREAD",
+              "__namingTemplate" : "my-resource-template-${######}",
+              "__allowTerraformCloudzoneMapping" : "true"
+            }
+          },
+          "cost" : {
+            "$ref" : "#/components/schemas/ProjectCost"
+          },
+          "operationTimeout" : {
+            "type" : "integer",
+            "description" : "The timeout that should be used for Blueprint operations and Provisioning tasks. The timeout is in seconds.",
+            "format" : "int64"
+          },
+          "sharedResources" : {
+            "type" : "boolean",
+            "description" : "Specifies whether the resources in this projects are shared or not. Only allowed for classic tenants."
+          }
+        },
+        "description" : "The project to create."
+      },
+      "Tag" : {
+        "required" : [ "key" ],
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "minLength" : 1,
+            "type" : "string",
+            "description" : "Key of the object",
+            "example" : "my-key"
+          },
+          "value" : {
+            "type" : "string",
+            "description" : "Value of the object",
+            "example" : "my-value"
+          }
+        },
+        "description" : "A key value pair object.",
+        "example" : [ {
+          "key" : "key1",
+          "value" : "value1"
+        }, {
+          "key" : "key1"
+        } ]
+      },
+      "Project" : {
+        "required" : [ "name" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "Id of the project."
+          },
+          "name" : {
+            "maxLength" : 255,
+            "minLength" : 0,
+            "type" : "string",
+            "description" : "A human-friendly name used as an identifier in APIs that support this option.",
+            "example" : "my-name"
+          },
+          "description" : {
+            "maxLength" : 2000,
+            "minLength" : 0,
+            "type" : "string",
+            "description" : "A human-friendly description.",
+            "example" : "my-description"
+          },
+          "orgId" : {
+            "type" : "string",
+            "description" : "The id of the org this project belongs to."
+          },
+          "administrators" : {
+            "type" : "array",
+            "description" : "List of administrator users associated with the project. Only administrators can manage project's configuration.",
+            "example" : [ {
+              "email" : "administrator@vmware.com",
+              "type" : "user"
+            } ],
+            "items" : {
+              "$ref" : "#/components/schemas/Principal"
+            }
+          },
+          "members" : {
+            "type" : "array",
+            "description" : "List of member users associated with the project. ",
+            "example" : [ {
+              "email" : "member@vmware.com",
+              "type" : "user"
+            } ],
+            "items" : {
+              "$ref" : "#/components/schemas/Principal"
+            }
+          },
+          "viewers" : {
+            "type" : "array",
+            "description" : "List of viewer users associated with the project. ",
+            "example" : [ {
+              "email" : "viewer@vmware.com",
+              "type" : "user"
+            } ],
+            "items" : {
+              "$ref" : "#/components/schemas/Principal"
+            }
+          },
+          "supervisors" : {
+            "type" : "array",
+            "description" : "List of supervisor users associated with the project. ",
+            "example" : [ {
+              "email" : "supervisor@vmware.com",
+              "type" : "user"
+            } ],
+            "items" : {
+              "$ref" : "#/components/schemas/Principal"
+            }
+          },
+          "users" : {
+            "type" : "array",
+            "description" : "List of users associated with the project. ",
+            "example" : [ {
+              "email" : "user@vmware.com",
+              "type" : "user"
+            } ],
+            "items" : {
+              "$ref" : "#/components/schemas/Principal"
+            }
+          },
+          "auditors" : {
+            "type" : "array",
+            "description" : "List of auditor users associated with the project. ",
+            "example" : [ {
+              "email" : "auditor@vmware.com",
+              "type" : "user"
+            } ],
+            "items" : {
+              "$ref" : "#/components/schemas/Principal"
+            }
+          },
+          "advancedUsers" : {
+            "type" : "array",
+            "description" : "List of advanced user users associated with the project. ",
+            "example" : [ {
+              "email" : "advanceduser@vmware.com",
+              "type" : "user"
+            } ],
+            "items" : {
+              "$ref" : "#/components/schemas/Principal"
+            }
+          },
+          "constraints" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/Constraint"
+            },
+            "description" : "List of constraints of the project.",
+            "example" : {
+              "network" : {
+                "conditions" : [ {
+                  "type" : "TAG",
+                  "enforcement" : "HARD",
+                  "occurrence" : "MUST_OCCUR",
+                  "expression" : {
+                    "key" : "key",
+                    "value" : "value"
+                  }
+                } ]
+              }
+            }
+          },
+          "properties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string",
+              "description" : "List of properties of the project, to be applied to any resource provisioned within the project.\n\nThe property with key __projectPlacementPolicy shows what is the placement policy for the resources provisioned in this project, which can be 1 of only 2 possible values DEFAULT or SPREAD. If not specified, it is set as DEFAULT.\n\nThe property with key __namingTemplate specifies a custom naming template for resources provisioned in this project.\n\nThe property with key __allowTerraformCloudzoneMapping shows if the project allows Terraform cloudzone mapping. It can be set to either true or false. By default, it is set to false.",
+              "example" : "{\"myproperty\":\"enforcement\",\"__projectPlacementPolicy\":\"SPREAD\",\"__namingTemplate\":\"my-resource-template\",\"__allowTerraformCloudzoneMapping\":\"true\"}"
+            },
+            "description" : "List of properties of the project, to be applied to any resource provisioned within the project.\n\nThe property with key __projectPlacementPolicy shows what is the placement policy for the resources provisioned in this project, which can be 1 of only 2 possible values DEFAULT or SPREAD. If not specified, it is set as DEFAULT.\n\nThe property with key __namingTemplate specifies a custom naming template for resources provisioned in this project.\n\nThe property with key __allowTerraformCloudzoneMapping shows if the project allows Terraform cloudzone mapping. It can be set to either true or false. By default, it is set to false.",
+            "example" : {
+              "myproperty" : "enforcement",
+              "__projectPlacementPolicy" : "SPREAD",
+              "__namingTemplate" : "my-resource-template",
+              "__allowTerraformCloudzoneMapping" : "true"
+            }
+          },
+          "cost" : {
+            "$ref" : "#/components/schemas/ProjectCost"
+          },
+          "operationTimeout" : {
+            "type" : "integer",
+            "description" : "The timeout that should be used for Blueprint operations and Provisioning tasks. The timeout is in seconds.",
+            "format" : "int64"
+          },
+          "sharedResources" : {
+            "type" : "boolean",
+            "description" : "Specifies whether the resources in this projects are shared or not. Only allowed for classic tenants."
+          }
+        },
+        "description" : "A Project is a group of users."
+      },
+      "ProjectPrincipalsAssignment" : {
+        "type" : "object",
+        "properties" : {
+          "modify" : {
+            "type" : "array",
+            "description" : "Principal to add or change role in project.",
+            "items" : {
+              "$ref" : "#/components/schemas/PrincipalRole"
+            }
+          },
+          "remove" : {
+            "type" : "array",
+            "description" : "Principal to remove from project.",
+            "items" : {
+              "$ref" : "#/components/schemas/PrincipalRole"
+            }
+          }
+        }
+      },
+      "UpdateProjectSpecification" : {
+        "required" : [ "name" ],
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "maxLength" : 255,
+            "minLength" : 0,
+            "type" : "string",
+            "description" : "A human-friendly name used as an identifier in APIs that support this option.",
+            "example" : "my-name"
+          },
+          "description" : {
+            "maxLength" : 2000,
+            "minLength" : 0,
+            "type" : "string",
+            "description" : "A human-friendly description.",
+            "example" : "my-description"
+          },
+          "constraints" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/Constraint"
+            },
+            "description" : "List of constraints of the project.",
+            "example" : {
+              "network" : {
+                "conditions" : [ {
+                  "type" : "TAG",
+                  "enforcement" : "HARD",
+                  "occurrence" : "MUST_OCCUR",
+                  "expression" : {
+                    "key" : "key",
+                    "value" : "value"
+                  }
+                } ]
+              }
+            }
+          },
+          "properties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string",
+              "description" : "List of properties of the project, to be applied to any resource provisioned within the project.\n\nThe project placement policy is set through the property with key: __projectPlacementPolicy, which can take 1 of only 2 possible values DEFAULT or SPREAD. If not specified, it is set as DEFAULT.\n\nThe naming template of resources provisioned in this project can be specified through the property with key: __namingTemplate.\nHint: Avoid conflicting names by generating digits in names with ${######}\n\nYou can allow Terraform cloudzone mapping through the property with key: __allowTerraformCloudzoneMapping. It can be set to either true or false. By default, it is set to false.",
+              "example" : "{\"myproperty\":\"enforcement\",\"__projectPlacementPolicy\":\"SPREAD\",\"__namingTemplate\":\"my-resource-template-${######}\",\"__allowTerraformCloudzoneMapping\":\"true\"}"
+            },
+            "description" : "List of properties of the project, to be applied to any resource provisioned within the project.\n\nThe project placement policy is set through the property with key: __projectPlacementPolicy, which can take 1 of only 2 possible values DEFAULT or SPREAD. If not specified, it is set as DEFAULT.\n\nThe naming template of resources provisioned in this project can be specified through the property with key: __namingTemplate.\nHint: Avoid conflicting names by generating digits in names with ${######}\n\nYou can allow Terraform cloudzone mapping through the property with key: __allowTerraformCloudzoneMapping. It can be set to either true or false. By default, it is set to false.",
+            "example" : {
+              "myproperty" : "enforcement",
+              "__projectPlacementPolicy" : "SPREAD",
+              "__namingTemplate" : "my-resource-template-${######}",
+              "__allowTerraformCloudzoneMapping" : "true"
+            }
+          },
+          "operationTimeout" : {
+            "type" : "integer",
+            "description" : "The timeout that should be used for Blueprint operations and Provisioning tasks. The timeout is in seconds.",
+            "format" : "int64"
+          },
+          "sharedResources" : {
+            "type" : "boolean",
+            "description" : "Specifies whether the resources in this projects are shared or not. Only allowed for classic tenants."
+          }
+        },
+        "description" : "Represents a specification for a updating a project."
+      },
+      "ProjectResourceMetadata" : {
+        "type" : "object",
+        "properties" : {
+          "tags" : {
+            "type" : "array",
+            "description" : "List of tags to be applied to any Compute resource provisioned within the project.",
+            "example" : [ {
+              "key" : "key1",
+              "value" : "value1"
+            }, {
+              "key" : "key1"
+            } ],
+            "items" : {
+              "$ref" : "#/components/schemas/Tag"
+            }
+          }
+        },
+        "description" : "Metadata related to resources provisioned within a project."
+      },
+      "PageOfProjects" : {
+        "type" : "object",
+        "properties" : {
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Project"
+            }
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/Sort"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "PageableObject" : {
+        "type" : "object",
+        "properties" : {
+          "paged" : {
+            "type" : "boolean"
+          },
+          "pageNumber" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "offset" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/Sort"
+          },
+          "unpaged" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "Sort" : {
+        "type" : "object",
+        "properties" : {
+          "sorted" : {
+            "type" : "boolean"
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "unsorted" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "About" : {
+        "required" : [ "latestApiVersion", "supportedApis" ],
+        "type" : "object",
+        "properties" : {
+          "supportedApis" : {
+            "type" : "array",
+            "description" : "A collection of all currently supported api versions.",
+            "items" : {
+              "$ref" : "#/components/schemas/ApiDescription"
+            }
+          },
+          "latestApiVersion" : {
+            "type" : "string",
+            "description" : "The latest version of the API in yyyy-MM-dd format (UTC)."
+          }
+        },
+        "description" : "State object representing an about page that includes api versioning information."
+      },
+      "ApiDescription" : {
+        "required" : [ "apiVersion", "documentationLink" ],
+        "type" : "object",
+        "properties" : {
+          "apiVersion" : {
+            "type" : "string",
+            "description" : "The version of the API in yyyy-MM-dd format (UTC)."
+          },
+          "documentationLink" : {
+            "type" : "string",
+            "description" : "The link to the documentation of this api version."
+          },
+          "deprecationPolicy" : {
+            "$ref" : "#/components/schemas/DeprecationPolicy"
+          }
+        },
+        "description" : "A collection of all currently supported api versions."
+      },
+      "DeprecationPolicy" : {
+        "type" : "object",
+        "properties" : {
+          "deprecatedAt" : {
+            "type" : "string",
+            "description" : "The date the api was deprecated in yyyy-MM-dd format (UTC). Could be empty if the api is not deprecated."
+          },
+          "expiresAt" : {
+            "type" : "string",
+            "description" : "The date the api support will be dropped in yyyy-MM-dd format (UTC). The api may still be available for use after that date but this is not guaranteed."
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "A free text description that contains information about why this api is deprecated and how to migrate to a newer version."
+          }
+        },
+        "description" : "The deprecation policy may contain information whether the api is in deprecated state and when it expires."
+      }
+    },
+    "securitySchemes" : {
+      "Authorization" : {
+        "type" : "apiKey",
+        "name" : "Authorization",
+        "in" : "header"
+      }
+    }
+  }
+}

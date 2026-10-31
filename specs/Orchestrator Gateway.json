@@ -1,0 +1,1673 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "Automation Orchestrator Gateway API",
+    "description" : "The Orchestrator Gateway API provides a gateway to Orchestrator instances for services that are running on VCF Automation.\n\nExample:\n\n1. `$orderby` - `$orderby` returns a result with the rows being sorted by the values of provided attribute.\n\n    ```/vro/workflows?$orderby=name%20desc```\n\n2. `$top`, `$skip` - `$top` returns the requested number of resources. Used with `$skip`, the client can skip a specific number of resources.\n\n    ```/vro/workflows?$top=10&$skip=2```\n\n3. `page` and `size` - `page` used in conjunction with `size` helps in pagination of resources.\n\n    ```/vro/workflows?page=0&size=5```\n\n4. `$filter` - `$filter` returns a subset of resources that satisfy the specific predicate expression.\n\n    ```\n    /vro/workflows?$filter=startswith(name, 'Act')\n    /vro/workflows?$filter=toupper(name) eq 'ACTIVATE'\n    /vro/workflows?$filter=substringof('renameVM', name)\n    /vro/workflows?$filter=name eq 'ABCD'\n    ```\n",
+    "license" : {
+      "name" : "Copyright (c) 2022-2025 Broadcom, Inc. All Rights Reserved.",
+      "url" : "https://www.vmware.com/cloud-solutions.html"
+    },
+    "version" : "1.0.0-SNAPSHOT"
+  },
+  "servers" : [ {
+    "url" : "https://vcfa.example.com",
+    "description" : "Generated server url"
+  } ],
+  "security" : [ {
+    "Authorization" : [ ]
+  } ],
+  "paths" : {
+    "/vro/runs" : {
+      "get" : {
+        "tags" : [ "Workflow Run" ],
+        "summary" : "List Workflow Runs",
+        "description" : "Retrieves list of Workflow Runs possibly filtered by eventId and workflowId.",
+        "operationId" : "workflowRunGetAll",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/Pageable"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "202" : {
+            "description" : "Accepted",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CertificateInfoServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "417" : {
+            "description" : "Expectation Failed",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "'Success' with list of workflow runs",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageWorkflowRun"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Workflow Run" ],
+        "summary" : "Start Workflow Run",
+        "description" : "Starts Workflow Run.",
+        "operationId" : "runWorkflow",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/execution-context"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "202" : {
+            "description" : "Accepted"
+          },
+          "417" : {
+            "description" : "Expectation Failed",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vro/workflows/{workflowId}" : {
+      "get" : {
+        "tags" : [ "Workflow" ],
+        "summary" : "Get a workflow definition",
+        "description" : "Get a workflow definition",
+        "operationId" : "workflowGetOne",
+        "parameters" : [ {
+          "name" : "workflowId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "endpointConfigurationLink",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "expand",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "'Not Found' when workflow doesn't exist in target Orchestrator",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' when endpointLink is not specified",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "202" : {
+            "description" : "Accepted",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CertificateInfoServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "417" : {
+            "description" : "Expectation Failed",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "'Success' with a single workflow definition",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Workflow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vro/workflows" : {
+      "get" : {
+        "tags" : [ "Workflow" ],
+        "summary" : "Get a list of workflows",
+        "description" : "Get a list of workflows",
+        "operationId" : "workflowGetAll",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/Pageable"
+          }
+        }, {
+          "name" : "expand",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "202" : {
+            "description" : "Accepted",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CertificateInfoServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "417" : {
+            "description" : "Expectation Failed",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "'Success' with list of workflows",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageWorkflow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vro/runs/{runId}/logs" : {
+      "get" : {
+        "tags" : [ "Workflow Run" ],
+        "summary" : "Find Workflow Run logs by run ID",
+        "description" : "Retrieves the Workflow Run logs for the specific run ID",
+        "operationId" : "workflowRunLogsGetByRunId",
+        "parameters" : [ {
+          "name" : "runId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "olderThan",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64",
+            "default" : 0
+          }
+        }, {
+          "name" : "severity",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "DEBUG"
+          }
+        }, {
+          "name" : "localOnly",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "Workflow Run with this runId could not be found",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "In case of invalid parameters",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "202" : {
+            "description" : "Accepted",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CertificateInfoServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "417" : {
+            "description" : "Expectation Failed",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "'Success' with found workflow run logs",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/WorkflowRunLogEntry"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vro/runs/{runId}" : {
+      "get" : {
+        "tags" : [ "Workflow Run" ],
+        "summary" : "Find Workflow Run by run ID",
+        "description" : "Retrieves the Workflow Run for the specific run ID",
+        "operationId" : "workflowRunGetByRunId",
+        "parameters" : [ {
+          "name" : "runId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "Workflow Run with this runId could not be found",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "202" : {
+            "description" : "Accepted",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CertificateInfoServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "417" : {
+            "description" : "Expectation Failed",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "'Success' with found workflow run",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkflowRun"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vro/aggregated-workflows/{id}" : {
+      "get" : {
+        "tags" : [ "Aggregated Workflow" ],
+        "summary" : "Get aggregated information for a workflow",
+        "description" : "Get a workflow with a specific ID",
+        "operationId" : "workflowGetAggregatedOne",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "202" : {
+            "description" : "Accepted",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CertificateInfoServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "417" : {
+            "description" : "Expectation Failed",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "'Success' with a workflow",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AggregatedWorkflow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vro/aggregated-workflows" : {
+      "get" : {
+        "tags" : [ "Aggregated Workflow" ],
+        "summary" : "Get aggregated list of workflows for all configurations",
+        "description" : "Get aggregated list of workflows, grouped by id and name, along with information for all configurations in which each workflow is present",
+        "operationId" : "workflowGetAggregated",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/Pageable"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "202" : {
+            "description" : "Accepted",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CertificateInfoServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "417" : {
+            "description" : "Expectation Failed",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "'Success' with list of workflows",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageAggregatedWorkflow"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "BriefServiceErrorResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ServiceErrorResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          },
+          "messageId" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "stackTrace" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "statusCode" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "errorCode" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "CertificateInfo" : {
+        "type" : "object",
+        "properties" : {
+          "certificate" : {
+            "type" : "string"
+          },
+          "properties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "documentKind" : {
+            "type" : "string"
+          }
+        }
+      },
+      "CertificateInfoServiceErrorResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          },
+          "messageId" : {
+            "type" : "string"
+          },
+          "stackTrace" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "statusCode" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "errorCode" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "details" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "SHOULD_RETRY" ]
+            }
+          },
+          "serverErrorId" : {
+            "type" : "string"
+          },
+          "documentKind" : {
+            "type" : "string"
+          },
+          "certificateInfo" : {
+            "$ref" : "#/components/schemas/CertificateInfo"
+          },
+          "internalErrorCode" : {
+            "type" : "integer",
+            "format" : "int32",
+            "writeOnly" : true
+          }
+        }
+      },
+      "CompositeObjectValue" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "value" : {
+            "$ref" : "#/components/schemas/Value"
+          }
+        }
+      },
+      "Condition" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "enum" : [ "TAG", "FIELD" ]
+          },
+          "enforcement" : {
+            "type" : "string",
+            "enum" : [ "HARD", "SOFT" ]
+          },
+          "occurrence" : {
+            "type" : "string",
+            "enum" : [ "MUST_OCCUR", "MUST_NOT_OCCUR", "SHOULD_OCCUR" ]
+          },
+          "expression" : {
+            "$ref" : "#/components/schemas/QueryTerm"
+          }
+        }
+      },
+      "Constraint" : {
+        "type" : "object",
+        "properties" : {
+          "conditions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Condition"
+            }
+          }
+        }
+      },
+      "KeyValuePair" : {
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "type" : "string"
+          },
+          "value" : {
+            "$ref" : "#/components/schemas/Value"
+          }
+        }
+      },
+      "NumericRangeObject" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "enum" : [ "LONG", "STRING", "BYTES", "PODO", "COLLECTION", "MAP", "BOOLEAN", "DOUBLE", "InternetAddressV4", "InternetAddressV6", "DATE", "URI", "ENUM" ]
+          },
+          "min" : {
+            "type" : "object"
+          },
+          "max" : {
+            "type" : "object"
+          },
+          "isMinInclusive" : {
+            "type" : "boolean"
+          },
+          "isMaxInclusive" : {
+            "type" : "boolean"
+          },
+          "precisionStep" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "QueryTerm" : {
+        "type" : "object",
+        "properties" : {
+          "propertyName" : {
+            "type" : "string"
+          },
+          "propertyType" : {
+            "type" : "string",
+            "enum" : [ "LONG", "STRING", "BYTES", "PODO", "COLLECTION", "MAP", "BOOLEAN", "DOUBLE", "InternetAddressV4", "InternetAddressV6", "DATE", "URI", "ENUM" ]
+          },
+          "matchValue" : {
+            "type" : "string"
+          },
+          "matchType" : {
+            "type" : "string",
+            "enum" : [ "WILDCARD", "TERM", "PHRASE", "PREFIX" ]
+          },
+          "range" : {
+            "$ref" : "#/components/schemas/NumericRangeObject"
+          },
+          "sortOrder" : {
+            "type" : "string",
+            "enum" : [ "ASC", "DESC" ]
+          }
+        }
+      },
+      "Value" : {
+        "type" : "object",
+        "properties" : {
+          "objectType" : {
+            "type" : "string"
+          }
+        }
+      },
+      "array" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/Value"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "elements" : {
+              "type" : "array",
+              "items" : {
+                "oneOf" : [ {
+                  "$ref" : "#/components/schemas/array"
+                }, {
+                  "$ref" : "#/components/schemas/boolean"
+                }, {
+                  "$ref" : "#/components/schemas/composite"
+                }, {
+                  "$ref" : "#/components/schemas/date"
+                }, {
+                  "$ref" : "#/components/schemas/file"
+                }, {
+                  "$ref" : "#/components/schemas/number"
+                }, {
+                  "$ref" : "#/components/schemas/properties"
+                }, {
+                  "$ref" : "#/components/schemas/sdk-object"
+                }, {
+                  "$ref" : "#/components/schemas/secure-string"
+                }, {
+                  "$ref" : "#/components/schemas/string"
+                } ]
+              }
+            }
+          }
+        } ]
+      },
+      "boolean" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/Value"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "value" : {
+              "type" : "boolean"
+            }
+          }
+        } ]
+      },
+      "composite" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/Value"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "composite" : {
+              "type" : "object",
+              "properties" : {
+                "type" : {
+                  "type" : "string"
+                },
+                "property" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CompositeObjectValue"
+                  }
+                }
+              }
+            }
+          }
+        } ]
+      },
+      "date" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/Value"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "value" : {
+              "type" : "string",
+              "format" : "date-time"
+            }
+          }
+        } ]
+      },
+      "execution-context" : {
+        "type" : "object",
+        "properties" : {
+          "executionId" : {
+            "type" : "string"
+          },
+          "workflowId" : {
+            "type" : "string"
+          },
+          "parameters" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/parameter"
+            }
+          },
+          "constraint" : {
+            "$ref" : "#/components/schemas/Constraint"
+          },
+          "projectId" : {
+            "type" : "string"
+          },
+          "actionName" : {
+            "type" : "string"
+          }
+        }
+      },
+      "file" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/Value"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "type" : "string"
+            },
+            "content" : {
+              "type" : "string"
+            },
+            "mime-type" : {
+              "type" : "string"
+            }
+          }
+        } ]
+      },
+      "number" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/Value"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "value" : {
+              "type" : "number",
+              "format" : "double"
+            }
+          }
+        } ]
+      },
+      "parameter" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/array"
+            }, {
+              "$ref" : "#/components/schemas/boolean"
+            }, {
+              "$ref" : "#/components/schemas/composite"
+            }, {
+              "$ref" : "#/components/schemas/date"
+            }, {
+              "$ref" : "#/components/schemas/file"
+            }, {
+              "$ref" : "#/components/schemas/number"
+            }, {
+              "$ref" : "#/components/schemas/properties"
+            }, {
+              "$ref" : "#/components/schemas/sdk-object"
+            }, {
+              "$ref" : "#/components/schemas/secure-string"
+            }, {
+              "$ref" : "#/components/schemas/string"
+            } ]
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string",
+            "enum" : [ "local", "token" ]
+          }
+        }
+      },
+      "properties" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/Value"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "properties" : {
+              "type" : "object",
+              "properties" : {
+                "property" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/KeyValuePair"
+                  }
+                }
+              }
+            }
+          }
+        } ]
+      },
+      "sdk-object" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/Value"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "type" : {
+              "type" : "string"
+            },
+            "href" : {
+              "type" : "string"
+            },
+            "id" : {
+              "type" : "string"
+            },
+            "display-value" : {
+              "type" : "string"
+            }
+          }
+        } ]
+      },
+      "secure-string" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/Value"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "value" : {
+              "type" : "string"
+            },
+            "isPlainText" : {
+              "type" : "boolean"
+            }
+          }
+        } ]
+      },
+      "string" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/Value"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "value" : {
+              "type" : "string"
+            }
+          }
+        } ]
+      },
+      "IntegrationInfo" : {
+        "type" : "object",
+        "properties" : {
+          "endpointConfigurationLink" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "endpointUri" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Workflow" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "ownerId" : {
+            "type" : "string"
+          },
+          "orgId" : {
+            "type" : "string"
+          },
+          "createdOn" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "modifiedOn" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "string"
+          },
+          "href" : {
+            "type" : "string"
+          },
+          "integration" : {
+            "$ref" : "#/components/schemas/IntegrationInfo"
+          },
+          "workflowId" : {
+            "type" : "string"
+          },
+          "inputs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/parameter"
+            }
+          },
+          "outputs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/parameter"
+            }
+          },
+          "selfLink" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Pageable" : {
+        "type" : "object",
+        "properties" : {
+          "page" : {
+            "minimum" : 0,
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "minimum" : 1,
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "PageWorkflow" : {
+        "type" : "object",
+        "properties" : {
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Workflow"
+            }
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/Sort"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "PageableObject" : {
+        "type" : "object",
+        "properties" : {
+          "paged" : {
+            "type" : "boolean"
+          },
+          "pageNumber" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "offset" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/Sort"
+          },
+          "unpaged" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "Sort" : {
+        "type" : "object",
+        "properties" : {
+          "sorted" : {
+            "type" : "boolean"
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "unsorted" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "WorkflowRunLogEntry" : {
+        "type" : "object",
+        "properties" : {
+          "severity" : {
+            "type" : "string",
+            "enum" : [ "unknown", "debug", "info", "warning", "error" ]
+          },
+          "shortDescription" : {
+            "type" : "string"
+          },
+          "longDescription" : {
+            "type" : "string"
+          },
+          "userName" : {
+            "type" : "string"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "origin" : {
+            "type" : "string"
+          },
+          "entry" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            },
+            "writeOnly" : true
+          }
+        }
+      },
+      "WorkflowRun" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "ownerId" : {
+            "type" : "string"
+          },
+          "orgId" : {
+            "type" : "string"
+          },
+          "createdOn" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "modifiedOn" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "configurationId" : {
+            "type" : "string"
+          },
+          "runId" : {
+            "type" : "string"
+          },
+          "workflowId" : {
+            "type" : "string"
+          },
+          "runStatus" : {
+            "type" : "string",
+            "enum" : [ "CANCELED", "COMPLETED", "RUNNING", "SUSPENDED", "WAITING", "STATE_WAITING_ON_SIGNAL", "FAILED", "RUN_NOT_FOUND", "WORKFLOW_NOT_FOUND", "WORKFLOW_NOT_STARTED", "INITIALIZING", "UNKNOWN" ]
+          },
+          "errorMessage" : {
+            "type" : "string"
+          },
+          "startedBy" : {
+            "type" : "string"
+          },
+          "startedOn" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "completedOn" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "ebsEventId" : {
+            "type" : "string"
+          },
+          "eventTraceEntryId" : {
+            "type" : "string"
+          },
+          "ebsBlocking" : {
+            "type" : "boolean"
+          },
+          "workflowInputs" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "workflowOutputs" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "logs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/WorkflowRunLogEntry"
+            }
+          },
+          "integrationId" : {
+            "type" : "string"
+          },
+          "integrationName" : {
+            "type" : "string"
+          },
+          "integrationSelfLink" : {
+            "type" : "string"
+          },
+          "subscriptionId" : {
+            "type" : "string"
+          }
+        }
+      },
+      "PageWorkflowRun" : {
+        "type" : "object",
+        "properties" : {
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/WorkflowRun"
+            }
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/Sort"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "AggregatedWorkflow" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "ownerId" : {
+            "type" : "string"
+          },
+          "orgId" : {
+            "type" : "string"
+          },
+          "createdOn" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "modifiedOn" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "count" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "workflowId" : {
+            "type" : "string"
+          },
+          "integrations" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IntegrationInfo"
+            }
+          },
+          "selfLink" : {
+            "type" : "string"
+          }
+        }
+      },
+      "PageAggregatedWorkflow" : {
+        "type" : "object",
+        "properties" : {
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AggregatedWorkflow"
+            }
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/Sort"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "Authorization" : {
+        "type" : "apiKey",
+        "name" : "Authorization",
+        "in" : "header"
+      }
+    }
+  }
+}

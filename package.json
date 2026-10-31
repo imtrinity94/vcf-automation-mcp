@@ -1,0 +1,55 @@
+{
+  "name": "vcf-automation-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for VCF Automation 9 (VM Apps organization) — one MCP tool per REST operation across ABX, Approvals, Blueprint, Catalog, Deployment, Policies, Custom Forms, Content, Event Broker, IaaS, Identity, Onboarding, Orchestrator Gateway, Projects and Provider Management APIs.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "vcf",
+    "vcf-automation",
+    "vcfa",
+    "vra",
+    "aria-automation",
+    "vmware",
+    "broadcom"
+  ],
+  "author": "imtrinity94",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "vcf-automation-mcp": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "data/operations.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20.18.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imtrinity94/vcf-automation-mcp.git"
+  },
+  "homepage": "https://github.com/imtrinity94/vcf-automation-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/imtrinity94/vcf-automation-mcp/issues"
+  },
+  "scripts": {
+    "generate": "node scripts/generate.mjs",
+    "build": "tsc -p tsconfig.json && node -e \"require('fs').chmodSync('dist/index.js',0o755)\"",
+    "test": "node test/run-tests.mjs",
+    "prepublishOnly": "npm run generate && npm run build && npm test"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "undici": "^7.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "js-yaml": "^4.1.0",
+    "typescript": "^5.9.3"
+  }
+}

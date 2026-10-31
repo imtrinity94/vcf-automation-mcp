@@ -1,0 +1,3895 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "Form Service API",
+    "description" : "A list of form and Xaas APIs.\n\nThis page describes the RESTful APIs for Form Service. The APIs facilitate CRUD operations on the various resources and entities used throughout Form service (Custom Resource , Form Definition etc.) and allow operations on them (creating custom resource type , fetch form status etc.).\n\nSome of the APIs that list collections of resources also support OData like implementation. Below query params can be used across Form and XaaS entities.\n\nExample:\n\n1. `$orderby` - returns a result with the rows being sorted by the values of provided attribute.\n\n    ```/form-service/api/custom/resource-types?$orderby=name%20DESC```\n\n2. `page`, `size` - page used in conjunction with `size` helps in pagination of resources.\n\n    ```/form-service/api/custom/resource-types?page=0&size=20```\n",
+    "license" : {
+      "name" : "Copyright (c) 2022-2025 Broadcom, Inc. All Rights Reserved.",
+      "url" : "https://www.vmware.com/cloud-solutions.html"
+    },
+    "version" : "1.0"
+  },
+  "servers" : [ {
+    "url" : "https://vcfa.example.com",
+    "description" : "Generated server url"
+  } ],
+  "security" : [ {
+    "Authorization" : [ ]
+  } ],
+  "paths" : {
+    "/form-service/api/forms/versions" : {
+      "get" : {
+        "tags" : [ "Form Version" ],
+        "summary" : "Get form definition versions",
+        "operationId" : "getAll",
+        "parameters" : [ {
+          "name" : "sourceType",
+          "in" : "query",
+          "description" : "The form source type. It can be 'com.vmw.vro.workflow' or 'resource.action'.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sourceId",
+          "in" : "query",
+          "description" : "The form source id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "formType",
+          "in" : "query",
+          "description" : "The form type. It can be 'requestForm'.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "description" : "Zero-based page index (0..N)",
+          "schema" : {
+            "type" : "integer",
+            "default" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "The size of the page to be returned",
+          "schema" : {
+            "type" : "integer",
+            "default" : 20
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageFormDefinitionVersion"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Form Version" ],
+        "summary" : "Create form definition version",
+        "operationId" : "create",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/FormDefinitionVersionCreate"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "'Created' if the form definition version is successfully created.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' if there are validation errors."
+          },
+          "404" : {
+            "description" : "'Not Found' if there is no such form definition with the provided formId in the current org."
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/renderer/request" : {
+      "post" : {
+        "tags" : [ "Form Renderer" ],
+        "summary" : "Generate request form for a given library schema.",
+        "operationId" : "fetchForm",
+        "parameters" : [ {
+          "name" : "sourceType",
+          "in" : "query",
+          "description" : "The request source type",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sourceId",
+          "in" : "query",
+          "description" : "The request source id",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "formType",
+          "in" : "query",
+          "description" : "The form type",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JsonSchemaImpl"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with retrieved or generated custom form",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' if JsonSchema is not in specified format"
+          },
+          "403" : {
+            "description" : "'Forbidden' no forms viewer access rights"
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/renderer/model" : {
+      "post" : {
+        "tags" : [ "Form Renderer" ],
+        "summary" : "Generate request form model for a given library schema.",
+        "operationId" : "fetchModel",
+        "parameters" : [ {
+          "name" : "sourceType",
+          "in" : "query",
+          "description" : "The request source type",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sourceId",
+          "in" : "query",
+          "description" : "The request source id",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "formType",
+          "in" : "query",
+          "description" : "The form type",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "formId",
+          "in" : "query",
+          "description" : "The request form id, used to find a form from a provider",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "name" : "resourceId",
+          "in" : "query",
+          "description" : "Resource id",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "deploymentId",
+          "in" : "query",
+          "description" : "Deployment id",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JsonSchemaImpl"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with retrieved or generated form model",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RendererModelResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' if JsonSchema is not in specified format"
+          },
+          "403" : {
+            "description" : "'Forbidden' no forms viewer access rights"
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/renderer/external-values" : {
+      "post" : {
+        "tags" : [ "Form Renderer" ],
+        "summary" : "Execute multiple external actions to get a list of values (for the UI)",
+        "operationId" : "executeExternalActions",
+        "parameters" : [ {
+          "name" : "projectId",
+          "in" : "query",
+          "description" : "The projectId of the project chosen for the request.",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sourceId",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/components/schemas/FormExternalDataRequest"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with a list of external action results",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/FormExternalDataResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' if RunnableItem is not in specified format"
+          },
+          "403" : {
+            "description" : "'Forbidden' due to insufficient access rights for form viewing or the form execution has not been created. To resolve this, ensure that the /renderer/model API is called first to load the necessary form containing the required external actions."
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/renderer/external-value" : {
+      "post" : {
+        "tags" : [ "Form Renderer" ],
+        "summary" : "Execute an external action to get a value (for the UI)",
+        "operationId" : "executeExternalAction",
+        "parameters" : [ {
+          "name" : "projectId",
+          "in" : "query",
+          "description" : "The projectId of the project chosen for the request.",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sourceId",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/FormExternalDataRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with the result from the external action",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FormExternalDataResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' if request body is not in specified format"
+          },
+          "403" : {
+            "description" : "'Forbidden' due to insufficient access rights for form viewing or the form execution has not been created. To resolve this, ensure that the /renderer/model API is called first to load the necessary form containing the required external action."
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/renderer/external-validation" : {
+      "post" : {
+        "tags" : [ "Form Renderer" ],
+        "summary" : "Perform external validations for a form (for the UI)",
+        "operationId" : "performExternalValidation",
+        "parameters" : [ {
+          "name" : "projectId",
+          "in" : "query",
+          "description" : "The projectId of the project chosen for the request.",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sourceId",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ExternalValidationContext"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with list of validation messages",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/FormValidationMessage"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' if the external validation context body is not in specified format"
+          },
+          "403" : {
+            "description" : "'Forbidden' no forms viewer access rights"
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/renderer/external-resources" : {
+      "get" : {
+        "tags" : [ "Form Renderer" ],
+        "summary" : "Retrieve external resource object",
+        "description" : "Retrieve external resource object depending on namespace type and id",
+        "operationId" : "lookupExternalResource",
+        "parameters" : [ {
+          "name" : "namespace",
+          "in" : "query",
+          "description" : "namespace in which the vRO type is placed",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "type",
+          "in" : "query",
+          "description" : "type of the SDK object",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "objectId",
+          "in" : "query",
+          "description" : "unique id of the object",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "projectId",
+          "in" : "query",
+          "description" : "id of current project",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with external resource matching the search criteria",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VroResourceLink"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "'Forbidden' no forms viewer access rights"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Form Renderer" ],
+        "summary" : "Retrieve external resource value",
+        "description" : "Retrieve external resource value depending on provided value source type",
+        "operationId" : "lookupExternalResources",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/FormExtValueRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with list of external resources matching search criteria",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FormExtValueResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' if external value request is in invalid format"
+          },
+          "403" : {
+            "description" : "'Forbidden' no forms viewer access rights"
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/fetchStatus" : {
+      "post" : {
+        "tags" : [ "Form Definition" ],
+        "summary" : "Fetch form status",
+        "description" : "Retrieve statuses of forms specified by reference IDs.",
+        "operationId" : "searchFormStatus",
+        "parameters" : [ {
+          "name" : "type",
+          "in" : "query",
+          "description" : "Form type that represents the usage of the form",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "FORM",
+            "enum" : [ "FORM", "CUSTOM_RESOURCE", "RESOURCE_ACTION" ]
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "description" : "The target reference IDs",
+                "items" : {
+                  "$ref" : "#/components/schemas/FormReference"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with the form statuses.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/FormStatusResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' if the form ID is not in UUID format."
+          },
+          "403" : {
+            "description" : "'Forbidden' when the user has no viewer access rights."
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/designer/runnable-item-elements" : {
+      "post" : {
+        "tags" : [ "Form Designer" ],
+        "summary" : "Generate designer elements for a given runnable item.",
+        "operationId" : "generateElementsRunnableItem",
+        "parameters" : [ {
+          "name" : "externalType",
+          "in" : "query",
+          "description" : "External type",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RunnableItem"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with generated elements for provided RunnableItem object",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' if RunnableItem is not in specified format"
+          },
+          "403" : {
+            "description" : "'Forbidden' no forms viewer access rights"
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/designer/request" : {
+      "post" : {
+        "tags" : [ "Form Designer" ],
+        "summary" : "Fetch request form or generate one for a given library schema.",
+        "description" : "Fetch a request form from the database, according to the search parameters. Generate one according to the JsonSchema if there isn't a persisted form.",
+        "operationId" : "fetchCustomizedForm",
+        "parameters" : [ {
+          "name" : "sourceType",
+          "in" : "query",
+          "description" : "The request source type",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sourceId",
+          "in" : "query",
+          "description" : "The request source id",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "formType",
+          "in" : "query",
+          "description" : "The form type",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "formId",
+          "in" : "query",
+          "description" : "The request form id, used to find a form from a provider",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JsonSchemaImpl"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with the cusotmized form definition matching the query parameters",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FormDefinitionWithExternalSchema"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' if provided JsonSchemaImpl is in invalid format"
+          },
+          "403" : {
+            "description" : "'Forbidden' no forms viewer access rights"
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/designer/generate-form-json-schema" : {
+      "post" : {
+        "tags" : [ "Form Designer" ],
+        "summary" : "Generates json schema based on the provided form layout schema",
+        "operationId" : "generateJsonSchema",
+        "requestBody" : {
+          "content" : {
+            "text/plain" : {
+              "schema" : {
+                "type" : "string",
+                "description" : "Form layout schema this request is made for"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/JsonSchemaImpl"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/designer/external-value/sources" : {
+      "post" : {
+        "tags" : [ "Form Designer" ],
+        "summary" : "Get a list of external values.",
+        "operationId" : "getExternalValue",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/FormExtValueSourceSearchRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with a list of external value results",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FormExtValueSourceSearchResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' if FormExtValueSourceSearchRequest is in invalid format"
+          },
+          "403" : {
+            "description" : "'Forbidden' no forms viewer access rights"
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/designer/elements" : {
+      "post" : {
+        "tags" : [ "Form Designer" ],
+        "summary" : "Generate designer elements for a given request schema.",
+        "operationId" : "generateElements",
+        "parameters" : [ {
+          "name" : "sourceId",
+          "in" : "query",
+          "description" : "The request source id",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sourceType",
+          "in" : "query",
+          "description" : "The request source type",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "The request schema",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JsonSchemaImpl"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' return the request input elements",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' when the provided JsonSchema is invalid"
+          },
+          "403" : {
+            "description" : "'Forbidden' no forms viewer rights"
+          }
+        }
+      }
+    },
+    "/form-service/api/forms" : {
+      "post" : {
+        "tags" : [ "Form Definition" ],
+        "summary" : "Create form definition",
+        "description" : "Create form definition.",
+        "operationId" : "createForm",
+        "parameters" : [ {
+          "name" : "generateUnvalidatableExternalValuesSchema",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "lockForm",
+          "in" : "query",
+          "description" : "Locks the content of the form (layout, schema) making it immutable if set to true, but still allows updates to the form's status",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/FormDefinition"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "'Created'"
+          },
+          "400" : {
+            "description" : "'Bad Request' if called with service token with no org."
+          },
+          "403" : {
+            "description" : "'Forbidden' when the user has no admin access rights."
+          }
+        }
+      }
+    },
+    "/form-service/api/custom/schema-generation" : {
+      "post" : {
+        "tags" : [ "Schema Generation Services" ],
+        "summary" : "Generate schema for runnable item.",
+        "description" : "Generate a ProviderSchemaImpl for the provided RunnableItem. The schema can be used to create a custom resource type.",
+        "operationId" : "generate",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RunnableItem"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with generated ProviderSchema for provided RunnableItem object",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProviderSchemaImpl"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' if RunnableItem is not in specified format"
+          },
+          "403" : {
+            "description" : "'Forbidden' no forms viewer access rights"
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/form-service/api/custom/schema-generation/json" : {
+      "post" : {
+        "tags" : [ "Schema Generation Services" ],
+        "summary" : "Get json object schema for runnable item.",
+        "description" : "Generate a ProviderSchemaImpl for the provided RunnableItem. The schema can be used to create a custom resource type.",
+        "operationId" : "getJsonObjectSchema",
+        "parameters" : [ {
+          "name" : "externalType",
+          "in" : "query",
+          "description" : "External type",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RunnableItem"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with generated ProviderSchemaImpl",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProviderSchemaImpl"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' if the RunnableItem is not in specified format"
+          },
+          "403" : {
+            "description" : "'Forbidden' no forms viewer access rights"
+          }
+        }
+      }
+    },
+    "/form-service/api/custom/schema-generation/form" : {
+      "post" : {
+        "tags" : [ "Schema Generation Services" ],
+        "summary" : "Get form layout schema for runnable item.",
+        "description" : "Get the layout schema for the provided runnable item, given that it exists on the specified endpoint",
+        "operationId" : "getFormLayoutSchema",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RunnableItem"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with the form layout schema",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FormLayoutSchema"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' if the RunnableItem is not in specified format"
+          },
+          "403" : {
+            "description" : "'Forbidden' no forms viewer access rights"
+          }
+        }
+      }
+    },
+    "/form-service/api/custom/resource-types" : {
+      "get" : {
+        "tags" : [ "Custom Resource Types" ],
+        "summary" : "List custom resource types.",
+        "operationId" : "listCustomResourceTypes",
+        "parameters" : [ {
+          "name" : "propertiesFormat",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "YAML", "JSON" ]
+          }
+        }, {
+          "name" : "runnableId",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "endpointLink",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "description" : "Zero-based page index (0..N)",
+          "schema" : {
+            "type" : "integer",
+            "default" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "The size of the page to be returned",
+          "schema" : {
+            "type" : "integer",
+            "default" : 20
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with list of custom resource types in org",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageCustomResourceType"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "'Forbidden' no custom resource type viewing rights"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Custom Resource Types" ],
+        "summary" : "Create custom resource type.",
+        "operationId" : "createOrUpdateCustomResourceType",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CustomResourceType"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with created or updated custom resource type",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CustomResourceType"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' if CustomResourceType is not in specified format"
+          },
+          "403" : {
+            "description" : "'Forbidden' no custom resource managing rights"
+          }
+        }
+      }
+    },
+    "/form-service/api/custom/resource-actions" : {
+      "get" : {
+        "tags" : [ "Resource Actions" ],
+        "summary" : "List resource actions.",
+        "operationId" : "listActions",
+        "parameters" : [ {
+          "name" : "runnableId",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "endpointLink",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "description" : "Zero-based page index (0..N)",
+          "schema" : {
+            "type" : "integer",
+            "default" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "The size of the page to be returned",
+          "schema" : {
+            "type" : "integer",
+            "default" : 20
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with page of ResourceActions",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageResourceAction"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "'Forbidden' no resource actions viewer access rights"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Resource Actions" ],
+        "summary" : "Create resource action.",
+        "operationId" : "createOrUpdateResourceAction",
+        "parameters" : [ {
+          "name" : "generateUnvalidatableExternalValuesSchema",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ResourceAction"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with created/updated resource action",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResourceAction"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' if ResourceAction is not in specified format"
+          },
+          "403" : {
+            "description" : "'Forbidden' no resource action managing rights"
+          }
+        }
+      }
+    },
+    "/form-service/api/custom/resource-actions/{id}/form-data" : {
+      "post" : {
+        "tags" : [ "Resource Actions" ],
+        "summary" : "Returns resolved binding values based on the properties of the resource for given resource operation",
+        "operationId" : "getResourceActionFormData",
+        "parameters" : [ {
+          "name" : "projectId",
+          "in" : "query",
+          "description" : "The id of the project",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Resource operation id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : {
+                  "type" : "object"
+                },
+                "description" : "Resource properties"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with resource action form data",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Data"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "'Forbidden' no forms viewer access rights"
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/versions/{id}/restore" : {
+      "patch" : {
+        "tags" : [ "Form Version" ],
+        "summary" : "Restore form definition version",
+        "operationId" : "restore",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Form definition version identifier",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'OK' when successfully restored."
+          },
+          "404" : {
+            "description" : "'Not Found' when there is no such form definition version with the supplied id and current org."
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/{id}" : {
+      "get" : {
+        "tags" : [ "Form Definition" ],
+        "summary" : "Get form by ID",
+        "description" : "Retrieve the Form definition of a form with the specified ID.",
+        "operationId" : "getForm",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Form identifier",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "name" : "formFormat",
+          "in" : "query",
+          "description" : "Form definition format",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "JSON",
+            "enum" : [ "YAML", "JSON" ]
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with the form.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FormDefinition"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "'Forbidden' when the user has no user access rights."
+          },
+          "404" : {
+            "description" : "'Not found' if no form with the provided ID."
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Form Definition" ],
+        "summary" : "Delete form by ID",
+        "description" : "Delete the form with the specified ID.",
+        "operationId" : "deleteForm",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Form ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success'"
+          },
+          "403" : {
+            "description" : "'Forbidden' when the user has no admin access rights."
+          },
+          "404" : {
+            "description" : "'Not Found' no form definition was found for the provided ID."
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/versions/{id}" : {
+      "get" : {
+        "tags" : [ "Form Version" ],
+        "summary" : "Get form definition version by id",
+        "operationId" : "get",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Form definition version identifier",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'OK' with the specified form definition version.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FormDefinitionVersion"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "'Not Found' if there is no such version with the provided id in the current org."
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/search" : {
+      "get" : {
+        "tags" : [ "Form Definition" ],
+        "summary" : "Search form and form versions by term",
+        "description" : "Search for form definitions and form versions with the specified term.",
+        "operationId" : "searchFormDefinitions",
+        "parameters" : [ {
+          "name" : "term",
+          "in" : "query",
+          "description" : "Search term",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "description" : "Zero-based page index (0..N)",
+          "schema" : {
+            "type" : "integer",
+            "default" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "The size of the page to be returned",
+          "schema" : {
+            "type" : "integer",
+            "default" : 20
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success'",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageFormAndVersionSearchResult"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request'"
+          },
+          "403" : {
+            "description" : "'Forbidden' when the user has no admin access rights."
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/provider/{ref}" : {
+      "get" : {
+        "tags" : [ "Form Definition" ],
+        "summary" : "Get form by providerRef",
+        "description" : "Retrieve the form definition of a form with the specified provider reference.",
+        "operationId" : "getForm_1",
+        "parameters" : [ {
+          "name" : "ref",
+          "in" : "path",
+          "description" : "Provider Reference",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with the form.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FormDefinition"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "'Forbidden' when the user has no user access rights."
+          },
+          "404" : {
+            "description" : "'Not found' if no form with the specified Provider Reference."
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/fetchBySourceAndType" : {
+      "get" : {
+        "tags" : [ "Form Definition" ],
+        "summary" : "Search form by source",
+        "description" : "Search for form definition by source type, source ID and form type.",
+        "operationId" : "searchBySourceAndType",
+        "parameters" : [ {
+          "name" : "sourceType",
+          "in" : "query",
+          "description" : "The form source type. It can be 'com.vmw.vro.workflow' or 'resource.action'.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sourceId",
+          "in" : "query",
+          "description" : "The form source ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "formType",
+          "in" : "query",
+          "description" : "The form type. It can be 'requestForm'.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "formFormat",
+          "in" : "query",
+          "description" : "Form definition format",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "JSON",
+            "enum" : [ "YAML", "JSON" ]
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with the form.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FormDefinition"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "'Forbidden' when the user has no viewer access rights."
+          },
+          "404" : {
+            "description" : "'Not found' if no form matches search parameters."
+          }
+        }
+      }
+    },
+    "/form-service/api/deployment/resource-types" : {
+      "get" : {
+        "tags" : [ "Deployment Resource Types" ],
+        "summary" : "List resource types (DEPRECATED).",
+        "description" : "This endpoint is deprecated. Use `/deployment/api/resource-types` directly from the Catalog Service instead. List all of the resource types in an organization.",
+        "operationId" : "listResourceTypes",
+        "parameters" : [ {
+          "name" : "search",
+          "in" : "query",
+          "description" : "Search by name and description",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "description" : "Zero-based page index (0..N)",
+          "schema" : {
+            "type" : "integer",
+            "default" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "The size of the page to be returned",
+          "schema" : {
+            "type" : "integer",
+            "default" : 20
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with the list of available resource types",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageResourceTypeSpec"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "'Forbidden' no resource action viewer access rights"
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/form-service/api/deployment/resource-types/{id}" : {
+      "get" : {
+        "tags" : [ "Deployment Resource Types" ],
+        "summary" : "Gets resource type by id (DEPRECATED).",
+        "description" : "This endpoint is deprecated. Use `/deployment/api/resource-types/{id}` directly from the Catalog Service instead. Get the resource type for the provided ID in the currently authorized organization",
+        "operationId" : "getResourceType",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with found resource type",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResourceTypeSpec"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "'Forbidden' when the user doesn't have view resource actions privileges"
+          },
+          "404" : {
+            "description" : "'Not Found' if there is no resource type matching the ID in the organization"
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/form-service/api/custom/resource-types/{resourceTypeId}/resource-actions/{resourceActionId}" : {
+      "get" : {
+        "tags" : [ "Custom Resource Types" ],
+        "summary" : "Get resource action for resource type.",
+        "operationId" : "getREsourceActionForCustomResource",
+        "parameters" : [ {
+          "name" : "resourceTypeId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "name" : "resourceActionId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with resource action for specified resource type",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResourceAction"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' if RunnableItem is not in specified format"
+          },
+          "403" : {
+            "description" : "'Forbidden' no forms viewer access rights"
+          },
+          "404" : {
+            "description" : "'Not Found' if there is no action with specified ID"
+          }
+        }
+      }
+    },
+    "/form-service/api/custom/resource-types/{id}" : {
+      "get" : {
+        "tags" : [ "Custom Resource Types" ],
+        "summary" : "Get custom resource type.",
+        "operationId" : "getCustomResourceType",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "name" : "propertiesFormat",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "YAML", "JSON" ]
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with found custom resource type",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CustomResourceType"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "'Bad Request' if ID is not in specified format"
+          },
+          "403" : {
+            "description" : "'Forbidden' no custom resource type viewing rights"
+          },
+          "404" : {
+            "description" : "'Not Found' if there is no custom resource type for the ID"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Custom Resource Types" ],
+        "summary" : "Delete custom resource type.",
+        "operationId" : "deleteCustomResourceType",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with empty body"
+          },
+          "400" : {
+            "description" : "'Bad Request' if ID is not in specified UUID format"
+          },
+          "403" : {
+            "description" : "'Forbidden' no custom resource type managing rights"
+          }
+        }
+      }
+    },
+    "/form-service/api/custom/resource-actions/{id}" : {
+      "get" : {
+        "tags" : [ "Resource Actions" ],
+        "summary" : "Get resource action.",
+        "operationId" : "getResourceAction",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with found ResourceAction",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResourceAction"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "'Forbidden' no resource action viewing rights"
+          },
+          "404" : {
+            "description" : "'Not Found' if there is no ResourceAction for specified ID"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Resource Actions" ],
+        "summary" : "Delete resource action.",
+        "operationId" : "deleteResourceAction",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success' empty body if resource action has been deleted"
+          },
+          "403" : {
+            "description" : "'Forbidden' no resource action managing rights"
+          },
+          "404" : {
+            "description" : "'Not Found' if there is no resource action with specified ID"
+          }
+        }
+      }
+    },
+    "/form-service/api/custom/resource-actions/{id}/runnable-item" : {
+      "get" : {
+        "tags" : [ "Resource Actions" ],
+        "summary" : "Get resource action runnable item.",
+        "operationId" : "getActionRunnableItem",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "includeCrResourceActions",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success' RunnableItem corresponding to the resource action",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RunnableItem"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "'Forbidden' no resource action viewing rights"
+          },
+          "404" : {
+            "description" : "'Not Found' if there is no resource action with specified ID"
+          }
+        }
+      }
+    },
+    "/form-service/api/custom/resource-actions/{id}/form" : {
+      "get" : {
+        "tags" : [ "Resource Actions" ],
+        "summary" : "Get resource action's form",
+        "operationId" : "getActionForm",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with form for ResourceAction with specified ID",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "'Not Found' if there is no resource action for specified ID"
+          },
+          "403" : {
+            "description" : "'Forbidden' no resource action viewer access rights"
+          }
+        }
+      }
+    },
+    "/form-service/api/custom/resource-actions/binding-action" : {
+      "get" : {
+        "tags" : [ "Resource Actions" ],
+        "summary" : "Get binding action for given action resource type and external input type.",
+        "operationId" : "getBindingAction",
+        "parameters" : [ {
+          "name" : "resourceType",
+          "in" : "query",
+          "description" : "The action resource type",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "externalType",
+          "in" : "query",
+          "description" : "The external input type",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success' with the BindingAction for the given resourceTYpe and externalType",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BindingAction"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "'Forbidden' no resource action viewing rights"
+          }
+        }
+      }
+    },
+    "/form-service/api/forms/deleteBySourceAndType" : {
+      "delete" : {
+        "tags" : [ "Form Definition" ],
+        "summary" : "Delete form by source",
+        "description" : "Delete the form with the specified sourceType, sourceId and formType.",
+        "operationId" : "deleteForm_1",
+        "parameters" : [ {
+          "name" : "sourceType",
+          "in" : "query",
+          "description" : "The form source type. It can be 'com.vmw.vro.workflow' or 'resource.action', or 'com.vmw.blueprint.version'.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sourceId",
+          "in" : "query",
+          "description" : "The form source ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "formType",
+          "in" : "query",
+          "description" : "The form type. It can be 'requestForm'.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "'Success'"
+          },
+          "400" : {
+            "description" : "'Bad Request'"
+          },
+          "403" : {
+            "description" : "'Forbidden' when the user has no admin access rights."
+          },
+          "404" : {
+            "description" : "'Not Found' if no form definition is found."
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "FormDefinitionVersionCreate" : {
+        "type" : "object",
+        "properties" : {
+          "sourceType" : {
+            "type" : "string"
+          },
+          "sourceId" : {
+            "type" : "string"
+          },
+          "formType" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "changeLog" : {
+            "type" : "string"
+          }
+        },
+        "description" : "Form definition version creation model"
+      },
+      "JsonNode" : {
+        "type" : "object"
+      },
+      "JsonSchemaImpl" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "enum" : [ "string", "integer", "number", "boolean", "object", "array", "null" ]
+          },
+          "encrypted" : {
+            "type" : "boolean"
+          },
+          "additionalProperties" : {
+            "type" : "boolean"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "writeOnly" : {
+            "type" : "boolean"
+          },
+          "readOnly" : {
+            "type" : "boolean"
+          },
+          "allOf" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/JsonSchemaImpl"
+            }
+          },
+          "anyOf" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/JsonSchemaImpl"
+            }
+          },
+          "oneOf" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/JsonSchemaImpl"
+            }
+          },
+          "not" : {
+            "$ref" : "#/components/schemas/JsonSchemaImpl"
+          },
+          "items" : {
+            "$ref" : "#/components/schemas/ObjectOrListJsonSchemaImpl"
+          },
+          "uniqueItems" : {
+            "type" : "boolean"
+          },
+          "maxItems" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "minItems" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "maximum" : {
+            "type" : "number"
+          },
+          "exclusiveMaximum" : {
+            "type" : "number"
+          },
+          "minimum" : {
+            "type" : "number"
+          },
+          "exclusiveMinimum" : {
+            "type" : "number"
+          },
+          "properties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/JsonSchemaImpl"
+            }
+          },
+          "required" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "maxProperties" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "minProperties" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "patternProperties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/JsonSchemaImpl"
+            }
+          },
+          "maxLength" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "minLength" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "pattern" : {
+            "type" : "string"
+          },
+          "format" : {
+            "type" : "string"
+          },
+          "formatMinimum" : {
+            "type" : "string"
+          },
+          "formatMaximum" : {
+            "type" : "string"
+          },
+          "enum" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/JsonNode"
+            }
+          },
+          "const" : {
+            "$ref" : "#/components/schemas/JsonNode"
+          },
+          "default" : {
+            "$ref" : "#/components/schemas/JsonNode"
+          },
+          "$ref" : {
+            "type" : "string"
+          },
+          "$data" : {
+            "type" : "string"
+          },
+          "$dynamicDefault" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ObjectOrListJsonSchemaImpl" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "$ref" : "#/components/schemas/JsonSchemaImpl"
+          },
+          "singleton" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "RendererModelResponse" : {
+        "type" : "object",
+        "properties" : {
+          "model" : {
+            "type" : "string"
+          },
+          "styles" : {
+            "type" : "string"
+          },
+          "formStatus" : {
+            "type" : "string",
+            "enum" : [ "off", "on", "invalid", "generated" ]
+          },
+          "executionItemId" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ComplexTypeField" : {
+        "type" : "object",
+        "properties" : {
+          "label" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "signpost" : {
+            "type" : "string"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/FormSchemaFieldType"
+          },
+          "step" : {
+            "type" : "number",
+            "format" : "float"
+          },
+          "default" : {
+            "type" : "object"
+          },
+          "valueList" : {
+            "type" : "object"
+          },
+          "placeholder" : {
+            "type" : "string"
+          },
+          "constraints" : {
+            "$ref" : "#/components/schemas/Constraints"
+          },
+          "refresh" : {
+            "$ref" : "#/components/schemas/Refresh"
+          },
+          "shortValueName" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "valueTree" : {
+            "type" : "object"
+          }
+        }
+      },
+      "Constraints" : {
+        "type" : "object",
+        "properties" : {
+          "matchConstraint" : {
+            "$ref" : "#/components/schemas/MatchConstraint"
+          },
+          "constraints" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          }
+        }
+      },
+      "FormExternalDataParameter" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          },
+          "useResultFromRequestId" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "FormExternalDataRequest" : {
+        "type" : "object",
+        "properties" : {
+          "uri" : {
+            "type" : "string"
+          },
+          "dataSource" : {
+            "type" : "string"
+          },
+          "parameters" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FormExternalDataParameter"
+            }
+          },
+          "fieldType" : {
+            "$ref" : "#/components/schemas/FormSchemaFieldType"
+          },
+          "requestId" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "contextParameters" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "externalSourceProviderType" : {
+            "type" : "string",
+            "enum" : [ "orchestrator", "ABX" ]
+          }
+        }
+      },
+      "FormSchemaFieldType" : {
+        "type" : "object",
+        "properties" : {
+          "dataType" : {
+            "type" : "string",
+            "enum" : [ "string", "secureString", "integer", "decimal", "boolean", "reference", "complex", "dateTime", "file" ]
+          },
+          "referenceType" : {
+            "type" : "string"
+          },
+          "fields" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ComplexTypeField"
+            }
+          },
+          "isMultiple" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "MatchConstraint" : {
+        "type" : "object",
+        "properties" : {
+          "match" : {
+            "type" : "object"
+          }
+        }
+      },
+      "Refresh" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          }
+        }
+      },
+      "FormExternalDataError" : {
+        "type" : "object",
+        "properties" : {
+          "summaryMessage" : {
+            "type" : "string"
+          },
+          "detailsMessage" : {
+            "type" : "string"
+          }
+        }
+      },
+      "FormExternalDataResponse" : {
+        "type" : "object",
+        "properties" : {
+          "data" : {
+            "type" : "object"
+          },
+          "error" : {
+            "$ref" : "#/components/schemas/FormExternalDataError"
+          },
+          "requestId" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "ActionParameter" : {
+        "type" : "object",
+        "properties" : {
+          "$type" : {
+            "$ref" : "#/components/schemas/FormSchemaFieldType"
+          },
+          "parameterMap" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          }
+        }
+      },
+      "ExternalValidationContext" : {
+        "type" : "object",
+        "properties" : {
+          "externalValidations" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ExternalValidationElement"
+            }
+          },
+          "context" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/FormElementContext"
+            }
+          }
+        }
+      },
+      "ExternalValidationElement" : {
+        "type" : "object",
+        "properties" : {
+          "label" : {
+            "type" : "string"
+          },
+          "source" : {
+            "$ref" : "#/components/schemas/ExternalValueSource"
+          },
+          "target" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "ExternalValueSource" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "scriptAction", "inventory", "inventoryTree", "systemAction", "dynamic" ]
+          },
+          "parameters" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ActionParameter"
+            }
+          },
+          "isPageable" : {
+            "type" : "boolean"
+          },
+          "externalSourceProviderType" : {
+            "type" : "string",
+            "enum" : [ "orchestrator", "ABX" ]
+          }
+        }
+      },
+      "FormElementContext" : {
+        "type" : "object",
+        "properties" : {
+          "dataType" : {
+            "type" : "string",
+            "enum" : [ "string", "secureString", "integer", "decimal", "boolean", "reference", "complex", "dateTime", "file" ]
+          },
+          "value" : {
+            "type" : "string"
+          }
+        }
+      },
+      "FormValidationMessage" : {
+        "type" : "object",
+        "properties" : {
+          "fieldId" : {
+            "type" : "string"
+          },
+          "severity" : {
+            "type" : "string",
+            "enum" : [ "error", "warn", "info" ]
+          },
+          "validationType" : {
+            "type" : "string",
+            "enum" : [ "MANDATORY_FIELD", "ORPHAN_FIELD", "CONSTRAINT_VIOLATION", "DATA_TYPE_AND_DISPLAY_MISMATCH", "FIELD_DEFINITION_MISMATCH", "NOT_SUPPORTED_FIELD_TYPE", "SCHEMA_AND_DEFAULT_VALUE_STRUCTURE_MISMATCH", "EXTERNAL_VALIDATION", "DEFAULT_VALUE_MISSING_REQUIRED_FIELDS" ]
+          },
+          "message" : {
+            "type" : "string"
+          }
+        }
+      },
+      "FormExtValueItem" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          }
+        }
+      },
+      "FormExtValueRequest" : {
+        "type" : "object",
+        "properties" : {
+          "item" : {
+            "$ref" : "#/components/schemas/FormExtValueItem"
+          },
+          "filter" : {
+            "type" : "string"
+          },
+          "valueSource" : {
+            "$ref" : "#/components/schemas/ExternalValueSource"
+          },
+          "valueType" : {
+            "$ref" : "#/components/schemas/FormSchemaFieldType"
+          },
+          "context" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/FormElementContext"
+            }
+          },
+          "projectId" : {
+            "type" : "string"
+          }
+        }
+      },
+      "FormExtValueResponse" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "totalCount" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "error" : {
+            "type" : "string"
+          }
+        }
+      },
+      "FormReference" : {
+        "type" : "object",
+        "properties" : {
+          "formId" : {
+            "type" : "string",
+            "format" : "uuid",
+            "deprecated" : true
+          },
+          "elementId" : {
+            "type" : "string"
+          },
+          "sourceType" : {
+            "type" : "string"
+          },
+          "sourceId" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          }
+        }
+      },
+      "FormStatusResponse" : {
+        "type" : "object",
+        "properties" : {
+          "formId" : {
+            "type" : "string",
+            "format" : "uuid",
+            "deprecated" : true
+          },
+          "elementId" : {
+            "type" : "string"
+          },
+          "sourceType" : {
+            "type" : "string"
+          },
+          "sourceId" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "off", "on", "invalid", "generated" ]
+          },
+          "containsUnapprovedUnvalidatableActions" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "Binding" : {
+        "type" : "object",
+        "properties" : {
+          "inputKey" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/FormSchemaFieldType"
+          },
+          "bindingAction" : {
+            "$ref" : "#/components/schemas/BindingAction"
+          }
+        }
+      },
+      "BindingAction" : {
+        "type" : "object",
+        "properties" : {
+          "actionName" : {
+            "type" : "string"
+          },
+          "actionInputs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Binding"
+            }
+          }
+        }
+      },
+      "RunnableItem" : {
+        "required" : [ "id", "type" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "projectId" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "inputParameters" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RunnableItemParameter"
+            }
+          },
+          "outputParameters" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RunnableItemParameter"
+            }
+          },
+          "endpointLink" : {
+            "type" : "string"
+          },
+          "inputBindings" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Binding"
+            }
+          }
+        },
+        "description" : "Runnable item"
+      },
+      "RunnableItemParameter" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ExternalSourceFormSchema" : {
+        "type" : "object",
+        "properties" : {
+          "externalSourceId" : {
+            "type" : "string"
+          },
+          "parentId" : {
+            "type" : "string"
+          },
+          "elementId" : {
+            "type" : "string"
+          },
+          "elementType" : {
+            "type" : "string",
+            "enum" : [ "PAGE", "CANVAS_FIELD", "NESTED_FIELD", "EXTERNAL_VALIDATION" ]
+          },
+          "facet" : {
+            "type" : "string",
+            "enum" : [ "default", "fields", "valueList", "step", "pattern", "match", "max-value", "min-value", "required", "signpost", "label", "placeholder", "referenceType", "dataType", "read-only", "visible", "display" ]
+          },
+          "parameters" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Parameter"
+            }
+          }
+        }
+      },
+      "FormDefinitionWithExternalSchema" : {
+        "required" : [ "name", "status" ],
+        "type" : "object",
+        "properties" : {
+          "tenant" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "form" : {
+            "type" : "string"
+          },
+          "styles" : {
+            "type" : "string"
+          },
+          "sourceType" : {
+            "type" : "string"
+          },
+          "sourceId" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "off", "on", "invalid", "generated" ]
+          },
+          "createdDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "modifiedDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "formFormat" : {
+            "type" : "string",
+            "enum" : [ "YAML", "JSON" ]
+          },
+          "providerRef" : {
+            "type" : "string"
+          },
+          "externalSourceFormSchemas" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ExternalSourceFormSchema"
+            }
+          }
+        }
+      },
+      "Parameter" : {
+        "type" : "object",
+        "properties" : {
+          "validatable" : {
+            "type" : "boolean"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "isValidatable" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "FormExtValueSourceSearchRequest" : {
+        "type" : "object",
+        "properties" : {
+          "filter" : {
+            "type" : "string"
+          },
+          "externalSource" : {
+            "type" : "string",
+            "enum" : [ "scriptAction" ]
+          },
+          "valueType" : {
+            "$ref" : "#/components/schemas/FormSchemaFieldType"
+          },
+          "resultSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "FormExtSourceParamSpec" : {
+        "type" : "object",
+        "properties" : {
+          "paramName" : {
+            "type" : "string"
+          },
+          "paramType" : {
+            "$ref" : "#/components/schemas/FormSchemaFieldType"
+          }
+        }
+      },
+      "FormExtValueSourceSearchResponse" : {
+        "type" : "object",
+        "properties" : {
+          "resultSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "resultMaxSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "resultTotalSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "result" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FormExtValueSourceSpec"
+            }
+          },
+          "partialResult" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "FormExtValueSourceSpec" : {
+        "type" : "object",
+        "properties" : {
+          "fqn" : {
+            "type" : "string"
+          },
+          "resultType" : {
+            "$ref" : "#/components/schemas/FormSchemaFieldType"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "inputParameters" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FormExtSourceParamSpec"
+            }
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "category" : {
+            "type" : "string"
+          }
+        }
+      },
+      "FormDefinition" : {
+        "required" : [ "name", "status" ],
+        "type" : "object",
+        "properties" : {
+          "tenant" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "form" : {
+            "type" : "string"
+          },
+          "styles" : {
+            "type" : "string"
+          },
+          "sourceType" : {
+            "type" : "string"
+          },
+          "sourceId" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "off", "on", "invalid", "generated" ]
+          },
+          "createdDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "modifiedDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "formFormat" : {
+            "type" : "string",
+            "enum" : [ "YAML", "JSON" ]
+          },
+          "providerRef" : {
+            "type" : "string"
+          }
+        },
+        "description" : "Form definition object"
+      },
+      "ObjectOrListProviderSchemaImpl" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "$ref" : "#/components/schemas/ProviderSchemaImpl"
+          },
+          "singleton" : {
+            "type" : "boolean"
+          },
+          "values" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ProviderSchemaImpl"
+            }
+          }
+        }
+      },
+      "ProviderSchemaImpl" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "enum" : [ "string", "integer", "number", "boolean", "object", "array", "null" ]
+          },
+          "encrypted" : {
+            "type" : "boolean"
+          },
+          "additionalProperties" : {
+            "type" : "boolean"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "writeOnly" : {
+            "type" : "boolean"
+          },
+          "readOnly" : {
+            "type" : "boolean"
+          },
+          "anyOf" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ProviderSchemaImpl"
+            }
+          },
+          "oneOf" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ProviderSchemaImpl"
+            }
+          },
+          "not" : {
+            "$ref" : "#/components/schemas/ProviderSchemaImpl"
+          },
+          "items" : {
+            "$ref" : "#/components/schemas/ObjectOrListProviderSchemaImpl"
+          },
+          "uniqueItems" : {
+            "type" : "boolean"
+          },
+          "maxItems" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "minItems" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "maximum" : {
+            "type" : "number"
+          },
+          "exclusiveMaximum" : {
+            "type" : "number"
+          },
+          "minimum" : {
+            "type" : "number"
+          },
+          "exclusiveMinimum" : {
+            "type" : "number"
+          },
+          "properties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/ProviderSchemaImpl"
+            }
+          },
+          "required" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "maxProperties" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "minProperties" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "patternProperties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/ProviderSchemaImpl"
+            }
+          },
+          "maxLength" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "minLength" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "pattern" : {
+            "type" : "string"
+          },
+          "format" : {
+            "type" : "string"
+          },
+          "formatMinimum" : {
+            "type" : "string"
+          },
+          "formatMaximum" : {
+            "type" : "string"
+          },
+          "computed" : {
+            "type" : "boolean"
+          },
+          "recreateOnUpdate" : {
+            "type" : "boolean"
+          },
+          "ignoreOnUpdate" : {
+            "type" : "boolean"
+          },
+          "ignoreCaseOnDiff" : {
+            "type" : "boolean"
+          },
+          "dependencies" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              }
+            }
+          },
+          "enum" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/JsonNode"
+            }
+          },
+          "const" : {
+            "$ref" : "#/components/schemas/JsonNode"
+          },
+          "default" : {
+            "$ref" : "#/components/schemas/JsonNode"
+          },
+          "$data" : {
+            "type" : "string"
+          },
+          "$dynamicDefault" : {
+            "type" : "string"
+          },
+          "metadata" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          }
+        }
+      },
+      "FormLayout" : {
+        "type" : "object",
+        "properties" : {
+          "pages" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FormLayoutPage"
+            }
+          }
+        }
+      },
+      "FormLayoutField" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "display" : {
+            "type" : "string",
+            "enum" : [ "text", "textArea", "textField", "passwordField", "decimalField", "integerField", "dropDown", "checkbox", "radio", "datagrid", "objectField", "image", "multiSelect", "dualList", "valuePicker", "multiValuePicker", "valuePickerTree", "combobox", "dateTime", "link", "fileUpload", "array" ]
+          },
+          "nestedFields" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FormLayoutFieldObject"
+            }
+          },
+          "styles" : {
+            "type" : "string"
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/State"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "submit" : {
+            "type" : "boolean"
+          },
+          "signpostPosition" : {
+            "type" : "string"
+          }
+        }
+      },
+      "FormLayoutFieldObject" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "display" : {
+            "type" : "string",
+            "enum" : [ "text", "textArea", "textField", "passwordField", "decimalField", "integerField", "dropDown", "checkbox", "radio", "datagrid", "objectField", "image", "multiSelect", "dualList", "valuePicker", "multiValuePicker", "valuePickerTree", "combobox", "dateTime", "link", "fileUpload", "array" ]
+          },
+          "styles" : {
+            "type" : "string"
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/State"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "submit" : {
+            "type" : "boolean"
+          },
+          "signpostPosition" : {
+            "type" : "string"
+          }
+        }
+      },
+      "FormLayoutPage" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "sections" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FormLayoutSection"
+            }
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/State"
+          }
+        }
+      },
+      "FormLayoutSchema" : {
+        "type" : "object",
+        "properties" : {
+          "layout" : {
+            "$ref" : "#/components/schemas/FormLayout"
+          },
+          "schema" : {
+            "$ref" : "#/components/schemas/FormSchema"
+          },
+          "messages" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FormValidationMessage"
+            }
+          },
+          "options" : {
+            "$ref" : "#/components/schemas/Options"
+          }
+        }
+      },
+      "FormLayoutSection" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "collapsed" : {
+            "type" : "boolean"
+          },
+          "fields" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FormLayoutField"
+            }
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/State"
+          },
+          "isExpandable" : {
+            "type" : "boolean"
+          },
+          "isVertical" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "FormSchema" : {
+        "type" : "object",
+        "properties" : {
+          "fields" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/FormSchemaField"
+            }
+          }
+        }
+      },
+      "FormSchemaField" : {
+        "type" : "object",
+        "properties" : {
+          "label" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "signpost" : {
+            "type" : "string"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/FormSchemaFieldType"
+          },
+          "step" : {
+            "type" : "number",
+            "format" : "float"
+          },
+          "default" : {
+            "type" : "object"
+          },
+          "valueList" : {
+            "type" : "object"
+          },
+          "placeholder" : {
+            "type" : "string"
+          },
+          "constraints" : {
+            "$ref" : "#/components/schemas/Constraints"
+          },
+          "refresh" : {
+            "$ref" : "#/components/schemas/Refresh"
+          },
+          "shortValueName" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "valueTree" : {
+            "type" : "object"
+          }
+        }
+      },
+      "Options" : {
+        "type" : "object",
+        "properties" : {
+          "externalValidations" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ExternalValidationElement"
+            }
+          }
+        }
+      },
+      "ReadonlyStateObject" : {
+        "type" : "object",
+        "properties" : {
+          "read-only" : {
+            "type" : "object"
+          }
+        }
+      },
+      "State" : {
+        "type" : "object",
+        "properties" : {
+          "readonlyState" : {
+            "$ref" : "#/components/schemas/ReadonlyStateObject"
+          },
+          "visibilityState" : {
+            "$ref" : "#/components/schemas/VisibilityStateObject"
+          },
+          "states" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          }
+        }
+      },
+      "VisibilityStateObject" : {
+        "type" : "object",
+        "properties" : {
+          "visible" : {
+            "type" : "object"
+          }
+        }
+      },
+      "Clause" : {
+        "type" : "object"
+      },
+      "Criteria" : {
+        "type" : "object",
+        "properties" : {
+          "matchExpression" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Clause"
+            }
+          }
+        }
+      },
+      "CustomResourcePropertyBindings" : {
+        "type" : "object",
+        "properties" : {
+          "readPropertyBindings" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PropertyBinding"
+            }
+          },
+          "updatePropertyBindings" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PropertyBinding"
+            }
+          },
+          "deletePropertyBindings" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PropertyBinding"
+            }
+          }
+        }
+      },
+      "CustomResourceType" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "resourceType" : {
+            "type" : "string"
+          },
+          "externalType" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "released", "draft" ]
+          },
+          "orgId" : {
+            "type" : "string"
+          },
+          "projectId" : {
+            "type" : "string"
+          },
+          "mainActions" : {
+            "$ref" : "#/components/schemas/MainResourceActions"
+          },
+          "additionalActions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ResourceAction"
+            }
+          },
+          "properties" : {
+            "$ref" : "#/components/schemas/ProviderSchemaImpl"
+          },
+          "schemaType" : {
+            "type" : "string"
+          },
+          "propertyBindings" : {
+            "$ref" : "#/components/schemas/CustomResourcePropertyBindings"
+          },
+          "propertiesYaml" : {
+            "type" : "string",
+            "deprecated" : true
+          }
+        },
+        "description" : "The custom resource type"
+      },
+      "MainResourceActions" : {
+        "type" : "object",
+        "properties" : {
+          "allocate" : {
+            "$ref" : "#/components/schemas/RunnableItem"
+          },
+          "create" : {
+            "$ref" : "#/components/schemas/RunnableItem"
+          },
+          "read" : {
+            "$ref" : "#/components/schemas/RunnableItem"
+          },
+          "update" : {
+            "$ref" : "#/components/schemas/RunnableItem"
+          },
+          "delete" : {
+            "$ref" : "#/components/schemas/RunnableItem"
+          }
+        }
+      },
+      "PropertyBinding" : {
+        "type" : "object",
+        "properties" : {
+          "schemaPropertyName" : {
+            "type" : "string"
+          },
+          "workflowInputOrOutputName" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ResourceAction" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "providerName" : {
+            "type" : "string"
+          },
+          "resourceType" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "released", "draft" ]
+          },
+          "projectId" : {
+            "type" : "string"
+          },
+          "orgId" : {
+            "type" : "string"
+          },
+          "runnableItem" : {
+            "$ref" : "#/components/schemas/RunnableItem"
+          },
+          "formDefinition" : {
+            "$ref" : "#/components/schemas/FormDefinitionWithExternalSchema"
+          },
+          "criteria" : {
+            "$ref" : "#/components/schemas/Criteria"
+          }
+        },
+        "description" : "The resource action"
+      },
+      "Data" : {
+        "type" : "object",
+        "properties" : {
+          "entries" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Entry"
+            }
+          }
+        }
+      },
+      "Entry" : {
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "type" : "string"
+          },
+          "value" : {
+            "$ref" : "#/components/schemas/Value"
+          }
+        }
+      },
+      "Value" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "type" : "object"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/FormSchemaFieldType"
+          }
+        }
+      },
+      "FormDefinitionVersion" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "createdDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "createdBy" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "changeLog" : {
+            "type" : "string"
+          },
+          "form" : {
+            "$ref" : "#/components/schemas/FormLayoutSchema"
+          },
+          "styles" : {
+            "type" : "string"
+          }
+        }
+      },
+      "PageFormDefinitionVersion" : {
+        "type" : "object",
+        "properties" : {
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FormDefinitionVersion"
+            }
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/Sort"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "PageableObject" : {
+        "type" : "object",
+        "properties" : {
+          "paged" : {
+            "type" : "boolean"
+          },
+          "pageNumber" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "offset" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/Sort"
+          },
+          "unpaged" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "Sort" : {
+        "type" : "object",
+        "properties" : {
+          "sorted" : {
+            "type" : "boolean"
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "unsorted" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "FormAndVersionSearchResult" : {
+        "type" : "object",
+        "properties" : {
+          "formId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "formName" : {
+            "type" : "string"
+          },
+          "sourceType" : {
+            "type" : "string"
+          },
+          "imported" : {
+            "type" : "boolean"
+          },
+          "versionId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "versionName" : {
+            "type" : "string"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "form" : {
+            "$ref" : "#/components/schemas/FormLayoutSchema"
+          },
+          "styles" : {
+            "type" : "string"
+          }
+        }
+      },
+      "PageFormAndVersionSearchResult" : {
+        "type" : "object",
+        "properties" : {
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FormAndVersionSearchResult"
+            }
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/Sort"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "Attribute" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          },
+          "displayValue" : {
+            "type" : "object"
+          }
+        }
+      },
+      "VroResourceLink" : {
+        "type" : "object",
+        "properties" : {
+          "href" : {
+            "type" : "string",
+            "description" : "URL reference"
+          },
+          "attributes" : {
+            "type" : "array",
+            "description" : "Array of attribute objects",
+            "items" : {
+              "$ref" : "#/components/schemas/Attribute"
+            }
+          }
+        },
+        "description" : "vRO resource link with href and attributes"
+      },
+      "PageResourceTypeSpec" : {
+        "type" : "object",
+        "properties" : {
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ResourceTypeSpec"
+            }
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/Sort"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "ResourceTypeSpec" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "operations" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "validate", "allocate", "create", "read", "update", "delete", "action", "cancel" ]
+            }
+          },
+          "schema" : {
+            "$ref" : "#/components/schemas/ProviderSchemaImpl"
+          },
+          "providerId" : {
+            "type" : "string"
+          },
+          "orgId" : {
+            "type" : "string"
+          },
+          "projectId" : {
+            "type" : "string"
+          },
+          "restrictToSingleInstance" : {
+            "type" : "boolean"
+          },
+          "supportedTenancyTypes" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "CLASSIC", "MODERN" ]
+            }
+          }
+        }
+      },
+      "PageCustomResourceType" : {
+        "type" : "object",
+        "properties" : {
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CustomResourceType"
+            }
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/Sort"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "PageResourceAction" : {
+        "type" : "object",
+        "properties" : {
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ResourceAction"
+            }
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "$ref" : "#/components/schemas/Sort"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "Authorization" : {
+        "type" : "apiKey",
+        "name" : "Authorization",
+        "in" : "header"
+      }
+    }
+  }
+}

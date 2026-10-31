@@ -1,0 +1,5018 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "Identity Service API",
+    "description" : "A list of identity, account and service management APIs.",
+    "license" : {
+      "name" : "Copyright (c) 2022-2025 Broadcom, Inc. All Rights Reserved.",
+      "url" : "https://www.vmware.com/cloud-solutions.html"
+    },
+    "version" : "1.6.6"
+  },
+  "servers" : [ {
+    "url" : "https://vcfa.example.com",
+    "description" : "Generated server url"
+  } ],
+  "security" : [ {
+    "Authorization" : [ ]
+  } ],
+  "paths" : {
+    "/csp/gateway/am/api/loggedin/user/profile/locale-preferences" : {
+      "put" : {
+        "tags" : [ "PrincipalUserController" ],
+        "summary" : "Update the currently logged in user's locale preferences. Note that only language field will be saved.",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/preferences/internal:localLanguage\n\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "updateUserPreferences",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UserLocaleRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserLocaleRequest"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid request body.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserLocaleRequest"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserLocaleRequest"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/v2/users/search" : {
+      "post" : {
+        "tags" : [ "UserV2Controller" ],
+        "summary" : "Search users in idp by names and email",
+        "description" : "### Use this API instead:\n * /scim/v2/Users\n\nSearch users in the corresponding organization in idp by names and email.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "searchUsersInIdpByNamesAndEmail",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SearchUsersInIdpRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedPostResponseBaseUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedPostResponseBaseUser"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/login" : {
+      "post" : {
+        "tags" : [ "LoginController" ],
+        "summary" : "Login.",
+        "description" : "### Use this API instead:\n * /oauth/tenant/{{tenant name}}/token\n\nPerforms login.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Anonymous | &#x2714;&#xFE0F; |\n",
+        "operationId" : "login",
+        "parameters" : [ {
+          "name" : "access_token",
+          "in" : "query",
+          "description" : "When this parameter is present, the response will contain refresh token.",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Wrong username or password.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/login/oauth" : {
+      "post" : {
+        "tags" : [ "LoginController" ],
+        "summary" : "Get Access token.",
+        "description" : "### Use this API instead:\n * /oidc/oauth2/token\n\nAn alias of the AuthenticationController's get access token method.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Anonymous | &#x2714;&#xFE0F; |\n",
+        "operationId" : "loginOauth",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AuthorizationRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessToken"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid request body.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessToken"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/auth/token" : {
+      "post" : {
+        "tags" : [ "AuthenticationController" ],
+        "summary" : "Exchanges one of the following grants: authorization_code or refresh_token for access token.",
+        "description" : "### Use this API instead:\n * /oidc/oauth2/token\n\nThis end-point exchanges one of the following grants: authorization_code, refresh_token, <s>client_credentials</s> for an access token.\n1. Include the parameters using application/x-www-form-urlencoded format in the HTTP request body.\n2. Include Basic Base64_Encode(client_id:client_secret) value in the HTTP authorization header.\nOrganization ID parameter notes: when organization id is missing from the request the default organization will be used.\n3. Upon password grant type, user default organization will be set if available.\n4. <s>Upon client_credentials grant type, the organization who own the client will be set if available.</s>\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Anonymous | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getAccessToken_PkceFlow",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "Basic auth client credentials [Basic Base64_Encode(client_id:client_secret)].<br><strong>Example:</strong> <i>authorization: Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=</i><br>Decoding this string will literally return client_id:client_secret.<br><br>Note: when using <strong>Public OAuth clients</strong>, Authorization is required using the format 'Basic Base64_Encode(client_id:)' with empty client_secret.\n",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "The application/x-www-form-urlencoded form data type.",
+          "content" : {
+            "application/x-www-form-urlencoded" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PkceFlowAuthorizationRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessToken"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid request body (In case of expired refresh_token). | Invalid authorization header (In case of client credentials).",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessToken"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Client is forbidden for delegation.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessToken"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Organization with this identifier is not found. ",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessToken"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/auth/logout" : {
+      "post" : {
+        "tags" : [ "AuthenticationController" ],
+        "summary" : "Performs logout.",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/sessions/current\n\nPerforms a logout by invalidating the supplied token (if supplied) and returning an URL to navigate to. The token to invalidate is taken from the ex-identity-auth-token header.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Anonymous | &#x2714;&#xFE0F; |\n",
+        "operationId" : "logout",
+        "parameters" : [ {
+          "name" : "The access token to be invalidated.",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UrlResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid request body",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UrlResponse"
+                }
+              }
+            }
+          },
+          "415" : {
+            "description" : "Unsupported media type",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UrlResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/auth/authorize" : {
+      "post" : {
+        "tags" : [ "AuthenticationController" ],
+        "summary" : "Get an access token.",
+        "description" : "### Use this API instead:\n * /oidc/oauth2/token\n\nExchange authorization code, refresh token or <s>client_credentials</s> to user access token.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Anonymous | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getAccessToken_withAuthorizationRequest",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AuthorizationRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessToken"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid request body.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessToken"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/auth/api-tokens/authorize" : {
+      "post" : {
+        "tags" : [ "AuthenticationController" ],
+        "summary" : "Exchange organization scoped API-token for user access token.",
+        "description" : "### Use this API instead:\n * /oidc/oauth2/token\n\n**To obtain the access token please follow the steps described in the official product documentation. Using the token generated by the Identity Service API alone will not work due to a missing internal state.**<br>DEPRECATED: Passing the refresh_token param name, need to use api_token.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Anonymous | &#x2714;&#xFE0F; |\n",
+        "externalDocs" : {
+          "description" : "For more info on how to retrieve your Access Token check the official documentation.",
+          "url" : "https://developer.vmware.com/docs/18202//GUID-AC1E4407-6139-412A-B4AA-1F102942EA94.html"
+        },
+        "operationId" : "getAccessToken_withRefreshToken",
+        "requestBody" : {
+          "description" : "The application/x-www-form-urlencoded form data type.",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AuthorizationByRefreshTokenRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessToken"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid request body.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessToken"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/v3/users/{userId}/orgs/{orgId}/roles" : {
+      "patch" : {
+        "tags" : [ "UserV3Controller" ],
+        "summary" : "(BETA) Update user roles in organization.",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/users/{{userUrn}}\n\nUpdate service and organization roles of a user in the organization.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "patchUserRolesOnOrganization",
+        "parameters" : [ {
+          "name" : "userId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateMemberRolesRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API."
+          },
+          "403" : {
+            "description" : "The organization is not found."
+          },
+          "404" : {
+            "description" : "The user is not found."
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/users/{userId}/orgs/{orgId}/service-roles" : {
+      "get" : {
+        "tags" : [ "UserController" ],
+        "summary" : "Get the user's service roles.",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/users/{{userUrn}}\n\nCurrently one user can belong to exactly one organization.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "getUserServiceRolesInOrganization_1",
+        "parameters" : [ {
+          "name" : "userId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "serviceDefinitionLink",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserServiceRoles"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserServiceRoles"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The user is not found.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserServiceRoles"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      },
+      "patch" : {
+        "tags" : [ "UserController" ],
+        "summary" : "Edit the user's service roles.",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/users/{{userUrn}}\n\nCurrently one user can belong to exactly one organization.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "patchUserServiceRolesInOrganization",
+        "parameters" : [ {
+          "name" : "userId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UserServiceRolesUpdateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Invalid request body."
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API."
+          },
+          "403" : {
+            "description" : "The organization is not found."
+          },
+          "404" : {
+            "description" : "The user is not found."
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/users/{userId}/orgs/{orgId}/roles" : {
+      "get" : {
+        "tags" : [ "UserController" ],
+        "summary" : "Get the user's roles.",
+        "description" : "### Use this API instead: \n * /scim/v2/Users/{{userUrn}}\n\nCurrently one user can belong to exactly one organization.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "getUserRolesInOrganization_1",
+        "parameters" : [ {
+          "name" : "userId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RoleResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RoleResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The user is not found.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RoleResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      },
+      "patch" : {
+        "tags" : [ "UserController" ],
+        "summary" : "Edit the user's roles.",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/users/{{userUrn}}\n\nCurrently one user can belong to exactly one organization.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "patchUserRolesInOrganization",
+        "parameters" : [ {
+          "name" : "userId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateRolesRequestBaseRoleBinding"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UpdateRolesRequestBaseRoleBinding"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UpdateRolesRequestBaseRoleBinding"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "The organization is not found.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UpdateRolesRequestBaseRoleBinding"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The user is not found.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UpdateRolesRequestBaseRoleBinding"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/orgs/{orgId}" : {
+      "get" : {
+        "tags" : [ "OrganizationController" ],
+        "summary" : "Read an organization.",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/orgs\n\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getById",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OrganizationResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OrganizationResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The organization is not found.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OrganizationResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      },
+      "patch" : {
+        "tags" : [ "OrganizationController" ],
+        "summary" : "Update organization details.",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/orgs\n\nNOTE: At the moment we only allow for displayName change.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "patchOrg",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/OrganizationResponse"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RefLink"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid request body.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RefLink"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RefLink"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/orgs/{orgId}/roles" : {
+      "get" : {
+        "tags" : [ "OrganizationController" ],
+        "summary" : "Get Organization Roles",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/roles\n\nGet list of organization roles.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getOrgRoles",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "description" : "Unique identifier (GUID) of the organization.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "name",
+          "in" : "query",
+          "description" : "Role name (or comma separated list of role names",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "expand",
+          "in" : "query",
+          "description" : "Indicates if response should be expanded, value is ignored - only existence of parameter is checked",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OrganizationRolesResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OrganizationRolesResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      },
+      "patch" : {
+        "tags" : [ "OrganizationController" ],
+        "summary" : "Edit roles.",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/users\n\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "patchOrgRoles",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UsersRolesPatchRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserRolePatchResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid request body.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserRolePatchResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserRolePatchResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/orgs/{orgId}/groups/{groupId}/roles" : {
+      "get" : {
+        "tags" : [ "OrganizationGroupsController" ],
+        "summary" : "Get Group Roles On Organization",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/groups/{{groupUrn}}\n\nGet roles of a group within organization.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "getGroupRolesOnOrganization",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "description" : "Unique identifier (GUID) of the organization.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "groupId",
+          "in" : "path",
+          "description" : "Unique identifier of the group.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GroupRolesResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid request parameters.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GroupRolesResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GroupRolesResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      },
+      "patch" : {
+        "tags" : [ "OrganizationGroupsController" ],
+        "summary" : "Update Group Roles On Organization",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/groups/{{groupUrn}}\n\nUpdate roles of a group within organization.<br>Note: Email notification for updating group roles of group is disabled by the Identity Service.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "updateGroupRolesOnOrganization",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "description" : "Unique identifier (GUID) of the organization.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "groupId",
+          "in" : "path",
+          "description" : "Unique identifier of the group.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateGroupRolesRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Invalid request body."
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API."
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/loggedin/user/profile" : {
+      "get" : {
+        "tags" : [ "PrincipalUserController" ],
+        "summary" : "Get the currently logged in user's profile.",
+        "description" : "### Use this API instead:\n * /cloudapi/vcf/preferences\n\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getPrincipalUserProfile",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserProfileResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserProfileResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      },
+      "patch" : {
+        "tags" : [ "PrincipalUserController" ],
+        "summary" : "Update the currently logged in user's profile attributes.",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/preferences/internal:localLanguage\n\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "updateUserProfile",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateUserProfileRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Invalid request body."
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API."
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/v2/orgs/{orgId}/users" : {
+      "get" : {
+        "tags" : [ "OrganizationUsersController" ],
+        "summary" : "Paginates search for user.",
+        "description" : "### Use these APIs instead:\n * /cloudapi/1.0.0/users\n * /cloudapi/1.0.0/users/{{userUrn}}/preferences\n* /scim/v2/Groups\n\n Get response encapsulating organization users.\n\nFetched page is according to the page start and page limit passed as optional parameters. Defaults to page size of 20 and start from the first page. Note that <code>pageStart</code> is 1-based index.\n\nWe are currently not supporting the optional <code>serviceDefinitionId</code> which is to filter users having access to a service in CSP.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "getPaginatedOrgUsersInfo",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "description" : "Unique identifier (GUID) of the organization.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "serviceDefinitionId",
+          "in" : "query",
+          "description" : "Service definition id used to filter users having access to the service.",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pageStart",
+          "in" : "query",
+          "description" : "Specifies the index that the set of results will begin with.",
+          "required" : false,
+          "schema" : {
+            "minimum" : 1,
+            "type" : "integer",
+            "default" : 1
+          }
+        }, {
+          "name" : "pageLimit",
+          "in" : "query",
+          "description" : "Specifies the maximum results per page for every call.",
+          "required" : false,
+          "schema" : {
+            "maximum" : 128,
+            "minimum" : 1,
+            "type" : "integer",
+            "default" : 128
+          }
+        }, {
+          "name" : "expandProfile",
+          "in" : "query",
+          "description" : "Indicates if the response should be expanded with the user profile, the value is ignored, only the existence of parameter is checked.",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "includeGroupIdsInRoles",
+          "in" : "query",
+          "description" : "Indicates if the inherited roles in the response should indicate group information, the value is ignored, only the existence of parameter is checked.",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseExpandedTypedUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseExpandedTypedUser"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/orgs/{orgId}/users" : {
+      "get" : {
+        "tags" : [ "OrganizationUsersController" ],
+        "summary" : "Paginates search for user.",
+        "description" : "### Use these APIs instead:\n * /cloudapi/1.0.0/users\n * /cloudapi/1.0.0/users/{{userUrn}}/preferences\n* /scim/v2/Groups\n\n Get response encapsulating organization users.\n\nFetched page is according to the page start and page limit passed as optional parameters. Defaults to page size of 20 and start from the first page. Note that <code>pageStart</code> is 1-based index.\n\nWe are currently not supporting the optional <code>serviceDefinitionId</code> which is to filter users having access to a service in CSP.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "getPaginatedOrgUsersInfo_1",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "description" : "Unique identifier (GUID) of the organization.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "serviceDefinitionId",
+          "in" : "query",
+          "description" : "Service definition id used to filter users having access to the service.",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pageStart",
+          "in" : "query",
+          "description" : "Specifies the index that the set of results will begin with.",
+          "required" : false,
+          "schema" : {
+            "minimum" : 1,
+            "type" : "integer",
+            "default" : 1
+          }
+        }, {
+          "name" : "pageLimit",
+          "in" : "query",
+          "description" : "Specifies the maximum results per page for every call.",
+          "required" : false,
+          "schema" : {
+            "maximum" : 128,
+            "minimum" : 1,
+            "type" : "integer",
+            "default" : 128
+          }
+        }, {
+          "name" : "expandProfile",
+          "in" : "query",
+          "description" : "Indicates if the response should be expanded with the user profile, the value is ignored, only the existence of parameter is checked.",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "includeGroupIdsInRoles",
+          "in" : "query",
+          "description" : "Indicates if the inherited roles in the response should indicate group information, the value is ignored, only the existence of parameter is checked.",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseExpandedTypedUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseExpandedTypedUser"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/oauth/check_id_token" : {
+      "get" : {
+        "tags" : [ "CheckIDTokenController" ],
+        "summary" : "Check ID Token",
+        "description" : "This API has no analogue in Tenant Manager\n\nDisplay the content of the given ID token with expanded claims if the token is valid.<br/>If the token is invalid or expired, an error will be returned.<br/>This endpoint should be used to expand the overflow claims in the ID token, if any (like the 'group_names' and 'group_ids' claim).<br/>Even though this endpoint can also be used to validate an ID token, it is expected that the client validates an ID token locally instead.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Anonymous | &#x2714;&#xFE0F; |\n",
+        "operationId" : "checkIDToken",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "ID token in Bearer Authentication format i.e. 'Bearer XXX' where XXX is the content of an ID token",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiYXQ6YWIyOTMxMTQtYzE1OC00OGZkLWE2NjAtZmMxNTc0NzNhMDAxIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm92bCI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC9hcGkvY2hlY2tfaWRfdG9rZW4iLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAiLCJjb250ZXh0X25hbWUiOiJkZWZhdWx0IiwiZ2l2ZW5fbmFtZSI6ImxvY2FsVXNlcjEwIiwiYXVkIjpbImdhei1iYXQiXSwiYXV0aF90aW1lIjoxNTM3MjYyOTY0LCJkb21haW4iOiJTeXN0ZW0gRG9tYWluIiwiY29udGV4dCI6ImEzZTVmNzMzLTlkN2MtNGVkZi05YjRhLTczMDg5YTk4NWEyYiIsImV4cCI6MTUzNzI5MDU0MywiaWF0IjoxNTM3MjY4OTQzLCJmYW1pbHlfbmFtZSI6IjEwIiwib3ZjIjpbImdyb3VwX25hbWVzIiwiZ3JvdXBfaWRzIl0sImVtYWlsIjoibG9jYWxVc2VyMTBAZGlzcG9zdGFibGUuY29tIiwidXNlcm5hbWUiOiJsb2NhbFVzZXIxMCJ9.TkylNn5A4TGBch4jCjEQ4a7AUwuSBX9EoPZQDhEIkzQmUGgA19p8N9ibX_XEmL0GNU99nCUh30u-_9347JBgpkq0Zou2_hIYPp_5tJfIErjZvPbQKl2F_tqo6beI8F5juQYl27XpuEDpVd3yMvct2v8V0miFpzJcpbPTRbshf39jfyt2_rosfJ3vAQvVKx74z7d0WeERPxgSmBspTvcd8qzuy86dAa6WQ3Z9nvm-ipTWDvc80UTKqC45qf1kz7soHm-fhAs9U06ZwTnHj7YNt4lMxn5i17ztk4ST5YqBrMfxxnH_76gllHJo0kYEOkslSMXsSEojaFwr4z_oMx5Cmg"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Decoded ID Token with all claims.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/IdTokenResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Invalid ID Token.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/IdTokenResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Registration could not be found.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/IdTokenResponse"
+                }
+              }
+            }
+          },
+          "503" : {
+            "description" : "Could not fetch groups of user.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/IdTokenResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/slc/api/v2/orgs/{orgId}/services" : {
+      "get" : {
+        "tags" : [ "ServiceDefinitionV2Controller" ],
+        "summary" : "Get all service definitions the organization has access to.",
+        "description" : "This API has no analogue in Tenant Manager\n\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "getAllByOrg_serviceDefinitions",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "locale",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pageStart",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "pageLimit",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 100
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseServiceDefinitionResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseServiceDefinitionResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/slc/api/v2/definitions/{serviceDefinitionId}/orgs" : {
+      "get" : {
+        "tags" : [ "ServiceDefinitionV2Controller" ],
+        "summary" : "Get organizations with access to specified service.",
+        "description" : "This API has no analogue in Tenant Manager\n\nCurrently all organizations have access to all of the service definitions.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x0274c; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getPagedServiceDefinitionOrgs",
+        "parameters" : [ {
+          "name" : "serviceDefinitionId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pageStart",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "pageLimit",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 128
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseServiceDefinitionOrgResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseServiceDefinitionOrgResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The service definition is not found.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseServiceDefinitionOrgResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/slc/api/definitions" : {
+      "get" : {
+        "tags" : [ "ServiceDefinitionController" ],
+        "summary" : "Get all service definitions.",
+        "description" : "This API has no analogue in Tenant Manager\n\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getAll_serviceDefinitions",
+        "parameters" : [ {
+          "name" : "orgLink",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "expand",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AllServiceDefinitionsResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AllServiceDefinitionsResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/v2/users/{userId}" : {
+      "get" : {
+        "tags" : [ "UserV2Controller" ],
+        "summary" : "Get the user (by user ID) belonging to the current organization.",
+        "description" : "### Use this API instead:\n * /scim/v2/Users\n\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x0274c; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getUserInAnyOrganization",
+        "parameters" : [ {
+          "name" : "userId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "expandProfile",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserByUserIdResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserByUserIdResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The user is not found.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserByUserIdResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/v2/users/{userId}/orgs/{orgId}/service-roles" : {
+      "get" : {
+        "tags" : [ "UserV2Controller" ],
+        "summary" : "Get the user's roles for a particular organization.",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/users\n\nCurrently one user can belong to exactly one organization.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "getUserServiceRolesInOrganization",
+        "parameters" : [ {
+          "name" : "userId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "serviceDefinitionLink",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserServiceRoles"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserServiceRoles"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The user or the organization is not found.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserServiceRoles"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/v2/users/{userId}/orgs/{orgId}/roles" : {
+      "get" : {
+        "tags" : [ "UserV2Controller" ],
+        "summary" : "Get the user's roles for a particular organization.",
+        "description" : "### Use this API instead:\n * /scim/v2/Users\n\nCurrently one user can belong to exactly one organization.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "getUserRolesInOrganization",
+        "parameters" : [ {
+          "name" : "userId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RoleResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RoleResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The user or the organization is not found.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RoleResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/v2/users/{userId}/orgs/{orgId}/info" : {
+      "get" : {
+        "tags" : [ "UserV2Controller" ],
+        "summary" : "Get the user details by user ID and organization ID.",
+        "description" : "### Use these APIs instead: \n * /scim/v2/Users\n * /scim/v2/Groups\n * /cloudapi/1.0.0/orgs\n\nCurrently one user can belong to exactly one organization.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "getUserInfoInOrganization",
+        "parameters" : [ {
+          "name" : "userId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserInfo"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserInfo"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The user or the organization is not found.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserInfo"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/v2/loggedin/user/orgs" : {
+      "get" : {
+        "tags" : [ "PrincipalUserController" ],
+        "summary" : "Get the currently logged in user's organizations.",
+        "description" : "### Use this API instead: \n * /oidc/userinfo\n\nCurrently one user can belong to exactly one organization. Result contains detailed information for the organization.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getUserOrgs",
+        "parameters" : [ {
+          "name" : "pageStart",
+          "in" : "query",
+          "description" : "Specifies the index that the set of results will begin with.",
+          "required" : false,
+          "schema" : {
+            "minimum" : 1,
+            "type" : "integer",
+            "default" : 1
+          }
+        }, {
+          "name" : "pageLimit",
+          "in" : "query",
+          "description" : "Specifies the maximum results per page for every call.",
+          "required" : false,
+          "schema" : {
+            "maximum" : 128,
+            "minimum" : 1,
+            "type" : "integer",
+            "default" : 128
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseOrganizationResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseOrganizationResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "The user is not part of any organization.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseOrganizationResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/users/{userId}/orgs/{orgId}/access" : {
+      "get" : {
+        "tags" : [ "UserController" ],
+        "summary" : "Get user roles with groups inheritance information within the specified organization",
+        "description" : "### Use these APIs instead:\n * /cloudapi/1.0.0/users\n * /scim/v2/Groups\n\nThe user roles with groups inheritance information is not a CSP API call.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "getUserRolesOnOrgWithGroupInfo",
+        "parameters" : [ {
+          "name" : "userId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RolesWithGroupInfo"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RolesWithGroupInfo"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The user is not found.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RolesWithGroupInfo"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/users/{acct}" : {
+      "get" : {
+        "tags" : [ "UserController" ],
+        "summary" : "Get the user belonging to the current organization.",
+        "description" : "### Use this API instead:\n * /scim/v2/Users\n\nCurrently one user can belong to exactly one organization.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x0274c; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getUserInAnyOrganization_1",
+        "parameters" : [ {
+          "name" : "acct",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "expandProfile",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The user is not found.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/users/{acct}/orgs/{orgId}/info" : {
+      "get" : {
+        "tags" : [ "UserController" ],
+        "summary" : "Get the user details.",
+        "description" : "### Use these APIs instead: \n * /scim/v2/Users\n * /scim/v2/Groups\n * /cloudapi/1.0.0/orgs\n\nCurrently one user can belong to exactly one organization.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "getUserInfoInOrganization_1",
+        "parameters" : [ {
+          "name" : "acct",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserInfo"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserInfo"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The user is not found.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserInfo"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/userinfo" : {
+      "get" : {
+        "tags" : [ "UserInfoController" ],
+        "summary" : "Display detailed user information compiled from the user access token and the associated ID token.",
+        "description" : "### Use this API instead:\n * /scim/v2/Users\n\nThe user information includes all user related fields (which are also part of the associated user ID token). Group ids and names are included.The API diverges from the CSP API on 1) 'email_verified' field which is currently not provided by this API and 2) the 'sub' field which contains user ID only in contrast with CSP thatcontains '<domain>:<userID>'.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Anonymous | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getAccessTokenInfo",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserTokenResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserTokenResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/orgs/{orgId}/users/search" : {
+      "get" : {
+        "tags" : [ "OrganizationUsersController" ],
+        "summary" : "Search for users.",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/users\n\nSearch users in organization having username, firstName, lastName or email which \"contains\" search term e.g. search for \"test\" will return test@vmware.com if test@vmware.com is part of the organization.\n\nSearch results limited to first 20 results. Please refine the search term for accurate results. Organization members will receive basic user information. Organization owners will additionally receive role details of the users.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "searchUsers",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "description" : "Unique identifier (GUID) of the organization.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "userSearchTerm",
+          "in" : "query",
+          "description" : "The string to be searched within firstName, lastName, username or email.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "expandProfile",
+          "in" : "query",
+          "description" : "Indicates if the response should be expanded with the user profile, the value is ignored, only the existence of parameter is checked.",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "includeGroupIdsInRoles",
+          "in" : "query",
+          "description" : "Indicates if the inherited roles in the response should indicate group information, the value is ignored, only the existence of parameter is checked.",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SearchUsersResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SearchUsersResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/orgs/{orgId}/sub-orgs" : {
+      "get" : {
+        "tags" : [ "OrganizationController" ],
+        "summary" : "Get all organization's sub-orgs.",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/orgs\n\nReturns all sub organizations for the passed Org ID. The user needs to be either organization owner or a platform operator in order to get a result.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "getOrgSubOrgs",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseOrganizationResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseOrganizationResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/orgs/{orgId}/roles/{roleId}" : {
+      "get" : {
+        "tags" : [ "OrganizationController" ],
+        "summary" : "Read a role.",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/roles\n\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "getRoleByOrgIdAndRoleId",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "roleId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RoleResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RoleResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The role is not found.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RoleResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/orgs/{orgId}/groups" : {
+      "get" : {
+        "tags" : [ "OrganizationGroupsController" ],
+        "summary" : "Get Organization Groups",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/groups\n\nGet groups of a specific organization.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "getOrganizationGroups",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pageStart",
+          "in" : "query",
+          "description" : "Specifies the index that the set of results will begin with.",
+          "required" : false,
+          "schema" : {
+            "minimum" : 1,
+            "type" : "integer",
+            "default" : 1
+          }
+        }, {
+          "name" : "pageLimit",
+          "in" : "query",
+          "description" : "Specifies the maximum results per page for every call.",
+          "required" : false,
+          "schema" : {
+            "maximum" : 128,
+            "minimum" : 1,
+            "type" : "integer",
+            "default" : 128
+          }
+        }, {
+          "name" : "groupId",
+          "in" : "query",
+          "description" : "Unique identifier of the group.",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseExpandedGroup"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseExpandedGroup"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      },
+      "delete" : {
+        "tags" : [ "OrganizationGroupsController" ],
+        "summary" : "Remove Groups From Organization",
+        "description" : "### Use this API instead:\n * /cloudapi/1.0.0/groups\n\nRemove groups from organization.<br>Note:\n DEPRECATED: Response field failed will be deprecated. You can use the field failures instead.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x0274c; |\n",
+        "operationId" : "removeGroupsFromOrganization",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RemoveGroupsFromOrgRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RemoveMembersFromOrgResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid request body.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RemoveMembersFromOrgResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RemoveMembersFromOrgResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/orgs/{orgId}/groups/{groupId}/users" : {
+      "get" : {
+        "tags" : [ "OrganizationGroupsController" ],
+        "summary" : "Get users in group within organization.",
+        "description" : "### Use this API instead:\n * /scim/v2/Users\n\nGet users in group within organization. Optionally filtered by given firstName, lastName or email with 'contains' match. Optionally filter the users by using onlyDirectUsers with true to return only direct users and not return the users from nested groups.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x0274c; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getPaginatedGroupUsers",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "groupId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pageStart",
+          "in" : "query",
+          "description" : "Specifies the index that the set of results will begin with.",
+          "required" : false,
+          "schema" : {
+            "minimum" : 1,
+            "type" : "integer",
+            "default" : 1
+          }
+        }, {
+          "name" : "pageLimit",
+          "in" : "query",
+          "description" : "Specifies the maximum results per page for every call.",
+          "required" : false,
+          "schema" : {
+            "maximum" : 128,
+            "minimum" : 1,
+            "type" : "integer",
+            "default" : 128
+          }
+        }, {
+          "name" : "firstName",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "lastName",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "email",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "onlyDirectUsers",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseBaseUser"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseBaseUser"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/orgs/{orgId}/groups-search" : {
+      "get" : {
+        "tags" : [ "OrganizationController" ],
+        "summary" : "Find groups.",
+        "description" : "### Use this API instead:\n * /scim/v2/Groups\n\nPerforms a search for groups in the organization.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "searchOrgGroups",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "groupSearchTerm",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SearchGroupsResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SearchGroupsResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/loggedin/user" : {
+      "get" : {
+        "tags" : [ "PrincipalUserController" ],
+        "summary" : "Get the currently logged in user.",
+        "description" : "### Use this API instead:\n * /oidc/userinfo\n\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getLoggedInUser",
+        "parameters" : [ {
+          "name" : "expand",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/loggedin/user/orgs/{orgId}/service-roles" : {
+      "get" : {
+        "tags" : [ "PrincipalUserController" ],
+        "summary" : "Get the currently logged in user's service roles.",
+        "description" : "### Use this API instead: \n * /oidc/userinfo\n\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getUserOrgServiceRoles",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "serviceDefinitionLink",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserServiceRoles"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserServiceRoles"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/loggedin/user/orgs/{orgId}/roles" : {
+      "get" : {
+        "tags" : [ "PrincipalUserController" ],
+        "summary" : "Get the currently logged in user's roles.",
+        "description" : "### Use these APIs instead: \n * /oidc/userinfo\n * /cloudapi/1.0.0/roles\n\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getUserOrgRoles",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RoleResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RoleResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/loggedin/user/orgs/{orgId}/info" : {
+      "get" : {
+        "tags" : [ "PrincipalUserController" ],
+        "summary" : "Get the currently logged in user's info in an organization.",
+        "description" : "### Use these APIs instead: \n * /scim/v2/Users\n * /scim/v2/Groups\n * /cloudapi/1.0.0/orgs\n\nCurrently one user can belong to exactly one organization.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getUserOrgInfo",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserInfo"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserInfo"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/loggedin/user/orgs/{orgId}/groups" : {
+      "get" : {
+        "tags" : [ "PrincipalUserController" ],
+        "summary" : "Get Principal User Groups Information Within the Specified Organization",
+        "description" : "### Use this API instead: \n * /scim/v2/Users\n\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getLoggedInUserGroupsOnOrg",
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserGroupsResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserGroupsResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/loggedin/user/details" : {
+      "get" : {
+        "tags" : [ "PrincipalUserController" ],
+        "summary" : "Get the currently logged in user's detailed information.",
+        "description" : "### Use this API instead: \n * /oidc/userinfo\n\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getLoggedInUserDetails",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserDetailsResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserDetailsResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/loggedin/user/default-org" : {
+      "get" : {
+        "tags" : [ "PrincipalUserController" ],
+        "summary" : "Get the currently logged in user's organizations.",
+        "description" : "### Use this API instead: \n * /oidc/userinfo\n\nCurrently one user can belong to exactly one organization.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getUserDefaultOrg",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RefLink"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RefLink"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/groups/search" : {
+      "get" : {
+        "tags" : [ "GroupController" ],
+        "summary" : "Search for a group.",
+        "description" : "### Use this API instead:\n * /scim/v2/Groups\n\nIn this case the PagedResponse.results field will contain <code>Group</code> object. See the <code>Group</code> model for reference.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Platform operator | &#x2714;&#xFE0F; |\n| Organization Owner | &#x2714;&#xFE0F; |\n| Organization Member | &#x2714;&#xFE0F; |\n| Service Account (Whitelisted Client) | &#x2714;&#xFE0F; |\n",
+        "operationId" : "searchGroups",
+        "parameters" : [ {
+          "name" : "searchTerm",
+          "in" : "query",
+          "description" : "The search term, uses 'contains' filter on the group displayName attribute.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "idpId",
+          "in" : "query",
+          "description" : "This parameter is included for CSP compatibility and its value is ignored.",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pageStart",
+          "in" : "query",
+          "description" : "The index of the first element of the page. One based.",
+          "required" : false,
+          "schema" : {
+            "minimum" : 1,
+            "type" : "integer",
+            "default" : 1
+          }
+        }, {
+          "name" : "pageLimit",
+          "in" : "query",
+          "description" : "Specifies the maximum results per page for every call.",
+          "required" : false,
+          "schema" : {
+            "maximum" : 128,
+            "minimum" : 1,
+            "type" : "integer",
+            "default" : 128
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseGroup"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "The user is not authorized to use the API.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedResponseGroup"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/csp/gateway/am/api/auth/keys" : {
+      "get" : {
+        "tags" : [ "AuthenticationController" ],
+        "summary" : "Defines the public keys used to verify the authenticity of the JWT token.",
+        "description" : "### Use this API instead:\n * /oidc/oauth2/jwks\n\nDefines the public keys used to verify the authenticity of the JWT token.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Anonymous | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getKeys",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PublicKeyResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Unsupported Public Key format.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PublicKeyResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/.well-known/openid-configuration" : {
+      "get" : {
+        "tags" : [ "OpenidConfigurationController" ],
+        "summary" : "OpenID Connect discovery endpoint",
+        "description" : "### Use this API instead:\n * /oidc/.well-known/openid-configuration\n\nGet discovery endpoint meta data as described in https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata. OpenID Connect 1.0 is a simple identity layer on top of the OAuth 2.0 protocol. It enables Clients to verify the identity of the End-User based on the authentication performed by an Authorization Server, as well as to obtain basic profile information about the End-User in an interoperable and REST-like manner.\n### Access Policy\n| Role | Access |\n| ----- | ----- |\n| Anonymous | &#x2714;&#xFE0F; |\n",
+        "operationId" : "getOpenidConfiguration",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OpenidConfigurationResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The requested resource could not be found.",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OpenidConfigurationResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "UserLocaleRequest" : {
+        "required" : [ "language" ],
+        "type" : "object",
+        "properties" : {
+          "locale" : {
+            "type" : "string"
+          },
+          "language" : {
+            "type" : "string"
+          }
+        }
+      },
+      "SearchUsersInIdpRequest" : {
+        "required" : [ "searchTerm" ],
+        "type" : "object",
+        "properties" : {
+          "searchTerm" : {
+            "maxLength" : 120,
+            "minLength" : 0,
+            "type" : "string",
+            "description" : "Search criteria to search for users by their first name, last name and email. Must not be null or blank. Max search length is 120 characters."
+          },
+          "idpId" : {
+            "type" : "string",
+            "description" : "Idp id to search users into it. Must not be null or blank."
+          },
+          "domain" : {
+            "type" : "string",
+            "description" : "Optionally filtered by domain."
+          },
+          "pageStart" : {
+            "minimum" : 1,
+            "type" : "integer",
+            "description" : "Start index for querying users. Default value is 1.",
+            "format" : "int32"
+          },
+          "pageLimit" : {
+            "maximum" : 200,
+            "minimum" : 1,
+            "type" : "integer",
+            "description" : "Maximum number of users to return in response. Default value is 200.",
+            "format" : "int32"
+          }
+        },
+        "description" : "Request body to search users in the identity providers."
+      },
+      "BaseUser" : {
+        "type" : "object",
+        "properties" : {
+          "username" : {
+            "type" : "string",
+            "deprecated" : true
+          },
+          "firstName" : {
+            "type" : "string"
+          },
+          "lastName" : {
+            "type" : "string"
+          },
+          "domain" : {
+            "type" : "string"
+          },
+          "idpId" : {
+            "type" : "string"
+          },
+          "accessible" : {
+            "type" : "boolean"
+          },
+          "acct" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "userId" : {
+            "type" : "string"
+          }
+        },
+        "description" : "Partial list of returned results."
+      },
+      "PagedPostResponseBaseUser" : {
+        "type" : "object",
+        "properties" : {
+          "results" : {
+            "type" : "array",
+            "description" : "Partial list of returned results.",
+            "items" : {
+              "$ref" : "#/components/schemas/BaseUser"
+            }
+          },
+          "itemsPerPage" : {
+            "type" : "integer",
+            "description" : "Number of items per page.",
+            "format" : "int32",
+            "example" : 25
+          },
+          "startIndex" : {
+            "type" : "integer",
+            "description" : "Start index of the results.",
+            "format" : "int32",
+            "example" : 5
+          },
+          "totalResults" : {
+            "type" : "integer",
+            "description" : "Total number of results if available",
+            "format" : "int32",
+            "example" : 2000
+          }
+        },
+        "description" : "Partial result of the API call with itemsPerPage, startIndex and total results count."
+      },
+      "LoginRequest" : {
+        "required" : [ "password", "username" ],
+        "type" : "object",
+        "properties" : {
+          "username" : {
+            "type" : "string",
+            "description" : "The username."
+          },
+          "password" : {
+            "type" : "string",
+            "description" : "The password."
+          },
+          "domain" : {
+            "type" : "string",
+            "description" : "The user's domain."
+          },
+          "scope" : {
+            "type" : "string",
+            "description" : "Scope of the issued token."
+          }
+        }
+      },
+      "Token" : {
+        "type" : "object",
+        "properties" : {
+          "cspAuthToken" : {
+            "type" : "string",
+            "description" : "The access token."
+          }
+        }
+      },
+      "AuthorizationRequest" : {
+        "required" : [ "grant_type", "state" ],
+        "type" : "object",
+        "properties" : {
+          "grant_type" : {
+            "type" : "string",
+            "description" : "The type of authorization to be performed."
+          },
+          "refresh_token" : {
+            "type" : "string",
+            "description" : "The refresh token when <code>grant_type</code> is set to <code>refresh_token</code>"
+          },
+          "code" : {
+            "type" : "string",
+            "description" : "The authorization code when <code>grant_type</code> is set to <code>authorization_code</code>"
+          },
+          "state" : {
+            "type" : "string",
+            "description" : "A transparent state of the request."
+          },
+          "redirect_uri" : {
+            "type" : "string",
+            "description" : "The URI to which a redirect will be performed upon successful authorization."
+          },
+          "client_id" : {
+            "type" : "string",
+            "description" : "The client ID when <code>grant_type</code> is set to <code>client_credentials</code>. Will be ignored if the <code>Authorization</code> header is set."
+          },
+          "client_secret" : {
+            "type" : "string",
+            "description" : "The client secret when <code>grant_type</code> is set to <code>client_credentials</code>. Will be ignored if the <code>Authorization</code> header is set."
+          },
+          "scope" : {
+            "type" : "string",
+            "description" : "Currently not supported. Present for CSP compatibility."
+          },
+          "orgId" : {
+            "type" : "string",
+            "description" : "When <code>grant_type</code> is set to <code>client_credentials</code> if this parameter is set the issued token will be limited to the specified organization."
+          }
+        }
+      },
+      "AccessToken" : {
+        "type" : "object",
+        "properties" : {
+          "scope" : {
+            "type" : "string",
+            "description" : "Scope"
+          },
+          "access_token" : {
+            "type" : "string",
+            "description" : "Access Token"
+          },
+          "refresh_token" : {
+            "type" : "string",
+            "description" : "Refresh Token"
+          },
+          "id_token" : {
+            "type" : "string",
+            "description" : "ID Token"
+          },
+          "token_type" : {
+            "type" : "string",
+            "description" : "Token Type"
+          },
+          "expires_in" : {
+            "type" : "integer",
+            "description" : "Access Token Expiration",
+            "format" : "int64"
+          }
+        }
+      },
+      "PkceFlowAuthorizationRequest" : {
+        "required" : [ "grant_type" ],
+        "type" : "object",
+        "properties" : {
+          "grant_type" : {
+            "type" : "string",
+            "description" : "OAuth grant types for different use cases."
+          },
+          "code" : {
+            "type" : "string",
+            "description" : "Authorization code parameter. Mandatory for grant_type 'authorization_code'."
+          },
+          "redirect_uri" : {
+            "type" : "string",
+            "description" : "Service redirect uri. Mandatory for grant_type 'authorization_code'."
+          },
+          "refresh_token" : {
+            "type" : "string",
+            "description" : "Refresh token parameter. Available for grant_type 'refresh_token'."
+          },
+          "scope" : {
+            "type" : "string",
+            "description" : "Currently not supported. Present for CSP compatibility."
+          },
+          "org_id" : {
+            "type" : "string",
+            "description" : "Unique identifier (GUID) of the organization. Available for grant_type 'client_credentials'."
+          },
+          "subject_token" : {
+            "type" : "string",
+            "description" : "Required if the grant_type is 'client_delegate'. A security token that represents the identity of the party on behalf of whom the request is being made. In client_delegate flow, the token provided MUST BE the access token of the user."
+          },
+          "subject_token_type" : {
+            "type" : "string",
+            "description" : "Required if the grant_type is 'client_delegate'. The identifier for the subject token provided as per RFC 8693 https://tools.ietf.org/html/rfc8693#section-3. In 'client_delegate' flow, this value MUST BE 'urn:ietf:params:oauth:token-type:access_token'."
+          },
+          "code_verifier" : {
+            "type" : "string",
+            "description" : "A high-entropy cryptographic random key using the characters [A-Z] / [a-z] / [0-9] / '-' / '.' / '_' / '~' with a minimum length of 43 characters and a maximum length of 128 characters which was used to generate the 'code_challenge' and obtain the authorization code. Required if PKCE was used in the authorization code grant request. For more information, refer the PKCE RFC at https://tools.ietf.org/html/rfc7636."
+          },
+          "client_id" : {
+            "type" : "string",
+            "description" : "Required if the grant_type is 'authorization_code'.If provided in request body,it must match with the client_id sent in the authorization header."
+          }
+        }
+      },
+      "UrlResponse" : {
+        "type" : "object",
+        "properties" : {
+          "url" : {
+            "type" : "string",
+            "description" : "The URL to redirect to."
+          }
+        }
+      },
+      "AuthorizationByRefreshTokenRequest" : {
+        "type" : "object",
+        "properties" : {
+          "api_token" : {
+            "type" : "string",
+            "description" : "The API-token"
+          }
+        }
+      },
+      "BaseRoleBinding" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "The identifier of the role."
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "The name of the role."
+          },
+          "membershipType" : {
+            "type" : "string",
+            "description" : "Membership type of the member in the organization.\nDIRECT: if the member roles were assigned directly.\nGROUP: if the member roles were assigned through enterprise group.",
+            "enum" : [ "DIRECT", "GROUP" ]
+          },
+          "expiresAt" : {
+            "type" : "string",
+            "description" : "The timestamp the role expires at (measured in number of seconds since 1/1/1970 UTC). The property is ignored by the identity service.",
+            "format" : "date-time"
+          }
+        },
+        "description" : "Roles to remove"
+      },
+      "UpdateMemberRolesRequest" : {
+        "type" : "object",
+        "properties" : {
+          "organizationRoles" : {
+            "$ref" : "#/components/schemas/UpdateRolesRequestBaseRoleBinding"
+          },
+          "serviceRoles" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/UpdateServiceRolesRequest"
+            }
+          }
+        }
+      },
+      "UpdateRolesRequestBaseRoleBinding" : {
+        "type" : "object",
+        "properties" : {
+          "roleNamesToAdd" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Deprecated: Role names to add (use rolesToAdd instead)",
+            "deprecated" : true,
+            "items" : {
+              "type" : "string",
+              "description" : "Deprecated: Role names to add (use rolesToAdd instead)",
+              "deprecated" : true
+            }
+          },
+          "rolesToAdd" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Roles to add",
+            "items" : {
+              "$ref" : "#/components/schemas/BaseRoleBinding"
+            }
+          },
+          "roleNamesToRemove" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Deprecated: Role names to remove (use rolesToRemove instead)",
+            "deprecated" : true,
+            "items" : {
+              "type" : "string",
+              "description" : "Deprecated: Role names to remove (use rolesToRemove instead)",
+              "deprecated" : true
+            }
+          },
+          "rolesToRemove" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Roles to remove",
+            "items" : {
+              "$ref" : "#/components/schemas/BaseRoleBinding"
+            }
+          }
+        }
+      },
+      "UpdateServiceRolesRequest" : {
+        "type" : "object",
+        "properties" : {
+          "roleNamesToAdd" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Deprecated: Role names to add (use rolesToAdd instead)",
+            "deprecated" : true,
+            "items" : {
+              "type" : "string",
+              "description" : "Deprecated: Role names to add (use rolesToAdd instead)",
+              "deprecated" : true
+            }
+          },
+          "rolesToAdd" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Roles to add",
+            "items" : {
+              "$ref" : "#/components/schemas/BaseRoleBinding"
+            }
+          },
+          "roleNamesToRemove" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Deprecated: Role names to remove (use rolesToRemove instead)",
+            "deprecated" : true,
+            "items" : {
+              "type" : "string",
+              "description" : "Deprecated: Role names to remove (use rolesToRemove instead)",
+              "deprecated" : true
+            }
+          },
+          "rolesToRemove" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Roles to remove",
+            "items" : {
+              "$ref" : "#/components/schemas/BaseRoleBinding"
+            }
+          },
+          "serviceDefinitionId" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ServiceRoleBinding" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "The identifier of the role."
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "The name of the role."
+          },
+          "membershipType" : {
+            "type" : "string",
+            "description" : "Membership type of the member in the organization.\nDIRECT: if the member roles were assigned directly.\nGROUP: if the member roles were assigned through enterprise group.",
+            "enum" : [ "DIRECT", "GROUP" ]
+          },
+          "expiresAt" : {
+            "type" : "string",
+            "description" : "The timestamp the role expires at (measured in number of seconds since 1/1/1970 UTC). The property is ignored by the identity service.",
+            "format" : "date-time"
+          },
+          "resource" : {
+            "type" : "string",
+            "description" : "Identity does not support resource scoped permissions. The resource parameter is ignored."
+          }
+        },
+        "description" : "Roles to remove"
+      },
+      "UserServiceRolesUpdateRequest" : {
+        "required" : [ "serviceDefinitionLink" ],
+        "type" : "object",
+        "properties" : {
+          "roleNamesToAdd" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Deprecated: Role names to add (use rolesToAdd instead)",
+            "deprecated" : true,
+            "items" : {
+              "type" : "string",
+              "description" : "Deprecated: Role names to add (use rolesToAdd instead)",
+              "deprecated" : true
+            }
+          },
+          "rolesToAdd" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Roles to add",
+            "items" : {
+              "$ref" : "#/components/schemas/ServiceRoleBinding"
+            }
+          },
+          "roleNamesToRemove" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Deprecated: Role names to remove (use rolesToRemove instead)",
+            "deprecated" : true,
+            "items" : {
+              "type" : "string",
+              "description" : "Deprecated: Role names to remove (use rolesToRemove instead)",
+              "deprecated" : true
+            }
+          },
+          "rolesToRemove" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Roles to remove",
+            "items" : {
+              "$ref" : "#/components/schemas/ServiceRoleBinding"
+            }
+          },
+          "serviceDefinitionLink" : {
+            "minLength" : 1,
+            "pattern" : "^(/csp/gateway/slc/api/definitions/internal|/csp/gateway/slc/api/definitions/external)/[^/]+$",
+            "type" : "string"
+          }
+        }
+      },
+      "OrganizationResponse" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "metadata" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "refLink" : {
+            "type" : "string"
+          },
+          "parentRefLink" : {
+            "type" : "string"
+          }
+        }
+      },
+      "RefLink" : {
+        "type" : "object",
+        "properties" : {
+          "refLink" : {
+            "type" : "string"
+          }
+        }
+      },
+      "UserServiceRolesPatchRequest" : {
+        "type" : "object",
+        "properties" : {
+          "serviceId" : {
+            "type" : "string"
+          },
+          "roleNamesToAdd" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "roleNamesToRemove" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "UserServicesRolesPatchRequest" : {
+        "type" : "object",
+        "properties" : {
+          "serviceRolesPatchRequest" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/UserServiceRolesPatchRequest"
+            }
+          }
+        }
+      },
+      "UserWithDesiredOrgRole" : {
+        "type" : "object",
+        "properties" : {
+          "userName" : {
+            "type" : "string"
+          },
+          "orgRolesUpdateRequest" : {
+            "$ref" : "#/components/schemas/UpdateRolesRequestBaseRoleBinding"
+          }
+        }
+      },
+      "UsersRolesPatchRequest" : {
+        "required" : [ "userList" ],
+        "type" : "object",
+        "properties" : {
+          "userList" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/UserWithDesiredOrgRole"
+            }
+          },
+          "servicesRolesPatchRequest" : {
+            "$ref" : "#/components/schemas/UserServicesRolesPatchRequest"
+          }
+        }
+      },
+      "UserRolePatchResponse" : {
+        "required" : [ "failedOrgRolesUsernames", "failedServicesRolesUsernames", "successOrgRolesUsernames", "successServiceRolesUsernames" ],
+        "type" : "object",
+        "properties" : {
+          "successOrgRolesUsernames" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "failedOrgRolesUsernames" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "successServiceRolesUsernames" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "failedServicesRolesUsernames" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "BaseRole" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "The identifier of the role."
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "The name of the role."
+          }
+        }
+      },
+      "OrgRoleRequest" : {
+        "type" : "object",
+        "properties" : {
+          "roleNamesToAdd" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Deprecated: Role names to add (use rolesToAdd instead)",
+            "deprecated" : true,
+            "items" : {
+              "type" : "string",
+              "deprecated" : true
+            }
+          },
+          "roleNamesToRemove" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Deprecated: Role names to remove (use rolesToRemove instead)",
+            "deprecated" : true,
+            "items" : {
+              "type" : "string",
+              "deprecated" : true
+            }
+          },
+          "rolesToAdd" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "The roles to add.",
+            "items" : {
+              "$ref" : "#/components/schemas/BaseRole"
+            }
+          },
+          "rolesToRemove" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "The roles to remove.",
+            "items" : {
+              "$ref" : "#/components/schemas/BaseRole"
+            }
+          }
+        },
+        "description" : "Organization roles to be updated."
+      },
+      "OrgServiceRoleRequest" : {
+        "type" : "object",
+        "properties" : {
+          "roleNamesToAdd" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Deprecated: Role names to add (use rolesToAdd instead)",
+            "deprecated" : true,
+            "items" : {
+              "type" : "string",
+              "deprecated" : true
+            }
+          },
+          "roleNamesToRemove" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Deprecated: Role names to remove (use rolesToRemove instead)",
+            "deprecated" : true,
+            "items" : {
+              "type" : "string",
+              "deprecated" : true
+            }
+          },
+          "rolesToAdd" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "The roles to add.",
+            "items" : {
+              "$ref" : "#/components/schemas/BaseRole"
+            }
+          },
+          "rolesToRemove" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "The roles to remove.",
+            "items" : {
+              "$ref" : "#/components/schemas/BaseRole"
+            }
+          },
+          "serviceDefinitionId" : {
+            "type" : "string"
+          }
+        }
+      },
+      "UpdateGroupRolesRequest" : {
+        "type" : "object",
+        "properties" : {
+          "organizationRoles" : {
+            "$ref" : "#/components/schemas/OrgRoleRequest"
+          },
+          "serviceRoles" : {
+            "type" : "array",
+            "description" : "Service roles to be updated.",
+            "items" : {
+              "$ref" : "#/components/schemas/OrgServiceRoleRequest"
+            }
+          },
+          "notifyUsersInGroups" : {
+            "type" : "boolean",
+            "description" : "Publish email notification to group members. Ignored by the Identity Service"
+          }
+        },
+        "description" : "The group roles to be updated."
+      },
+      "UpdateUserProfileRequest" : {
+        "type" : "object",
+        "properties" : {
+          "defaultOrgId" : {
+            "type" : "string",
+            "description" : "Currently one user can belong to exactly one organization."
+          },
+          "locale" : {
+            "type" : "string",
+            "description" : "Preferred user locale."
+          },
+          "language" : {
+            "type" : "string",
+            "description" : "Preferred user language."
+          },
+          "preferredTheme" : {
+            "pattern" : "^(Light|Dark)$",
+            "type" : "string",
+            "description" : "Preferred user theme."
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/UserProfileMetadata"
+          }
+        },
+        "description" : "Update user profile request"
+      },
+      "UserProfileMetadata" : {
+        "type" : "object",
+        "properties" : {
+          "acknowledgeAccountLinkingMessage" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "description" : "User's profile metadata."
+      },
+      "BaseUserWithProfile" : {
+        "type" : "object",
+        "properties" : {
+          "username" : {
+            "type" : "string",
+            "deprecated" : true
+          },
+          "firstName" : {
+            "type" : "string"
+          },
+          "lastName" : {
+            "type" : "string"
+          },
+          "domain" : {
+            "type" : "string"
+          },
+          "idpId" : {
+            "type" : "string"
+          },
+          "accessible" : {
+            "type" : "boolean"
+          },
+          "acct" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "userId" : {
+            "type" : "string"
+          },
+          "userProfile" : {
+            "$ref" : "#/components/schemas/UserLocalePreferences"
+          }
+        },
+        "description" : "Base User With Profile data."
+      },
+      "ExpandedTypedUser" : {
+        "type" : "object",
+        "properties" : {
+          "user" : {
+            "$ref" : "#/components/schemas/BaseUserWithProfile"
+          },
+          "orgId" : {
+            "type" : "string",
+            "description" : "Unique identifier (GUID) of the organization."
+          },
+          "organizationRoles" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "List of organization role objects.",
+            "items" : {
+              "$ref" : "#/components/schemas/OrganizationRoleBindingWithGroups"
+            }
+          },
+          "serviceRoles" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "List of services roles objects.",
+            "items" : {
+              "$ref" : "#/components/schemas/ServiceRolesWithGroupsCollection"
+            }
+          }
+        },
+        "description" : "The list of results."
+      },
+      "Group" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "The group ID."
+          },
+          "displayName" : {
+            "type" : "string",
+            "description" : "The group display name."
+          },
+          "domain" : {
+            "type" : "string",
+            "description" : "The group domain."
+          },
+          "usersCount" : {
+            "type" : "integer",
+            "description" : "The number of users members of this group.",
+            "format" : "int32"
+          },
+          "groupType" : {
+            "type" : "string",
+            "description" : "USER_GROUP is an organization specific custom group, AD_GROUP is a federated domain group",
+            "enum" : [ "USER_GROUP", "AD_GROUP", "DOMAIN_GROUP" ]
+          }
+        }
+      },
+      "OrganizationRoleBindingWithGroups" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "The identifier of the role."
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "The name of the role."
+          },
+          "membershipType" : {
+            "type" : "string",
+            "description" : "Membership type of the member in the organization.\nDIRECT: if the member roles were assigned directly.\nGROUP: if the member roles were assigned through enterprise group.",
+            "enum" : [ "DIRECT", "GROUP" ]
+          },
+          "expiresAt" : {
+            "type" : "string",
+            "description" : "The timestamp the role expires at (measured in number of seconds since 1/1/1970 UTC). The property is ignored by the identity service.",
+            "format" : "date-time"
+          },
+          "displayName" : {
+            "type" : "string",
+            "description" : "The organization role display name",
+            "readOnly" : true
+          },
+          "orgId" : {
+            "type" : "string",
+            "description" : "The organization id in which the role is assigned"
+          },
+          "groups" : {
+            "type" : "array",
+            "description" : "List of group objects related to role.",
+            "items" : {
+              "$ref" : "#/components/schemas/Group"
+            }
+          },
+          "groupIds" : {
+            "type" : "array",
+            "description" : "List of group unique identifiers related to role.",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "PagedResponseExpandedTypedUser" : {
+        "type" : "object",
+        "properties" : {
+          "results" : {
+            "type" : "array",
+            "description" : "The list of results.",
+            "items" : {
+              "$ref" : "#/components/schemas/ExpandedTypedUser"
+            }
+          },
+          "nextLink" : {
+            "type" : "string",
+            "description" : "URL to the next page of results."
+          },
+          "prevLink" : {
+            "type" : "string",
+            "description" : "URL to the previous page of result."
+          },
+          "totalResults" : {
+            "type" : "integer",
+            "description" : "The total number of results on all pages.",
+            "format" : "int64"
+          }
+        }
+      },
+      "ServiceRoleBindingWithGroups" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "The identifier of the role."
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "The name of the role."
+          },
+          "membershipType" : {
+            "type" : "string",
+            "description" : "Membership type of the member in the organization.\nDIRECT: if the member roles were assigned directly.\nGROUP: if the member roles were assigned through enterprise group.",
+            "enum" : [ "DIRECT", "GROUP" ]
+          },
+          "expiresAt" : {
+            "type" : "string",
+            "description" : "The timestamp the role expires at (measured in number of seconds since 1/1/1970 UTC). The property is ignored by the identity service.",
+            "format" : "date-time"
+          },
+          "resource" : {
+            "type" : "string",
+            "description" : "Identity does not support resource scoped permissions. The resource parameter is ignored."
+          },
+          "groups" : {
+            "type" : "array",
+            "description" : "List of group objects related to role.",
+            "items" : {
+              "$ref" : "#/components/schemas/Group"
+            }
+          },
+          "groupIds" : {
+            "type" : "array",
+            "description" : "List of group unique identifiers related to role.",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "description" : "The service roles"
+      },
+      "ServiceRolesWithGroupsCollection" : {
+        "required" : [ "serviceDefinitionId" ],
+        "type" : "object",
+        "properties" : {
+          "serviceRoles" : {
+            "type" : "array",
+            "description" : "The service roles",
+            "items" : {
+              "$ref" : "#/components/schemas/ServiceRoleBindingWithGroups"
+            }
+          },
+          "serviceDefinitionId" : {
+            "type" : "string",
+            "description" : "The service definition id (without \"external\" prefix"
+          }
+        }
+      },
+      "UserLocalePreferences" : {
+        "type" : "object",
+        "properties" : {
+          "locale" : {
+            "type" : "string"
+          },
+          "language" : {
+            "type" : "string"
+          }
+        }
+      },
+      "IdTokenResponse" : {
+        "type" : "object",
+        "properties" : {
+          "username" : {
+            "type" : "string",
+            "description" : "The user's username."
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "The user's email."
+          },
+          "domain" : {
+            "type" : "string",
+            "description" : "The domain the user belongs to."
+          },
+          "acct" : {
+            "type" : "string",
+            "description" : "The user's account identifier, the acct claim can be a combination of the user's username and domain in URLEncoded(username)@domain format or the user's email or the UPN of the user."
+          },
+          "context" : {
+            "type" : "string",
+            "description" : "The context in which the token was issued."
+          },
+          "sub" : {
+            "type" : "string",
+            "description" : "The user on behalf of which the token was issued."
+          },
+          "iss" : {
+            "type" : "string",
+            "description" : "The issuer of the token (URL of Identity Service)."
+          },
+          "iat" : {
+            "type" : "integer",
+            "description" : "Timestamp, measured in number of seconds since 1/1/1970 UTC, indicating when the token was issued.",
+            "format" : "int64"
+          },
+          "exp" : {
+            "type" : "integer",
+            "description" : "Timestamp, measured in number of seconds since 1/1/1970 UTC, indicating when the token will expire.",
+            "format" : "int64"
+          },
+          "aud" : {
+            "type" : "array",
+            "description" : "The list of audience(s). OAuth client(s) the token is issued to.",
+            "items" : {
+              "type" : "string",
+              "description" : "The list of audience(s). OAuth client(s) the token is issued to."
+            }
+          },
+          "given_name" : {
+            "type" : "string",
+            "description" : "The user's given name."
+          },
+          "family_name" : {
+            "type" : "string",
+            "description" : "The user's family name."
+          },
+          "email_verified" : {
+            "type" : "boolean",
+            "description" : "True if the user's e-mail address has been verified; otherwise false."
+          },
+          "group_names" : {
+            "type" : "array",
+            "description" : "Names of the groups the user belongs to.",
+            "items" : {
+              "type" : "string",
+              "description" : "Names of the groups the user belongs to."
+            }
+          },
+          "group_ids" : {
+            "type" : "array",
+            "description" : "Identifiers of the groups the user belongs to.",
+            "items" : {
+              "type" : "string",
+              "description" : "Identifiers of the groups the user belongs to."
+            }
+          },
+          "context_name" : {
+            "type" : "string",
+            "description" : "The context name in which the token was issued."
+          },
+          "auth_time" : {
+            "type" : "integer",
+            "description" : "Timestamp, measured in number of seconds since 1/1/1970 UTC, indicating when the user was originally authenticated.",
+            "format" : "int64"
+          }
+        }
+      },
+      "PagedResponseServiceDefinitionResponse" : {
+        "type" : "object",
+        "properties" : {
+          "results" : {
+            "type" : "array",
+            "description" : "The list of results.",
+            "items" : {
+              "$ref" : "#/components/schemas/ServiceDefinitionResponse"
+            }
+          },
+          "nextLink" : {
+            "type" : "string",
+            "description" : "URL to the next page of results."
+          },
+          "prevLink" : {
+            "type" : "string",
+            "description" : "URL to the previous page of result."
+          },
+          "totalResults" : {
+            "type" : "integer",
+            "description" : "The total number of results on all pages.",
+            "format" : "int64"
+          }
+        }
+      },
+      "ServiceDefinitionResponse" : {
+        "required" : [ "displayName", "name" ],
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "minLength" : 1,
+            "type" : "string"
+          },
+          "displayName" : {
+            "minLength" : 1,
+            "type" : "string"
+          },
+          "descriptionLong" : {
+            "type" : "string"
+          },
+          "isGated" : {
+            "type" : "boolean"
+          },
+          "visible" : {
+            "type" : "boolean"
+          },
+          "serviceUrls" : {
+            "$ref" : "#/components/schemas/ServiceUrls"
+          },
+          "serviceRoles" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ServiceRoleResponse"
+            }
+          },
+          "organizationLink" : {
+            "type" : "string"
+          },
+          "documentSelfLink" : {
+            "type" : "string"
+          },
+          "healthCheckURL" : {
+            "type" : "string"
+          },
+          "serviceIcon" : {
+            "type" : "string"
+          },
+          "serviceNavBarIcon" : {
+            "type" : "string"
+          },
+          "isPrimary" : {
+            "type" : "boolean"
+          },
+          "isBeta" : {
+            "type" : "boolean"
+          }
+        },
+        "description" : "The list of results."
+      },
+      "ServiceRoleResponse" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "serviceDefinition" : {
+            "$ref" : "#/components/schemas/ServiceDefinitionResponse"
+          },
+          "serviceDefinitionLink" : {
+            "type" : "string"
+          },
+          "default" : {
+            "type" : "boolean"
+          },
+          "isHidden" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "ServiceUrls" : {
+        "type" : "object",
+        "properties" : {
+          "offerConfiguration" : {
+            "type" : "string"
+          },
+          "serviceHome" : {
+            "type" : "string"
+          },
+          "requestAccess" : {
+            "type" : "string"
+          }
+        }
+      },
+      "PagedResponseServiceDefinitionOrgResponse" : {
+        "type" : "object",
+        "properties" : {
+          "results" : {
+            "type" : "array",
+            "description" : "The list of results.",
+            "items" : {
+              "$ref" : "#/components/schemas/ServiceDefinitionOrgResponse"
+            }
+          },
+          "nextLink" : {
+            "type" : "string",
+            "description" : "URL to the next page of results."
+          },
+          "prevLink" : {
+            "type" : "string",
+            "description" : "URL to the previous page of result."
+          },
+          "totalResults" : {
+            "type" : "integer",
+            "description" : "The total number of results on all pages.",
+            "format" : "int64"
+          }
+        }
+      },
+      "ServiceDefinitionOrgResponse" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "metadata" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "orgId" : {
+            "type" : "string"
+          },
+          "parentOrgId" : {
+            "type" : "string"
+          }
+        },
+        "description" : "The list of results."
+      },
+      "AllServiceDefinitionsResponse" : {
+        "type" : "object",
+        "properties" : {
+          "serviceDefinitionLinks" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "results" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ServiceDefinitionResponse"
+            }
+          }
+        }
+      },
+      "IdpUserDetails" : {
+        "type" : "object",
+        "properties" : {
+          "address" : {
+            "type" : "string"
+          },
+          "city" : {
+            "type" : "string"
+          },
+          "company" : {
+            "type" : "string"
+          },
+          "country" : {
+            "type" : "string"
+          },
+          "customerNumber" : {
+            "type" : "string"
+          },
+          "workPhone" : {
+            "type" : "string"
+          },
+          "zipCode" : {
+            "type" : "string"
+          },
+          "state" : {
+            "type" : "string"
+          }
+        }
+      },
+      "LeanUserProfile" : {
+        "type" : "object",
+        "properties" : {
+          "defaultOrgId" : {
+            "type" : "string"
+          },
+          "isFederated" : {
+            "type" : "boolean"
+          },
+          "linkedUserIdAccount" : {
+            "type" : "string"
+          },
+          "customerNumber" : {
+            "type" : "string"
+          },
+          "locale" : {
+            "type" : "string"
+          },
+          "language" : {
+            "type" : "string"
+          }
+        }
+      },
+      "UserByUserIdResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "firstName" : {
+            "type" : "string"
+          },
+          "lastName" : {
+            "type" : "string"
+          },
+          "username" : {
+            "type" : "string",
+            "deprecated" : true
+          },
+          "acct" : {
+            "type" : "string"
+          },
+          "password" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "refLink" : {
+            "type" : "string"
+          },
+          "groups" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "userProfile" : {
+            "$ref" : "#/components/schemas/LeanUserProfile"
+          },
+          "managerId" : {
+            "type" : "string",
+            "description" : "CSP user response doesn't contain managerId property."
+          },
+          "idpUserDetails" : {
+            "$ref" : "#/components/schemas/IdpUserDetails"
+          }
+        }
+      },
+      "UserServiceRole" : {
+        "type" : "object",
+        "properties" : {
+          "serviceRoles" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ServiceRoleBinding"
+            }
+          },
+          "serviceDefinitionLink" : {
+            "type" : "string"
+          },
+          "serviceRoleNames" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "UserServiceRoles" : {
+        "type" : "object",
+        "properties" : {
+          "serviceRoles" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/UserServiceRole"
+            }
+          }
+        }
+      },
+      "RoleResponse" : {
+        "type" : "object",
+        "properties" : {
+          "refLink" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "organizationLink" : {
+            "type" : "string"
+          },
+          "visible" : {
+            "type" : "boolean"
+          },
+          "orgId" : {
+            "type" : "string"
+          },
+          "expiresAt" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "resource" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Role" : {
+        "required" : [ "groupIds", "userIds" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "createdMillis" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "updatedMillis" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "orgId" : {
+            "type" : "string"
+          },
+          "visible" : {
+            "type" : "boolean"
+          },
+          "organizationLink" : {
+            "type" : "string"
+          },
+          "refLink" : {
+            "type" : "string"
+          },
+          "userIds" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "groupIds" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "ServiceDefInfo" : {
+        "type" : "object",
+        "properties" : {
+          "refLink" : {
+            "type" : "string"
+          },
+          "serviceDisplayName" : {
+            "type" : "string"
+          },
+          "serviceName" : {
+            "type" : "string"
+          },
+          "serviceRoles" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "User" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "firstName" : {
+            "type" : "string"
+          },
+          "lastName" : {
+            "type" : "string"
+          },
+          "username" : {
+            "type" : "string",
+            "deprecated" : true
+          },
+          "acct" : {
+            "type" : "string"
+          },
+          "password" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "refLink" : {
+            "type" : "string"
+          },
+          "groups" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "userProfile" : {
+            "$ref" : "#/components/schemas/LeanUserProfile"
+          },
+          "managerId" : {
+            "type" : "string",
+            "description" : "CSP user response doesn't contain managerId property."
+          }
+        }
+      },
+      "UserInfo" : {
+        "type" : "object",
+        "properties" : {
+          "user" : {
+            "$ref" : "#/components/schemas/User"
+          },
+          "userOrgInfo" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/UserOrgInfo"
+            }
+          }
+        }
+      },
+      "UserOrgInfo" : {
+        "type" : "object",
+        "properties" : {
+          "displayName" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "orgRoles" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Role"
+            }
+          },
+          "servicesDef" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ServiceDefInfo"
+            }
+          }
+        }
+      },
+      "PagedResponseOrganizationResponse" : {
+        "type" : "object",
+        "properties" : {
+          "results" : {
+            "type" : "array",
+            "description" : "The list of results.",
+            "items" : {
+              "$ref" : "#/components/schemas/OrganizationResponse"
+            }
+          },
+          "nextLink" : {
+            "type" : "string",
+            "description" : "URL to the next page of results."
+          },
+          "prevLink" : {
+            "type" : "string",
+            "description" : "URL to the previous page of result."
+          },
+          "totalResults" : {
+            "type" : "integer",
+            "description" : "The total number of results on all pages.",
+            "format" : "int64"
+          }
+        }
+      },
+      "RolesWithGroupInfo" : {
+        "type" : "object",
+        "properties" : {
+          "organizationRoles" : {
+            "type" : "array",
+            "description" : "The organization roles",
+            "items" : {
+              "$ref" : "#/components/schemas/OrganizationRoleBindingWithGroups"
+            }
+          },
+          "serviceRoles" : {
+            "type" : "array",
+            "description" : "The services roles",
+            "items" : {
+              "$ref" : "#/components/schemas/ServiceRolesWithGroupsCollection"
+            }
+          }
+        }
+      },
+      "UserTokenResponse" : {
+        "type" : "object",
+        "properties" : {
+          "username" : {
+            "type" : "string",
+            "description" : "The user's username."
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "The user's email."
+          },
+          "domain" : {
+            "type" : "string",
+            "description" : "The domain the user belongs to."
+          },
+          "acct" : {
+            "type" : "string",
+            "description" : "The user's account identifier, the acct claim can be a combination of the user's username and domain in URLEncoded(username)@domain format or the user's email or the UPN of the user."
+          },
+          "context" : {
+            "type" : "string",
+            "description" : "The context in which the token was issued."
+          },
+          "sub" : {
+            "type" : "string",
+            "description" : "The user on behalf of which the token was issued."
+          },
+          "given_name" : {
+            "type" : "string",
+            "description" : "The user's given name."
+          },
+          "family_name" : {
+            "type" : "string",
+            "description" : "The user's family name."
+          },
+          "email_verified" : {
+            "type" : "boolean",
+            "description" : "True if the user's e-mail address has been verified; otherwise false."
+          },
+          "group_names" : {
+            "type" : "array",
+            "description" : "Names of the groups the user belongs to.",
+            "items" : {
+              "type" : "string",
+              "description" : "Names of the groups the user belongs to."
+            }
+          },
+          "group_ids" : {
+            "type" : "array",
+            "description" : "Identifiers of the groups the user belongs to.",
+            "items" : {
+              "type" : "string",
+              "description" : "Identifiers of the groups the user belongs to."
+            }
+          },
+          "context_name" : {
+            "type" : "string",
+            "description" : "The context name in which the token was issued."
+          }
+        }
+      },
+      "SearchUsersResponse" : {
+        "type" : "object",
+        "properties" : {
+          "results" : {
+            "type" : "array",
+            "description" : "List of users that are found.",
+            "items" : {
+              "$ref" : "#/components/schemas/ExpandedTypedUser"
+            }
+          }
+        }
+      },
+      "OrganizationRolesResponse" : {
+        "type" : "object",
+        "properties" : {
+          "refLinks" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "orgRolesData" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RoleResponse"
+            }
+          }
+        }
+      },
+      "ExpandedGroup" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "The group ID."
+          },
+          "displayName" : {
+            "type" : "string",
+            "description" : "The group display name."
+          },
+          "domain" : {
+            "type" : "string",
+            "description" : "The group domain."
+          },
+          "usersCount" : {
+            "type" : "integer",
+            "description" : "The number of users members of this group.",
+            "format" : "int32"
+          },
+          "groupType" : {
+            "type" : "string",
+            "description" : "USER_GROUP is an organization specific custom group, AD_GROUP is a federated domain group",
+            "enum" : [ "USER_GROUP", "AD_GROUP", "DOMAIN_GROUP" ]
+          },
+          "organizationRoles" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OrganizationRole"
+            }
+          },
+          "serviceRoles" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ServiceRoleNames"
+            }
+          }
+        },
+        "description" : "The list of results."
+      },
+      "OrganizationRole" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "orgId" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "displayName" : {
+            "type" : "string"
+          }
+        }
+      },
+      "PagedResponseExpandedGroup" : {
+        "type" : "object",
+        "properties" : {
+          "results" : {
+            "type" : "array",
+            "description" : "The list of results.",
+            "items" : {
+              "$ref" : "#/components/schemas/ExpandedGroup"
+            }
+          },
+          "nextLink" : {
+            "type" : "string",
+            "description" : "URL to the next page of results."
+          },
+          "prevLink" : {
+            "type" : "string",
+            "description" : "URL to the previous page of result."
+          },
+          "totalResults" : {
+            "type" : "integer",
+            "description" : "The total number of results on all pages.",
+            "format" : "int64"
+          }
+        }
+      },
+      "ServiceRoleNames" : {
+        "type" : "object",
+        "properties" : {
+          "serviceDefinitionId" : {
+            "type" : "string"
+          },
+          "serviceRoleNames" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "PagedResponseBaseUser" : {
+        "type" : "object",
+        "properties" : {
+          "results" : {
+            "type" : "array",
+            "description" : "The list of results.",
+            "items" : {
+              "$ref" : "#/components/schemas/BaseUser"
+            }
+          },
+          "nextLink" : {
+            "type" : "string",
+            "description" : "URL to the next page of results."
+          },
+          "prevLink" : {
+            "type" : "string",
+            "description" : "URL to the previous page of result."
+          },
+          "totalResults" : {
+            "type" : "integer",
+            "description" : "The total number of results on all pages.",
+            "format" : "int64"
+          }
+        }
+      },
+      "GroupRolesResponse" : {
+        "type" : "object",
+        "properties" : {
+          "organizationRoles" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OrgRole"
+            }
+          },
+          "serviceRoles" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OrgServiceRole"
+            }
+          }
+        }
+      },
+      "OrgRole" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "The identifier of the role."
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "The name of the role."
+          },
+          "membershipType" : {
+            "type" : "string",
+            "description" : "Membership type of the member in the organization.\nDIRECT: if the member roles were assigned directly.\nGROUP: if the member roles were assigned through enterprise group.",
+            "enum" : [ "DIRECT", "GROUP" ]
+          },
+          "expiresAt" : {
+            "type" : "string",
+            "description" : "The timestamp the role expires at (measured in number of seconds since 1/1/1970 UTC). The property is ignored by the identity service.",
+            "format" : "date-time"
+          },
+          "displayName" : {
+            "type" : "string",
+            "description" : "The organization role display name."
+          },
+          "orgId" : {
+            "type" : "string",
+            "description" : "The organization id in which the role is assigned."
+          }
+        }
+      },
+      "OrgServiceRole" : {
+        "type" : "object",
+        "properties" : {
+          "serviceDefinitionId" : {
+            "type" : "string",
+            "description" : "The service definition id (without \"external\" prefix)."
+          },
+          "serviceRoleNames" : {
+            "type" : "array",
+            "description" : "Deprecated: The service role names (use serviceRoles instead).",
+            "deprecated" : true,
+            "items" : {
+              "type" : "string",
+              "deprecated" : true
+            }
+          },
+          "serviceRoles" : {
+            "type" : "array",
+            "description" : "List of services roles objects.",
+            "items" : {
+              "$ref" : "#/components/schemas/ServiceRoleBinding"
+            }
+          }
+        }
+      },
+      "SearchGroupsResponse" : {
+        "required" : [ "results" ],
+        "type" : "object",
+        "properties" : {
+          "results" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ExpandedGroup"
+            }
+          }
+        }
+      },
+      "UserProfileResponse" : {
+        "type" : "object",
+        "properties" : {
+          "defaultOrgId" : {
+            "type" : "string"
+          },
+          "isFederated" : {
+            "type" : "boolean"
+          },
+          "linkedUserIdAccount" : {
+            "type" : "string"
+          },
+          "customerNumber" : {
+            "type" : "string"
+          },
+          "locale" : {
+            "type" : "string"
+          },
+          "language" : {
+            "type" : "string"
+          },
+          "userId" : {
+            "type" : "string"
+          },
+          "username" : {
+            "type" : "string",
+            "deprecated" : true
+          },
+          "acct" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/UserProfileMetadata"
+          },
+          "createdAt" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "preferredTheme" : {
+            "type" : "string"
+          }
+        }
+      },
+      "UserGroupsResponse" : {
+        "type" : "object",
+        "properties" : {
+          "groups" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "User Groups Information",
+            "items" : {
+              "$ref" : "#/components/schemas/Group"
+            }
+          }
+        }
+      },
+      "UserDetailsResponse" : {
+        "type" : "object",
+        "properties" : {
+          "isVmwareIdUser" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "PagedResponseGroup" : {
+        "type" : "object",
+        "properties" : {
+          "results" : {
+            "type" : "array",
+            "description" : "The list of results.",
+            "items" : {
+              "$ref" : "#/components/schemas/Group"
+            }
+          },
+          "nextLink" : {
+            "type" : "string",
+            "description" : "URL to the next page of results."
+          },
+          "prevLink" : {
+            "type" : "string",
+            "description" : "URL to the previous page of result."
+          },
+          "totalResults" : {
+            "type" : "integer",
+            "description" : "The total number of results on all pages.",
+            "format" : "int64"
+          }
+        }
+      },
+      "PublicKeyResponse" : {
+        "type" : "object",
+        "properties" : {
+          "alg" : {
+            "type" : "string",
+            "description" : "The algorithm associated with the public key."
+          },
+          "value" : {
+            "type" : "string",
+            "description" : "The public key. Set in the case of <code>pem</code> format."
+          },
+          "issuer" : {
+            "type" : "string",
+            "description" : "The issuer of the JWTs issued by the Identity service against which to validate the iss claim."
+          },
+          "keys" : {
+            "type" : "array",
+            "description" : "The list of the currently valid public keys. Set in the case of <code>jwks</code> format. The model of this property is a <code>Map</code> of <code>JsonWebKey</code> objects.",
+            "items" : {
+              "type" : "object",
+              "additionalProperties" : {
+                "type" : "object",
+                "description" : "The list of the currently valid public keys. Set in the case of <code>jwks</code> format. The model of this property is a <code>Map</code> of <code>JsonWebKey</code> objects."
+              },
+              "description" : "The list of the currently valid public keys. Set in the case of <code>jwks</code> format. The model of this property is a <code>Map</code> of <code>JsonWebKey</code> objects."
+            }
+          }
+        }
+      },
+      "OpenidConfigurationResponse" : {
+        "type" : "object",
+        "properties" : {
+          "issuer" : {
+            "type" : "string"
+          },
+          "authorization_endpoint" : {
+            "type" : "string"
+          },
+          "token_endpoint" : {
+            "type" : "string"
+          },
+          "token_endpoint_auth_methods_supported" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "jwks_uri" : {
+            "type" : "string"
+          },
+          "userinfo_endpoint" : {
+            "type" : "string"
+          },
+          "response_types_supported" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "grant_types_supported" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "subject_types_supported" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "id_token_signing_alg_values_supported" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "scopes_supported" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "description" : "The OpenID configuration document as defined by the specification: http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata. This is also compliant with the https://tools.ietf.org/html/draft-ietf-oauth-discovery-08 specification."
+      },
+      "RemoveGroupsFromOrgRequest" : {
+        "type" : "object",
+        "properties" : {
+          "ids" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "notifyUsersInGroups" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "RemoveGroupsFromOrganizationFailure" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "The id of the entry for which an operation had failed"
+          },
+          "message" : {
+            "type" : "string",
+            "description" : "The reason for which the operation for this entry had failed."
+          }
+        }
+      },
+      "RemoveMembersFromOrgResponse" : {
+        "type" : "object",
+        "properties" : {
+          "succeeded" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "failed" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "failures" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RemoveGroupsFromOrganizationFailure"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "Authorization" : {
+        "type" : "apiKey",
+        "name" : "Authorization",
+        "in" : "header"
+      }
+    }
+  }
+}
