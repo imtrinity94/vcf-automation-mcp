@@ -1,7 +1,7 @@
 import type { Dispatcher } from 'undici';
 import type { Config } from './config.js';
 import type { TokenProvider } from './auth.js';
-import { rawRequest, FormData } from './http.js';
+import { rawRequest } from './http.js';
 import { isWrite, type Operation } from './operations.js';
 
 export interface ToolResult { [k: string]: unknown; content: { type: 'text'; text: string }[]; isError?: boolean }
@@ -29,7 +29,7 @@ export function buildUrl(cfg: Config, op: Operation, args: Record<string, any>):
   return `${cfg.host}${p}${q ? `?${q}` : ''}`;
 }
 
-function encodeBody(op: Operation, body: any, headers: Record<string, string>): any {
+async function encodeBody(op: Operation, body: any, headers: Record<string, string>): Promise<string | Buffer | undefined> {
   if (body === undefined || body === null) return undefined;
   const ct = op.body?.contentType || 'application/json';
   if (ct === 'application/x-www-form-urlencoded') {
@@ -40,12 +40,14 @@ function encodeBody(op: Operation, body: any, headers: Record<string, string>): 
     return u.toString();
   }
   if (ct === 'multipart/form-data') {
-    const fd = new FormData();
+    const fd = new FormData(); // Node's global FormData; serialised via Response to get the boundary
     for (const [k, v] of Object.entries(typeof body === 'object' ? body : { file: body })) {
       if (v === undefined || v === null) continue;
       fd.append(k, typeof v === 'string' ? v : JSON.stringify(v));
     }
-    return fd; // fetch sets the multipart boundary
+    const r = new Response(fd);
+    headers['Content-Type'] = r.headers.get('content-type') || ct;
+    return Buffer.from(await r.arrayBuffer());
   }
   if (/json/.test(ct)) {
     headers['Content-Type'] = ct;
@@ -71,20 +73,20 @@ export class Executor {
     const url = buildUrl(this.cfg, op, args);
     const isCloudapi = op.path.startsWith('/cloudapi/');
     const send = async (force: boolean) => {
-      const token = await this.tokens.get(force);
+      const authHeader = await this.tokens.get(force);
       const headers: Record<string, string> = {
-        Authorization: `Bearer ${token}`,
+        Authorization: authHeader,
         Accept: isCloudapi ? `application/json;version=${this.cfg.cloudapiVersion}` : 'application/json, application/x-yaml;q=0.9, */*;q=0.8'
       };
       for (const prm of op.params) {
         if (prm.in === 'header' && args[prm.arg] !== undefined) headers[prm.name] = stringifyParam(args[prm.arg]);
       }
-      const body = encodeBody(op, args.body, headers);
+      const body = await encodeBody(op, args.body, headers);
       return rawRequest(this.dispatcher, url, { method: op.method, headers, body }, this.cfg.timeoutMs);
     };
 
     let res = await send(false);
-    if (res.status === 401 && this.cfg.authMode !== 'bearer') {
+    if (res.status === 401 && this.cfg.authMode !== 'token') {
       this.tokens.invalidate();
       res = await send(true);
     }

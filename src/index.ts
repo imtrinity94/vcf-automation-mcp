@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
@@ -6,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadConfig } from './config.js';
-import { makeDispatcher } from './http.js';
+import { dispatcherFor } from './http.js';
 import { TokenProvider } from './auth.js';
 import { Executor } from './executor.js';
 import { loadCatalog, selectOperations, isWrite, type Operation } from './operations.js';
@@ -28,7 +27,7 @@ async function main() {
   }
 
   const cfg = loadConfig();
-  const dispatcher = makeDispatcher(cfg);
+  const dispatcher = dispatcherFor(cfg);
   const tokens = new TokenProvider(cfg, dispatcher);
   const exec = new Executor(cfg, dispatcher, tokens);
   const ops = selectOperations(catalog, cfg);
@@ -83,11 +82,11 @@ async function main() {
         const status: Record<string, any> = {
           server: `vcf-automation-mcp ${pkg.version}`,
           host: cfg.host, org: cfg.org, readOnly: cfg.readOnly, insecureTls: cfg.insecure,
-          configuredAuthMode: cfg.authMode, auth: tokens.describe(),
+          auth: tokens.describe(),
           toolsLoaded: ops.length, toolsTotal: catalog.operations.length, perService
         };
         if (args.test) {
-          await tokens.get(true);
+          await tokens.get();
           status.auth = tokens.describe();
           const about = allByName.get('iaas_get_about');
           if (about) {
