@@ -22,7 +22,15 @@ export function buildUrl(cfg: Config, op: Operation, args: Record<string, any>):
       p = p.replace(`{${prm.name}}`, encodeURIComponent(stringifyParam(v)));
     } else if (prm.in === 'query' && v !== undefined && v !== null && v !== '') {
       if (Array.isArray(v)) v.forEach(x => qs.append(prm.name, stringifyParam(x)));
-      else qs.append(prm.name, stringifyParam(v));
+      else if (typeof v === 'object') {
+        // OpenAPI default for object query params is style=form, explode=true:
+        // { page: 0, size: 5, sort: ['name,asc'] } -> page=0&size=5&sort=name,asc (e.g. Spring Pageable on /vro/workflows)
+        for (const [k, x] of Object.entries(v as Record<string, unknown>)) {
+          if (x === undefined || x === null || x === '') continue;
+          if (Array.isArray(x)) x.forEach(y => qs.append(k, stringifyParam(y)));
+          else qs.append(k, stringifyParam(x));
+        }
+      } else qs.append(prm.name, stringifyParam(v));
     }
   }
   const q = qs.toString().replace(/%24/g, '$'); // keep OData-style $filter/$top readable

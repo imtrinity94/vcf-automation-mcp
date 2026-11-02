@@ -137,6 +137,10 @@ try {
   entry = Object.values(JSON.parse(fs.readFileSync(tokenFile1, 'utf8')))[0];
   assert(validRefresh.has(entry.refreshToken)); ok('token file follows the second rotation');
 
+  r = await c.callTool({ name: 'vro_workflow_get_all', arguments: { page: { page: 0, size: 5, sort: ['name,asc'] } } });
+  e = echo(r);
+  assert.match(e.url, /^\/vro\/workflows\?page=0&size=5&sort=name%2Casc$/); ok('object query param exploded (Pageable page/size/sort)');
+
   r = await c.callTool({ name: 'iaas_create_project', arguments: { body: { name: 'NED-Dev', description: 'x' } } });
   e = echo(r);
   assert.equal(e.method, 'POST'); assert.equal(JSON.parse(e.body).name, 'NED-Dev'); assert.match(e.contentType, /json/); ok('POST JSON body');
