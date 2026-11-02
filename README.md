@@ -40,12 +40,29 @@ There are also two helper tools:
 
 Login works the same way as [vcf-orchestrator-mcp](https://github.com/imtrinity94/vcf-orchestrator-mcp). A one-time `setup` creates a VCF Automation **service account** and stores its refresh token on your machine. After that the server keeps its own login alive, so no token or password goes into your MCP config.
 
-### 1. Run setup once
+### 1. Install globally
 
 ```bash
 npm i -g vcf-automation-mcp
-vcf-automation-mcp setup --url "https://auto.vmw.lab" --org "vmapps-org" --user "<local-admin>" --name "Lab-VCFA-MCP" --role "Organization Owner" --insecure
 ```
+
+The MCP config below runs the `vcf-automation-mcp` command, so the global install is required. If you only run setup with `npx`, there's no command for the client to start and Claude Desktop shows **"vcf-automation couldn't start. Its command wasn't found."**
+
+### 2. Run setup once
+
+```bash
+vcf-automation-mcp setup --url "https://auto.vmw.lab" --org "vmapps-org" --user "admin" --name "Lab-VCFA-MCP" --role "Service Broker Administrator,Orchestrator Administrator,Assembler Administrator" --insecure
+```
+
+This exact command was tested end to end against a VCF Automation 9 VM Apps org (Windows 11, Claude Desktop).
+
+**Role names must exist in your org exactly as typed.** Each name becomes a `urn:vcloud:role:<name>` scope. A name the org doesn't have fails registration with HTTP 500, for example:
+
+```
+Registering service account failed: HTTP 500 ... Unable to find the following role(s) in org <id>: [Organization Administrator].
+```
+
+The error names only the roles it couldn't find, so drop or rename those and run setup again (the failed run creates nothing, so you can reuse the same `--name`). Role names vary per org: check **Access Control > Roles** in the tenant UI, or the role list in setup's first line (`1/5 Logged in as admin@vmapps-org (..., role ...)`). Leave `--role` out to copy the role of the user you log in with.
 
 Setup asks for the password with a masked prompt. It uses it once to log in and never stores it. Then it:
 
@@ -70,7 +87,7 @@ It saves the refresh token to `~/.vcf-automation-mcp/tokens.json` (on Windows, `
 
 > If the access check shows **403** for an API, the service account's role doesn't cover it. Give it a broader role (e.g. Organization Owner), then restart your MCP client.
 
-### 2. Add it to your MCP client
+### 3. Add it to your MCP client
 
 ```json
 {
@@ -89,7 +106,19 @@ It saves the refresh token to `~/.vcf-automation-mcp/tokens.json` (on Windows, `
 }
 ```
 
-The config file is at `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS and `%APPDATA%\Claude\claude_desktop_config.json` on Windows.
+The config file is at `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS and `%APPDATA%\Claude\claude_desktop_config.json` on Windows. After editing it, quit Claude Desktop completely (on Windows, from the system tray) and reopen it.
+
+**Windows: if the command still isn't found** after the global install, Claude Desktop isn't seeing the npm folder on its PATH. Run `where vcf-automation-mcp` and put the full path in `command`, with doubled backslashes:
+
+```json
+"command": "C:\\Users\\<you>\\AppData\\Roaming\\npm\\vcf-automation-mcp.cmd"
+```
+
+Without a global install, `"command": "cmd"` with `"args": ["/c", "npx", "-y", "vcf-automation-mcp"]` also works, but it's slower to start.
+
+### 4. Check the connection
+
+Ask your client to run `vcfa_connection_status` with `test: true`. A working setup shows `"modeInUse": "api-token"`, the token file under your home folder, and `GET /iaas/api/about -> HTTP 200 OK`. On VCF Automation 9 the token endpoint resolves to `/tm/oauth/tenant/<org>/token`. With the `VCFA_SERVICES` list above, 182 of the 696 tools load.
 
 ## Configuration
 

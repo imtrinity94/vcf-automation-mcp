@@ -321,4 +321,10 @@ export async function runSetup(argv: string[]): Promise<void> {
       2
     )
   );
+  console.log('\n"command": "vcf-automation-mcp" needs the global install: npm i -g vcf-automation-mcp');
+  console.log('If you ran setup with npx, install it globally now, or the MCP client reports "command not found".');
+  if (process.platform === 'win32') {
+    console.log('Windows: if the client still cannot find it, run "where vcf-automation-mcp" and put that full path');
+    console.log('(e.g. C:\\\\Users\\\\<you>\\\\AppData\\\\Roaming\\\\npm\\\\vcf-automation-mcp.cmd) in "command".');
+  }
 }
