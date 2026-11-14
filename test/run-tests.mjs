@@ -115,7 +115,7 @@ try {
   const tokenFile1 = path.join(TMP, 'tokens-1.json');
   let c = await connect({ VCFA_API_TOKEN: 'seed-rt-1', VCFA_CLIENT_ID: 'my-client', VCFA_TOKEN_FILE: tokenFile1 });
   const { tools } = await c.listTools();
-  assert.equal(tools.length, 696 + 2); ok(`lists ${tools.length} tools (696 operations + 2 meta)`);
+  assert.equal(tools.length, 698 + 2); ok(`lists ${tools.length} tools (698 operations + 2 meta)`);
   assert(tools.every(t => /^[a-zA-Z0-9_-]{1,64}$/.test(t.name))); ok('all tool names valid (<=64, [a-z0-9_-])');
   assert.equal(new Set(tools.map(t => t.name)).size, tools.length); ok('tool names unique');
 
@@ -144,6 +144,13 @@ try {
   r = await c.callTool({ name: 'iaas_create_project', arguments: { body: { name: 'NED-Dev', description: 'x' } } });
   e = echo(r);
   assert.equal(e.method, 'POST'); assert.equal(JSON.parse(e.body).name, 'NED-Dev'); assert.match(e.contentType, /json/); ok('POST JSON body');
+
+  r = await c.callTool({ name: 'eventbroker_create_or_update_subscription', arguments: { body: { name: 'NED - CompProv Pre - Set Hostname', type: 'RUNNABLE', eventTopicId: 'compute.provision.pre', runnableType: 'extensibility.vro', runnableId: 'wf-123', blocking: true, timeout: 30, constraints: { projectId: ['p1'] } } } });
+  e = echo(r);
+  assert.equal(e.method, 'POST'); assert.equal(e.url, '/event-broker/api/subscriptions'); assert.equal(JSON.parse(e.body).runnableType, 'extensibility.vro');
+  ok('eventbroker_create_or_update_subscription (supplement spec) POSTs the subscription');
+  r = await c.callTool({ name: 'eventbroker_list_subscriptions', arguments: { size: 50, filter: "type eq 'RUNNABLE'" } });
+  assert.match(echo(r).url, /^\/event-broker\/api\/subscriptions\?size=50&\$filter=type/); ok('eventbroker_list_subscriptions with $filter');
 
   r = await c.callTool({ name: 'provider_query_users', arguments: { page: 1, pageSize: 10 } });
   e = echo(r);

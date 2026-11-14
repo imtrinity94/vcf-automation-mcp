@@ -1,0 +1,75 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Event Broker Service API - subscription list / create (supplement)",
+    "version": "2026-11-14",
+    "description": "Hand-written supplement. The Event Broker spec published for VCF Automation 9 VM Apps orgs (and its api-docs page) only exposes GET and DELETE /event-broker/api/subscriptions/{id}. Listing and creating/updating subscriptions use the same endpoints as Aria Automation 8.x, which the VCF Automation UI still calls. Fields follow the published Subscription data structure plus the runnable fields used by 8.x."
+  },
+  "paths": {
+    "/event-broker/api/subscriptions": {
+      "get": {
+        "tags": ["Subscription"],
+        "operationId": "listSubscriptions",
+        "summary": "List extensibility subscriptions [not in the published VCFA 9 spec - same endpoint as Aria Automation 8.x]",
+        "description": "Returns a page of subscriptions. Filter with OData, e.g. \"type eq 'RUNNABLE'\" for extensibility subscriptions, \"eventTopicId eq 'compute.provision.pre'\" or \"name eq 'NED - CompProv Pre - Set Hostname'\".",
+        "parameters": [
+          { "name": "page", "in": "query", "description": "Zero-based page index", "schema": { "type": "integer", "default": 0 } },
+          { "name": "size", "in": "query", "description": "Page size", "schema": { "type": "integer", "default": 20 } },
+          { "name": "$filter", "in": "query", "description": "OData filter, e.g. type eq 'RUNNABLE'", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Page of subscriptions" } }
+      },
+      "post": {
+        "tags": ["Subscription"],
+        "operationId": "createOrUpdateSubscription",
+        "summary": "Create or update an extensibility subscription [not in the published VCFA 9 spec - same endpoint as Aria Automation 8.x]",
+        "description": "Creates a subscription; posting again with an existing id updates it (read it first with eventbroker_get_subscription and send the full object back). For a workflow subscription set type RUNNABLE, runnableType extensibility.vro and runnableId = the workflow ID; for an ABX action use runnableType extensibility.abx and the action ID. Get eventTopicId values from eventbroker_get_all_event_topics.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SubscriptionRequest" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Subscription saved" }, "201": { "description": "Subscription created" } }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SubscriptionRequest": {
+        "type": "object",
+        "required": ["name", "eventTopicId", "runnableType", "runnableId"],
+        "properties": {
+          "id": { "type": "string", "description": "Omit to create. Send an existing subscription's id to update it." },
+          "name": { "type": "string", "description": "Display name" },
+          "description": { "type": "string" },
+          "type": { "type": "string", "default": "RUNNABLE", "description": "RUNNABLE for workflow / ABX subscriptions" },
+          "eventTopicId": { "type": "string", "description": "Event topic id, e.g. compute.provision.pre, compute.allocation.pre, deployment.request.post" },
+          "runnableType": { "type": "string", "enum": ["extensibility.vro", "extensibility.abx"], "description": "extensibility.vro = Orchestrator workflow, extensibility.abx = ABX action" },
+          "runnableId": { "type": "string", "description": "Workflow ID or ABX action ID to run" },
+          "recoverRunnableType": { "type": "string", "enum": ["extensibility.vro", "extensibility.abx"], "description": "Optional workflow/action to run if the main runnable fails" },
+          "recoverRunnableId": { "type": "string" },
+          "blocking": { "type": "boolean", "description": "Blocking subscription: the request waits for the runnable and can receive its outputs" },
+          "timeout": { "type": "integer", "description": "Minutes to wait for a blocking runnable" },
+          "priority": { "type": "integer", "description": "Order among blocking subscriptions on the same topic; 0 is highest" },
+          "criteria": { "type": "string", "description": "JavaScript boolean condition on the event, e.g. event.data.projectId == '...'. Omit to always run." },
+          "constraints": {
+            "type": "object",
+            "description": "Scope. Omit or null for any project.",
+            "properties": {
+              "projectId": { "type": "array", "items": { "type": "string" }, "description": "Project IDs the subscription applies to" }
+            }
+          },
+          "disabled": { "type": "boolean", "default": false },
+          "contextual": { "type": "boolean" },
+          "broadcast": { "type": "boolean" },
+          "messageTTL": { "type": "integer", "description": "TTL in milliseconds" },
+          "requeueDelay": { "type": "integer" },
+          "subscriberId": { "type": "string" }
+        }
+      }
+    }
+  }
+}

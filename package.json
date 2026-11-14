@@ -1,6 +1,6 @@
 {
   "name": "vcf-automation-mcp",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "MCP server for VCF Automation 9 (VM Apps organization) — one MCP tool per REST operation across ABX, Approvals, Blueprint, Catalog, Deployment, Policies, Custom Forms, Content, Event Broker, IaaS, Identity, Onboarding, Orchestrator Gateway, Projects and Provider Management APIs.",
   "keywords": [
     "mcp",
@@ -24,7 +24,8 @@
     "dist",
     "data/operations.json",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "CHANGELOG.md"
   ],
   "engines": {
     "node": ">=20.18.1"

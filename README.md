@@ -2,7 +2,7 @@
 
 ![vcf-automation-mcp](.github/social-preview.png)
 
-MCP server for **VCF Automation 9** (VM Apps organization). Every REST operation in the VCF Automation API set becomes one MCP tool: **696 operation tools** across 16 services, generated straight from the OpenAPI specs that VCF Automation serves at `https://<vcfa>/tenant/<org>/api-docs`.
+MCP server for **VCF Automation 9** (VM Apps organization). Every REST operation in the VCF Automation API set becomes one MCP tool: **698 operation tools** across 16 services: 696 generated straight from the OpenAPI specs that VCF Automation serves at `https://<vcfa>/tenant/<org>/api-docs`, plus 2 Event Broker subscription calls those specs leave out (see [Event Broker subscriptions](#event-broker-subscriptions)).
 
 Sister project of [vcf-orchestrator-mcp](https://github.com/imtrinity94/vcf-orchestrator-mcp).
 
@@ -19,7 +19,7 @@ Sister project of [vcf-orchestrator-mcp](https://github.com/imtrinity94/vcf-orch
 | `policy` | 9 | Policies and policy types |
 | `form` | 42 | Custom Forms |
 | `content` | 11 | Content Gateway (content sources, source control) |
-| `eventbroker` | 7 | Event Broker: events, topics, audit, subscriptions |
+| `eventbroker` | 9 | Event Broker: events, topics, audit, subscriptions (list, create/update, get, delete) |
 | `iaas` | 265 | Provisioning Service (IaaS): cloud accounts, zones, mappings, networks, storage, machines |
 | `identity` | 53 | Identity Service (`/csp/gateway/am/api`) |
 | `onboarding` | 27 | Onboarding (relocation) plans, resources, deployments |
@@ -118,7 +118,7 @@ Without a global install, `"command": "cmd"` with `"args": ["/c", "npx", "-y", "
 
 ### 4. Check the connection
 
-Ask your client to run `vcfa_connection_status` with `test: true`. A working setup shows `"modeInUse": "api-token"`, the token file under your home folder, and `GET /iaas/api/about -> HTTP 200 OK`. On VCF Automation 9 the token endpoint resolves to `/tm/oauth/tenant/<org>/token`. With the `VCFA_SERVICES` list above, 182 of the 696 tools load.
+Ask your client to run `vcfa_connection_status` with `test: true`. A working setup shows `"modeInUse": "api-token"`, the token file under your home folder, and `GET /iaas/api/about -> HTTP 200 OK`. On VCF Automation 9 the token endpoint resolves to `/tm/oauth/tenant/<org>/token`. With the `VCFA_SERVICES` list above, 184 of the 698 tools load.
 
 ## Configuration
 
@@ -164,6 +164,19 @@ Access tokens are renewed a minute before they expire, and once more after a `40
 - Request bodies go in `body`: a JSON object, or a string for YAML/text endpoints.
 - OData parameters drop the `$` because MCP clients reject `$` in argument names: `$top` becomes `top`, and likewise `skip`, `filter`, `select`, `orderby`, `count`.
 - Many automation endpoints take an optional `apiVersion` query parameter.
+
+## Event Broker subscriptions
+
+The Event Broker spec published for VCF Automation 9 VM Apps orgs has only two subscription operations: get one by ID, and delete. It has no way to list or create subscriptions, although the VCF Automation UI does both. The UI uses the same endpoints as Aria Automation 8.x, so this server adds them from a small hand-written supplement (`specs/Event Broker - Subscriptions (extra).json`):
+
+| Tool | Request |
+|---|---|
+| `eventbroker_list_subscriptions` | `GET /event-broker/api/subscriptions` with `page`, `size`, `filter` (e.g. `type eq 'RUNNABLE'`) |
+| `eventbroker_create_or_update_subscription` | `POST /event-broker/api/subscriptions`. Omit `id` to create; send an existing `id` to update |
+
+A workflow subscription needs `name`, `eventTopicId` (from `eventbroker_get_all_event_topics`), `type: "RUNNABLE"`, `runnableType: "extensibility.vro"` and `runnableId` (the workflow ID). For an ABX action, use `runnableType: "extensibility.abx"` with the action ID. Optional fields are `blocking`, `timeout`, `priority`, `criteria`, `constraints.projectId` and `disabled`.
+
+Because these two calls aren't in Broadcom's published API, their tool descriptions say so, and a future VCF Automation release could change them.
 
 ## Development
 

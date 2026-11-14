@@ -19,6 +19,8 @@ const SPECS = [
   { file: 'Content Form.json', map: { 'form-service': 'form' } },
   { file: 'Content Service.json', map: { content: 'content' } },
   { file: 'Event Broker.json', map: { 'event-broker': 'eventbroker' } },
+  // Supplement: list + create/update subscriptions are missing from the published VCFA 9 Event Broker spec
+  { file: 'Event Broker - Subscriptions (extra).json', map: { 'event-broker': 'eventbroker' } },
   { file: 'IaaS Provisioning Service.json', map: { iaas: 'iaas' } },
   { file: 'Identity Service.json', map: { csp: 'identity', oauth: 'identity', '.well-known': 'identity' } },
   { file: 'Onboarding.yaml', map: { relocation: 'onboarding' } },
