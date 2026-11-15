@@ -212,7 +212,14 @@ export async function runSetup(argv: string[]): Promise<void> {
             const mine: string[] = Array.isArray(json?.roles) && json.roles.length
               ? json.roles
               : Array.isArray(json?.roleRefs) ? json.roleRefs.map((r: any) => r?.name).filter(Boolean) : [];
-            role = mine.length ? mine.join(',') : 'Organization Administrator';
+            // Leave out read-only roles (Organization Auditor, ... Viewer, Read Only ...) when the user has any other
+            // role: the service account is meant to act, and viewer roles add nothing to an admin role.
+            const isViewer = (r: string) => /auditor|viewer|read[\s-]?only/i.test(r);
+            const acting = mine.filter(r => !isViewer(r));
+            const chosen = acting.length ? acting : mine;
+            role = chosen.length ? chosen.join(',') : 'Organization Administrator';
+            const skipped = mine.filter(r => !chosen.includes(r));
+            if (skipped.length) console.log(`    Not giving the service account read-only role(s): ${skipped.join(', ')} (pass --role to choose roles yourself)`);
           }
           console.log(`1/5 Logged in as ${user}@${org} (${p}, role ${Array.isArray(json?.roles) ? json.roles.join(', ') : '?'})`);
           break outer;

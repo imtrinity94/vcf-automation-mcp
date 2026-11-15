@@ -5,7 +5,7 @@ All notable changes to `vcf-automation-mcp`. Newest first.
 ## 1.0.1 — 2026-11-15
 
 ### Fixed
-- `setup` without `--role` now gives the service account **all** of the logged-in user's roles. Before, it took only the first: an All Apps `admin` with Organization Auditor, Organization Administrator and Encryption Management Admin got just Organization Auditor, which is read-only, so Event Broker and Orchestrator Gateway returned 403.
+- `setup` without `--role` now gives the service account all of the logged-in user's roles **except read-only ones**: names containing Auditor, Viewer or Read Only, unless those are all the user has. Setup prints which roles it left out. Before, it took only the first role: an All Apps `admin` with Organization Auditor, Organization Administrator and Encryption Management Admin got just Organization Auditor, which is read-only, so Event Broker and Orchestrator Gateway returned 403. That admin now gets Organization Administrator and Encryption Management Admin.
 - The All Apps access check calls `/iaas/api/integrations` with the `apiVersion=2021-07-15` it requires. Without it, the check got HTTP 400.
 
 ## 1.0.0 — 2026-11-15
