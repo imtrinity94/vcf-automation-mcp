@@ -250,6 +250,7 @@ try {
   assert.match(out4.stdout, /Not giving the service account read-only role\(s\): Organization Auditor/);
   ok('setup without --role gives the service account all of the user\'s roles except read-only ones (Auditor/Viewer)');
   assert(log.some(l => l.url === '/iaas/api/integrations?apiVersion=2021-07-15&$top=1')); ok('All Apps IaaS access check sends the required apiVersion');
+  assert(log.some(l => l.url === '/event-broker/api/topics?size=1')); ok('Event Broker access check uses the documented /event-broker/api/topics');
   entry = JSON.parse(fs.readFileSync(tokenFile4, 'utf8'))[`${HOST.toLowerCase()}|${ORG2}`];
   assert.equal(entry.orgType, 'all-apps'); ok('setup stores orgType with the token');
   c = await connect({ VCFA_ORG: ORG2, VCFA_AUTH_MODE: 'api-token', VCFA_TOKEN_FILE: tokenFile4 });

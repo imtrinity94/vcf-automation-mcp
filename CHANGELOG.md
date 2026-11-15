@@ -2,6 +2,12 @@
 
 All notable changes to `vcf-automation-mcp`. Newest first.
 
+## 1.0.2 — 2026-11-15
+
+### Changed
+- `setup`'s Event Broker access check calls the documented `GET /event-broker/api/topics` instead of the subscription list endpoint, which isn't in Broadcom's published spec.
+- On an All Apps org, a 403 from Orchestrator Gateway now prints a note: Orchestrator is probably not enabled or shared for that org, so no service account role will fix it. Seen live on `allapps-org-01`, where the org admin can't see Orchestrator in the UI either.
+
 ## 1.0.1 — 2026-11-15
 
 ### Fixed

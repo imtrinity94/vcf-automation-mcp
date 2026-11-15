@@ -114,7 +114,7 @@ const CHECKS: Record<OrgType, [string, string][]> = {
     ['Deployment', '/deployment/api/deployments?size=1'],
     ['Blueprint', '/blueprint/api/blueprints?size=1'],
     ['ABX', '/abx/api/resources/actions?size=1'],
-    ['Event Broker', '/event-broker/api/subscriptions?size=1'],
+    ['Event Broker', '/event-broker/api/topics?size=1'], // documented endpoint (the subscription list is not in the published spec)
     ['Orchestrator Gateway', '/vro/workflows?size=1'],
     ['Provider Management (/cloudapi)', '/cloudapi/1.0.0/sessions/current']
   ],
@@ -125,7 +125,7 @@ const CHECKS: Record<OrgType, [string, string][]> = {
     ['Catalog', '/catalog/api/items?size=1'],
     ['Deployment', '/deployment/api/deployments?size=1'],
     ['Blueprint', '/blueprint/api/blueprints?size=1'],
-    ['Event Broker', '/event-broker/api/subscriptions?size=1'],
+    ['Event Broker', '/event-broker/api/topics?size=1'], // documented endpoint (the subscription list is not in the published spec)
     ['Orchestrator Gateway', '/vro/workflows?size=1'],
     ['Org management (/cloudapi)', '/cloudapi/1.0.0/sessions/current'],
     ['Regions (/cloudapi)', '/cloudapi/v1/regions?page=1&pageSize=1']
@@ -329,13 +329,19 @@ export async function runSetup(argv: string[]): Promise<void> {
   console.log('\nAPI access check (403 = the service account role does not cover this API):');
   const auth = { Authorization: `Bearer ${tokens.access_token}`, Accept: 'application/json' };
   let ok = 0;
+  const forbidden: string[] = [];
   const checks = CHECKS[orgType];
   for (const [label, p] of checks) {
     const headers = p.startsWith('/cloudapi/') ? { ...auth, Accept: 'application/json;version=9.1.0' } : auth;
     const r = await req('GET', p, headers).catch((e: any) => ({ res: { status: 0 }, json: e.message } as any));
     const s = r.res.status;
     if (s >= 200 && s < 300) ok++;
+    if (s === 403) forbidden.push(label);
     console.log(`  ${s >= 200 && s < 300 ? 'OK ' : '-- '} ${label.padEnd(32)} HTTP ${s || 'unreachable'}`);
+  }
+  if (orgType === 'all-apps' && forbidden.includes('Orchestrator Gateway')) {
+    console.log('\n  Orchestrator Gateway 403 on an All Apps org usually means Orchestrator is not enabled / shared for this org:');
+    console.log('  if the org admin cannot see Orchestrator in the UI either, no service account role will fix it. The other APIs work.');
   }
   if (ok < checks.length) {
     console.log('\n  Some APIs returned 403/404. 403: give the service account a broader role (e.g. Organization Owner / Organization Administrator)');
