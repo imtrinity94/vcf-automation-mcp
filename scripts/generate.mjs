@@ -1,51 +1,86 @@
 #!/usr/bin/env node
-// Generates data/operations.json from the OpenAPI / Swagger specs in ./specs.
-// One entry per REST operation -> one MCP tool at runtime.
+// Generates data/operations-<org type>.json from the OpenAPI / Swagger specs in ./specs/<org type>.
+// One entry per REST operation -> one MCP tool at runtime. VM Apps and All Apps orgs expose different API sets,
+// so each org type gets its own catalogue; the server loads the one matching VCFA_ORG_TYPE.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const SPEC_DIR = path.join(ROOT, 'specs');
-const OUT = path.join(ROOT, 'data', 'operations.json');
+const SPEC_ROOT = path.join(ROOT, 'specs');
 
-// file -> first path segment -> service key (service key is also the tool-name prefix)
-const SPECS = [
-  { file: 'ABX.json', map: { abx: 'abx' } },
-  { file: 'Approvals.json', map: { approval: 'approvals', workitem: 'approvals', aggregator: 'metrics', deploymentlimit: 'metrics' } },
-  { file: 'Blueprints.json', map: { blueprint: 'blueprint', properties: 'blueprint' } },
-  { file: 'Catalog.yaml', map: { catalog: 'catalog', icon: 'catalog', notification: 'catalog', price: 'catalog', deployment: 'deployment', policy: 'policy' } },
-  { file: 'Content Form.json', map: { 'form-service': 'form' } },
-  { file: 'Content Service.json', map: { content: 'content' } },
-  { file: 'Event Broker.json', map: { 'event-broker': 'eventbroker' } },
-  // Supplement: list + create/update subscriptions are missing from the published VCFA 9 Event Broker spec
-  { file: 'Event Broker - Subscriptions (extra).json', map: { 'event-broker': 'eventbroker' } },
-  { file: 'IaaS Provisioning Service.json', map: { iaas: 'iaas' } },
-  { file: 'Identity Service.json', map: { csp: 'identity', oauth: 'identity', '.well-known': 'identity' } },
-  { file: 'Onboarding.yaml', map: { relocation: 'onboarding' } },
-  { file: 'Orchestrator Gateway.json', map: { vro: 'vro' } },
-  { file: 'Project Service.json', map: { 'project-service': 'project' } },
-  { file: 'Provider Management.json', map: { '1.0.0': 'provider', v1: 'provider' } }
-];
+// Supplement: list + create/update subscriptions are missing from the published Event Broker spec (both org types)
+const EVENT_BROKER_SUPPLEMENT = { file: 'supplements/Event Broker - Subscriptions (extra).json', map: { 'event-broker': 'eventbroker' } };
 
-const SERVICE_INFO = {
-  abx: 'ABX — actions, action versions, secrets, runs and flows',
-  approvals: 'Approvals — approval requests and work items',
-  metrics: 'Deployment Metric — aggregated deployment metrics and deployment limits',
-  blueprint: 'Blueprint (cloud templates) — create, validate, version, release and provision',
-  catalog: 'Catalog — catalog items, sources, entitlements/content sharing, requests, icons, notifications, pricing',
-  deployment: 'Deployment — deployments, resources, day-2 actions and requests',
-  policy: 'Policies — policies and policy types',
-  form: 'Custom Forms — form definitions, designer and rendering',
-  content: 'Content Gateway — content sources and source control',
-  eventbroker: 'Event Broker — events, topics, audit log and extensibility subscriptions',
-  iaas: 'Provisioning Service (IaaS) — cloud accounts, zones, mappings, networks, storage, machines, disks',
-  identity: 'Identity — users, groups, orgs, roles, tokens',
-  onboarding: 'Onboarding — plans and rules to bring existing VMs under management',
-  vro: 'Orchestrator Gateway — workflows and workflow runs',
-  project: 'Projects — projects, membership, costs',
-  provider: 'Provider Management / Access Control (/cloudapi) — users, groups, roles, rights, sessions, tokens, service accounts, LDAP, OIDC'
+// org type -> spec files; each file maps the first path segment to a service key (= tool-name prefix)
+const ORG_TYPES = {
+  'vm-apps': {
+    specs: [
+      { file: 'vm-apps/ABX.json', map: { abx: 'abx' } },
+      { file: 'vm-apps/Approvals.json', map: { approval: 'approvals', workitem: 'approvals', aggregator: 'metrics', deploymentlimit: 'metrics' } },
+      { file: 'vm-apps/Blueprints.json', map: { blueprint: 'blueprint', properties: 'blueprint' } },
+      { file: 'vm-apps/Catalog.yaml', map: { catalog: 'catalog', icon: 'catalog', notification: 'catalog', price: 'catalog', deployment: 'deployment', policy: 'policy' } },
+      { file: 'vm-apps/Content Form.json', map: { 'form-service': 'form' } },
+      { file: 'vm-apps/Content Service.json', map: { content: 'content' } },
+      { file: 'vm-apps/Event Broker.json', map: { 'event-broker': 'eventbroker' } },
+      EVENT_BROKER_SUPPLEMENT,
+      { file: 'vm-apps/IaaS Provisioning Service.json', map: { iaas: 'iaas' } },
+      { file: 'vm-apps/Identity Service.json', map: { csp: 'identity', oauth: 'identity', '.well-known': 'identity' } },
+      { file: 'vm-apps/Onboarding.yaml', map: { relocation: 'onboarding' } },
+      { file: 'vm-apps/Orchestrator Gateway.json', map: { vro: 'vro' } },
+      { file: 'vm-apps/Project Service.json', map: { 'project-service': 'project' } },
+      { file: 'vm-apps/Provider Management.json', map: { '1.0.0': 'provider', v1: 'provider' } }
+    ],
+    services: {
+      abx: 'ABX — actions, action versions, secrets, runs and flows',
+      approvals: 'Approvals — approval requests and work items',
+      metrics: 'Deployment Metric — aggregated deployment metrics and deployment limits',
+      blueprint: 'Blueprint (cloud templates) — create, validate, version, release and provision',
+      catalog: 'Catalog — catalog items, sources, entitlements/content sharing, requests, icons, notifications, pricing',
+      deployment: 'Deployment — deployments, resources, day-2 actions and requests',
+      policy: 'Policies — policies and policy types',
+      form: 'Custom Forms — form definitions, designer and rendering',
+      content: 'Content Gateway — content sources and source control',
+      eventbroker: 'Event Broker — events, topics, audit log and extensibility subscriptions',
+      iaas: 'Provisioning Service (IaaS) — cloud accounts, zones, mappings, networks, storage, machines, disks',
+      identity: 'Identity — users, groups, orgs, roles, tokens',
+      onboarding: 'Onboarding — plans and rules to bring existing VMs under management',
+      vro: 'Orchestrator Gateway — workflows and workflow runs',
+      project: 'Projects — projects, membership, costs',
+      provider: 'Provider Management / Access Control (/cloudapi) — users, groups, roles, rights, sessions, tokens, service accounts, LDAP, OIDC'
+    }
+  },
+  'all-apps': {
+    specs: [
+      { file: 'all-apps/approvals.json', map: { approval: 'approvals', workitem: 'approvals' } },
+      { file: 'all-apps/blueprint.json', map: { blueprint: 'blueprint', properties: 'blueprint' } },
+      { file: 'all-apps/catalog.yaml', map: { catalog: 'catalog', icon: 'catalog', notification: 'catalog', deployment: 'deployment', policy: 'policy' } },
+      { file: 'all-apps/content.json', map: { content: 'content' } },
+      { file: 'all-apps/event-broker-service.json', map: { 'event-broker': 'eventbroker' } },
+      EVENT_BROKER_SUPPLEMENT,
+      { file: 'all-apps/form-service.json', map: { 'form-service': 'form' } },
+      { file: 'all-apps/form-service-types-and-actions.json', map: { 'form-service': 'form' } },
+      { file: 'all-apps/project.json', map: { 'project-service': 'project', platform: 'project', 'rbac-service': 'project' } },
+      { file: 'all-apps/provisioningService.json', map: { iaas: 'iaas' } },
+      { file: 'all-apps/tenantManagerModern.json', map: { '1.0.0': 'provider', v1: 'provider', extensions: 'provider' } },
+      { file: 'all-apps/vro.json', map: { vro: 'vro' } }
+    ],
+    services: {
+      approvals: 'Approvals — approval requests and work items',
+      blueprint: 'Blueprint (cloud templates) — create, validate, version, release and provision',
+      catalog: 'Catalog — catalog items, sources, content sharing, requests, icons, notifications',
+      deployment: 'Deployment — deployments, resources, day-2 actions and requests',
+      policy: 'Policies — policies and policy types',
+      form: 'Custom Forms — custom forms, resource types and resource actions',
+      content: 'Content Gateway — content sources and source control',
+      eventbroker: 'Event Broker — events, topics, audit log and extensibility subscriptions',
+      iaas: 'Provisioning Service (IaaS) — integrations, configuration properties, request tracker, certificates',
+      vro: 'Orchestrator Gateway — workflows and workflow runs',
+      project: 'Projects, secrets (platform) and the caller\'s RBAC auth context',
+      provider: 'Org management (/cloudapi) — users, groups, roles, rights, sessions, tokens, service accounts, regions, zones, namespaces, content libraries, VM classes, storage classes, infra policies, entities'
+    }
+  }
 };
 
 const METHODS = ['get', 'post', 'put', 'patch', 'delete'];
@@ -53,7 +88,7 @@ const MAX_DEPTH = Number(process.env.GEN_MAX_DEPTH || 3);
 const DESC_LIMIT = 300;
 
 function load(file) {
-  const txt = fs.readFileSync(path.join(SPEC_DIR, file), 'utf8');
+  const txt = fs.readFileSync(path.join(SPEC_ROOT, file), 'utf8');
   return file.endsWith('.json') ? JSON.parse(txt) : yaml.load(txt);
 }
 
@@ -216,11 +251,13 @@ function sanitizeKeys(s) {
 }
 
 // ---------- main ----------
+function generate(orgType, { specs, services }) {
+const OUT = path.join(ROOT, 'data', `operations-${orgType}.json`);
 const operations = [];
 const seenKeys = new Set();
 const nameCount = {};
 
-for (const spec of SPECS) {
+for (const spec of specs) {
   const doc = load(spec.file);
   const isSwagger2 = !!doc.swagger;
   const basePrefix = isSwagger2 ? (doc.basePath && doc.basePath !== '/' ? doc.basePath : '') : '';
@@ -337,11 +374,14 @@ for (const spec of SPECS) {
 
 operations.sort((a, b) => a.name.localeCompare(b.name));
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
-fs.writeFileSync(OUT, JSON.stringify({ generatedAt: 'from specs/', services: SERVICE_INFO, operations }));
+fs.writeFileSync(OUT, JSON.stringify({ orgType, generatedAt: `from specs/${orgType}`, services, operations }));
 
 const counts = {};
 for (const o of operations) counts[o.service] = (counts[o.service] || 0) + 1;
 const listSize = JSON.stringify(operations.map(o => ({ name: o.name, description: o.description, inputSchema: o.inputSchema }))).length;
-console.log(`Generated ${operations.length} operations -> ${path.relative(ROOT, OUT)}`);
-console.log(counts);
+console.log(`[${orgType}] Generated ${operations.length} operations -> ${path.relative(ROOT, OUT)}`);
+console.log(JSON.stringify(counts));
 console.log(`tools/list payload ~${(listSize / 1024).toFixed(0)} KB (depth ${MAX_DEPTH})`);
+}
+
+for (const [orgType, def] of Object.entries(ORG_TYPES)) generate(orgType, def);

@@ -1,0 +1,15 @@
+service,file,source_url,bytes
+approvals,approvals.json,https://vcfa.example.com/approval/api/v3/api-docs/modern-tenancy,61762
+blueprint,blueprint.json,https://vcfa.example.com/blueprint/api-docs/modern-apis/api-doc-public-modern-vra-v9.json,129699
+catalog,catalog.yaml,https://vcfa.example.com/catalog/api-docs/modern-apis/api-doc-public-modern-vra-v9.yaml,207214
+content,content.json,https://vcfa.example.com/content/api/swagger/swagger-api-docs/modern-tenancy,37559
+form-service,form-service.json,https://vcfa.example.com/form-service/doc/v3/api-docs/modern-tenancy-custom-form,54528
+form-service-types-and-actions,form-service-types-and-actions.json,https://vcfa.example.com/form-service/doc/v3/api-docs/modern-tenancy-xaas,66299
+event-broker-service,event-broker-service.json,https://vcfa.example.com/event-broker/api/swagger/v3/api-docs,24575
+vro,vro.json,https://vcfa.example.com/vro/api-docs/modern-tenancy,46691
+project,project.json,https://vcfa.example.com/project-service/api/swagger/v3/api-docs/modern-tenancy,67292
+provisioningService,provisioningService.json,https://vcfa.example.com/iaas-api/swagger/v3/api-docs/modern-tenancy,42587
+tenantManagerModern,tenantManagerModern.json,https://vcfa.example.com/tm/api-explorer/tenant/<org>/orgForAllApps.json,620232
+deployment,catalog.yaml,(same spec as catalog),
+policies,catalog.yaml,(same spec as catalog),
+aggregator,approvals.json,(same spec as approvals),

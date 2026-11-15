@@ -1,0 +1,1384 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Provisioning Service API",
+    "description": "Enables seamless integrations, and centralizes configuration properties for streamlined application control.",
+    "license": {
+      "name": "Copyright (c) 2023 VMware, Inc. All Rights Reserved.",
+      "url": "https://www.vmware.com/cloud-solutions.html"
+    },
+    "version": "2021-07-15"
+  },
+  "servers": [
+    {
+      "url": "https://vcfa.example.com"
+    }
+  ],
+  "security": [
+    {
+      "Authorization": []
+    }
+  ],
+  "paths": {
+    "/iaas/api/integrations": {
+      "get": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Get integrations",
+        "description": "Get all integrations within the current organization",
+        "operationId": "getIntegrations",
+        "parameters": [
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format (UTC). For versioning information refer to /iaas/api/about",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "$top",
+            "in": "query",
+            "description": "Number of records you want to get.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "$skip",
+            "in": "query",
+            "description": "Number of records you want to skip.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "$count",
+            "in": "query",
+            "description": "Flag which when specified, regardless of the assigned value, shows the total number of records. If the collection has a filter it shows the number of records matching the filter.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "$select",
+            "in": "query",
+            "description": "Select a subset of properties to include in the response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "$filter",
+            "in": "query",
+            "description": "Filter the results by a specified predicate expression. Operators: eq, ne, and, or.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationResult"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Create an integration",
+        "description": "Create an integration in the current organization asynchronously",
+        "operationId": "createIntegrationAsync",
+        "parameters": [
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format (UTC). For versioning information refer to /iaas/api/about",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "validateOnly",
+            "in": "query",
+            "description": "Only validate provided Integration Specification. Integration will not be created.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Integration instance",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntegrationSpecification"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestTracker"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Request - bad data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/iaas/api/integrations/{id}": {
+      "get": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Get an integration",
+        "description": "Get an integration with a given id",
+        "operationId": "getIntegration",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Integration",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format (UTC). For versioning information refer to /iaas/api/about",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "$select",
+            "in": "query",
+            "description": "Select a subset of properties to include in the response.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Integration"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Delete an integration",
+        "description": "Delete an integration with a given id asynchronously",
+        "operationId": "deleteIntegration",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Integration",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format (UTC). For versioning information refer to /iaas/api/about",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestTracker"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Update an integration",
+        "description": "Update a single integration asynchronously",
+        "operationId": "updateIntegrationAsync",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the integration",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format (UTC). For versioning information refer to /iaas/api/about",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Integration details to be updated",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateIntegrationSpecification"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestTracker"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/iaas/api/configuration-properties": {
+      "get": {
+        "tags": [
+          "Property"
+        ],
+        "summary": "Get configuration properties",
+        "description": "Get all configuration properties",
+        "operationId": "getConfigurationProperties",
+        "parameters": [
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format (UTC). For versioning information refer to /iaas/api/about",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationPropertyResult"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Property"
+        ],
+        "summary": "Update or create configuration property.",
+        "description": "Update or create configuration property.",
+        "operationId": "patchConfigurationProperty",
+        "parameters": [
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format (UTC). For versioning information refer to /iaas/api/about",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Property Specification",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigurationProperty"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationProperty"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/iaas/api/request-tracker/{id}": {
+      "get": {
+        "tags": [
+          "Request"
+        ],
+        "summary": "Get request tracker",
+        "description": "Get request tracker with a given id",
+        "operationId": "getRequestTracker",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the request.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format (UTC). For versioning information refer to /iaas/api/about",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestTracker"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Request"
+        ],
+        "summary": "Delete Request",
+        "description": "Delete a single Request",
+        "operationId": "deleteRequest",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the request.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format (UTC). For versioning information refer to /iaas/api/about",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/iaas/api/request-tracker": {
+      "get": {
+        "tags": [
+          "Request"
+        ],
+        "summary": "Get request tracker",
+        "description": "Get all request trackers",
+        "operationId": "getRequestTrackers",
+        "parameters": [
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format (UTC). For versioning information refer to /iaas/api/about",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestTrackerResult"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/iaas/api/configuration-properties/{id}": {
+      "get": {
+        "tags": [
+          "Property"
+        ],
+        "summary": "Get single configuration property",
+        "description": "Get single configuration property",
+        "operationId": "getConfigurationProperty",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format (UTC). For versioning information refer to /iaas/api/about",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationPropertyResult"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Property"
+        ],
+        "summary": "Delete a configuration property",
+        "description": "Delete a configuration property",
+        "operationId": "deleteConfigurationProperty",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format (UTC). For versioning information refer to /iaas/api/about",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationProperty"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/iaas/api/certificates/{id}": {
+      "get": {
+        "tags": [
+          "Certificates"
+        ],
+        "summary": "Get certificate info",
+        "description": "Get certificate info",
+        "operationId": "getCertificateInfo",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the EndpointCreationTaskState",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format (UTC). For versioning information refer to /iaas/api/about",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CertificateInfo"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CertificateInfoSpecification": {
+        "required": [
+          "certificate"
+        ],
+        "type": "object",
+        "properties": {
+          "certificate": {
+            "type": "string",
+            "description": "The certificate in string format.",
+            "example": "PEM for X509Certificate"
+          }
+        },
+        "description": "Specification for certificate for a cloud account.",
+        "example": {
+          "certificate": "-----BEGIN CERTIFICATE-----\nMIIDHjCCAoegAwIBAgIBATANBgkqhkiG9w0BAQsFADCBpjEUMBIGA1UEChMLVk13\nYXJlIEluYAAc1pw18GT3iAqQRPx0PrjzJhgjIJMla\n/1Kg4byY4FPSacNiRgY/FG2bPCqZk1yRfzmkFYCW/vU+Dg==\n-----END CERTIFICATE-----\n-"
+        }
+      },
+      "IntegrationSpecification": {
+        "required": [
+          "integrationProperties",
+          "integrationType",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "A human-friendly name used as an identifier in APIs that support this option."
+          },
+          "description": {
+            "type": "string",
+            "description": "A human-friendly description."
+          },
+          "integrationType": {
+            "type": "string",
+            "description": "Integration type",
+            "example": "Active directory, Ansible, IPAM, vRO, GitHub"
+          },
+          "privateKeyId": {
+            "type": "string",
+            "description": "Access key id or username to be used to authenticate with the integration",
+            "example": "ACDC55DB4MFH6ADG75KK"
+          },
+          "privateKey": {
+            "type": "string",
+            "description": "Secret access key or password to be used to authenticate with the integration",
+            "example": "gfsScK345sGGaVdds222dasdfDDSSasdfdsa34fS"
+          },
+          "integrationProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Integration specific properties supplied in as name value pairs",
+              "example": "{\"supportPublicImages\":\"true\",\"acceptSelfSignedCertificate\":\"true\"}"
+            },
+            "description": "Integration specific properties supplied in as name value pairs",
+            "example": {
+              "supportPublicImages": "true",
+              "acceptSelfSignedCertificate": "true"
+            }
+          },
+          "associatedCloudAccountIds": {
+            "type": "array",
+            "description": "Cloud accounts to associate with this integration",
+            "example": [
+              "42f3e0d199d134755684cd935435a"
+            ],
+            "items": {
+              "type": "string",
+              "description": "Cloud accounts to associate with this integration",
+              "example": "[\"42f3e0d199d134755684cd935435a\"]"
+            }
+          },
+          "customProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Additional custom properties that may be used to extend the Integration.",
+              "example": "{\"sampleadapterProjectId\":\"projectId\"}"
+            },
+            "description": "Additional custom properties that may be used to extend the Integration.",
+            "example": {
+              "sampleadapterProjectId": "projectId"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "description": "A set of tag keys and optional values to set on the Integration",
+            "example": [
+              {
+                "key": "env",
+                "value": "dev"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            }
+          },
+          "certificateInfo": {
+            "$ref": "#/components/schemas/CertificateInfoSpecification"
+          }
+        },
+        "description": "Specification for creating a generic integration.<br><br>Integration represents external system added to VMware Aria Automation and is identified by a type and specific properties."
+      },
+      "Tag": {
+        "required": [
+          "key",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Tag's key."
+          },
+          "value": {
+            "type": "string",
+            "description": "Tag's value."
+          },
+          "id": {
+            "type": "string",
+            "description": "Tag's id.",
+            "readOnly": true
+          }
+        },
+        "description": "A set of tag keys and optional values that were set on the Integration",
+        "example": [
+          {
+            "key": "env",
+            "value": "dev"
+          }
+        ]
+      },
+      "RequestTracker": {
+        "required": [
+          "id",
+          "progress",
+          "selfLink",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "progress": {
+            "type": "integer",
+            "description": "Progress of the request as percentage.",
+            "format": "int32",
+            "example": 90
+          },
+          "message": {
+            "type": "string",
+            "description": "Status message of the request.",
+            "example": "In Progress"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the request.",
+            "example": "FINISHED",
+            "enum": [
+              "FINISHED",
+              "INPROGRESS",
+              "FAILED"
+            ]
+          },
+          "resources": {
+            "type": "array",
+            "description": "Collection of resources.",
+            "example": [
+              "/resources/i-0be3655a12fd28e8e",
+              "/resources/i-0be234a15ft8det3"
+            ],
+            "items": {
+              "type": "string",
+              "description": "Collection of resources.",
+              "example": "[\"/resources/i-0be3655a12fd28e8e\",\"/resources/i-0be234a15ft8det3\"]"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the operation.",
+            "example": "Power-off"
+          },
+          "id": {
+            "type": "string",
+            "description": "ID of this request.",
+            "example": "we655aew4e8e"
+          },
+          "selfLink": {
+            "type": "string",
+            "description": "Self link of this request.",
+            "example": "/.../request-tracker/we655aew4e8e"
+          },
+          "deploymentId": {
+            "type": "string",
+            "description": "ID of the deployment, this request is connected to.",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          }
+        },
+        "description": "An object used to track long-running operations."
+      },
+      "ServiceErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "messageId": {
+            "type": "string"
+          },
+          "stackTrace": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "errorCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SHOULD_RETRY"
+              ]
+            }
+          },
+          "serverErrorId": {
+            "type": "string"
+          },
+          "documentKind": {
+            "type": "string"
+          },
+          "internalErrorCode": {
+            "type": "integer",
+            "format": "int32",
+            "writeOnly": true
+          }
+        }
+      },
+      "UpdateIntegrationSpecification": {
+        "required": [
+          "integrationProperties",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "A human-friendly name used as an identifier in APIs that support this option."
+          },
+          "description": {
+            "type": "string",
+            "description": "A human-friendly description."
+          },
+          "privateKeyId": {
+            "type": "string",
+            "description": "Access key id or username to be used to authenticate with the integration",
+            "example": "ACDC55DB4MFH6ADG75KK"
+          },
+          "privateKey": {
+            "type": "string",
+            "description": "Secret access key or password to be used to authenticate with the integration",
+            "example": "gfsScK345sGGaVdds222dasdfDDSSasdfdsa34fS"
+          },
+          "integrationProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Integration specific properties supplied in as name value pairs",
+              "example": "{\"providerId\":\"providerID\"}"
+            },
+            "description": "Integration specific properties supplied in as name value pairs",
+            "example": {
+              "providerId": "providerID"
+            }
+          },
+          "associatedCloudAccountIds": {
+            "type": "array",
+            "description": "Cloud accounts to associate with this integration",
+            "example": [
+              "42f3e0d199d134755684cd935435a"
+            ],
+            "items": {
+              "type": "string",
+              "description": "Cloud accounts to associate with this integration",
+              "example": "[\"42f3e0d199d134755684cd935435a\"]"
+            }
+          },
+          "customProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Additional custom properties that may be used to extend the Integration.",
+              "example": "{\"sampleadapterProjectId\":\"projectId\"}"
+            },
+            "description": "Additional custom properties that may be used to extend the Integration.",
+            "example": {
+              "sampleadapterProjectId": "projectId"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "description": "A set of tag keys and optional values to set on the Integration",
+            "example": [
+              {
+                "key": "env",
+                "value": "dev"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            }
+          },
+          "certificateInfo": {
+            "$ref": "#/components/schemas/CertificateInfoSpecification"
+          }
+        }
+      },
+      "ConfigurationProperty": {
+        "required": [
+          "key",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "The key of the property.",
+            "enum": [
+              "SESSION_TIMEOUT_DURATION_MINUTES, RELEASE_IPADDRESS_PERIOD_MINUTES, NSXT_RETRY_DURATION_MINUTES"
+            ]
+          },
+          "value": {
+            "type": "string",
+            "description": "The value of the property."
+          }
+        },
+        "description": "A representation of a configuration property."
+      },
+      "RequestTrackerResult": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "description": "List of content items",
+            "readOnly": true,
+            "items": {
+              "$ref": "#/components/schemas/RequestTracker"
+            }
+          },
+          "totalElements": {
+            "type": "integer",
+            "description": "Total number of elements. In some cases the field may not be populated",
+            "format": "int64",
+            "readOnly": true,
+            "example": 1
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "description": "Number of elements in the current page",
+            "format": "int64",
+            "readOnly": true,
+            "example": 1
+          }
+        },
+        "description": "State object representing a query result of request tracker objects."
+      },
+      "Href": {
+        "type": "object",
+        "properties": {
+          "href": {
+            "type": "string"
+          },
+          "hrefs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "HATEOAS of the entity"
+      },
+      "Integration": {
+        "required": [
+          "_links",
+          "id",
+          "integrationProperties",
+          "integrationType"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The id of this resource instance",
+            "example": "9.0E49"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Date when the entity was created. The date is in ISO 8601 and UTC.",
+            "example": "2012-09-27"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Date when the entity was last updated. The date is ISO 8601 and UTC.",
+            "example": "2012-09-27"
+          },
+          "owner": {
+            "type": "string",
+            "description": "Email of the user or display name of the group that owns the entity.",
+            "example": "csp@vmware.com"
+          },
+          "ownerType": {
+            "type": "string",
+            "description": "Type of a owner(user/ad_group) that owns the entity.",
+            "example": "ad_group"
+          },
+          "organizationId": {
+            "type": "string",
+            "description": "This field is deprecated. Use orgId instead. The id of the organization this entity belongs to.",
+            "example": "42413b31-1716-477e-9a88-9dc1c3cb1cdf",
+            "deprecated": true
+          },
+          "orgId": {
+            "type": "string",
+            "description": "The id of the organization this entity belongs to.",
+            "example": "42413b31-1716-477e-9a88-9dc1c3cb1cdf"
+          },
+          "_links": {
+            "type": "object",
+            "properties": {
+              "empty": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Href"
+            },
+            "description": "HATEOAS of the entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "A human-friendly name used as an identifier in APIs that support this option.",
+            "example": "my-name"
+          },
+          "description": {
+            "type": "string",
+            "description": "A human-friendly description.",
+            "example": "my-description"
+          },
+          "integrationType": {
+            "type": "string",
+            "description": "Integration type",
+            "example": "activedirectory | ansible | ipam | vro | com.github.saas"
+          },
+          "integrationProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Integration specific propertiesNote: Integration Properties can be blank for integrations requiring only username and password.",
+              "example": "{\"userName\":\"admin\"}"
+            },
+            "description": "Integration specific propertiesNote: Integration Properties can be blank for integrations requiring only username and password.",
+            "example": {
+              "userName": "admin"
+            }
+          },
+          "customProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Additional properties that may be used to extend the base type.",
+              "example": "{\"isExternal\":\"true\"}"
+            },
+            "description": "Additional properties that may be used to extend the base type.",
+            "example": {
+              "isExternal": "true"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "description": "A set of tag keys and optional values that were set on the Integration",
+            "example": [
+              {
+                "key": "env",
+                "value": "dev"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            }
+          }
+        },
+        "description": "State object representing an integration.<br><br>An integration identifies an integration type and an integration-specific properties.<br>**HATEOAS** links:<br>**self** - Integration - Self link to this integration",
+        "readOnly": true
+      },
+      "IntegrationResult": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "description": "List of content items",
+            "readOnly": true,
+            "items": {
+              "$ref": "#/components/schemas/Integration"
+            }
+          },
+          "totalElements": {
+            "type": "integer",
+            "description": "Total number of elements. In some cases the field may not be populated",
+            "format": "int64",
+            "readOnly": true,
+            "example": 1
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "description": "Number of elements in the current page",
+            "format": "int64",
+            "readOnly": true,
+            "example": 1
+          }
+        },
+        "description": "State object representing a query result of integrations."
+      },
+      "ConfigurationPropertyResult": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "description": "List of content items",
+            "readOnly": true,
+            "items": {
+              "$ref": "#/components/schemas/ConfigurationProperty"
+            }
+          },
+          "totalElements": {
+            "type": "integer",
+            "description": "Total number of elements. In some cases the field may not be populated",
+            "format": "int64",
+            "readOnly": true,
+            "example": 1
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "description": "Number of elements in the current page",
+            "format": "int64",
+            "readOnly": true,
+            "example": 1
+          }
+        },
+        "description": "State object representing a query result of configuration properties."
+      },
+      "CertificateInfo": {
+        "required": [
+          "certificate",
+          "properties"
+        ],
+        "type": "object",
+        "properties": {
+          "certificate": {
+            "type": "string",
+            "description": "The certificate in string format.",
+            "example": "PEM for X509Certificate"
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Certificate related properties which may provide additional information about the given certificate."
+            },
+            "description": "Certificate related properties which may provide additional information about the given certificate."
+          },
+          "certificateErrorDetail": {
+            "type": "string",
+            "description": "Details about the certificate.",
+            "example": "UNTRUSTED_CERTIFICATE",
+            "enum": [
+              "UNTRUSTED_CERTIFICATE",
+              "EXPIRED_CERTIFICATE",
+              "NOT_YET_VALID_CERTIFICATE",
+              "KEYSTORE_TAMPERED_OR_PASSWORD_INCORRECT"
+            ]
+          }
+        },
+        "description": "Certificate for a cloud account."
+      }
+    },
+    "securitySchemes": {
+      "Authorization": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
+  }
+}

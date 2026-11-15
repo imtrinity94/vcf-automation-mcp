@@ -18,6 +18,9 @@ const execFileP = promisify(execFile);
 
 // ---------- mock VCF Automation ----------
 const ORG = 'vmapps-org';
+const ORG2 = 'allapps-org-01';          // All Apps org on the same host
+const ORGS = new Set([ORG, ORG2]);
+const tenantOf = (url, tail) => { const m = url.match(new RegExp(`^/(?:tm/)?oauth/tenant/([^/]+)/${tail}$`)); return m && ORGS.has(m[1]) ? m[1] : null; };
 let seq = 0;
 const validRefresh = new Set(['seed-rt-1']);         // live refresh tokens (rotated on use)
 const validAccess = new Set();
@@ -45,8 +48,8 @@ const server = http.createServer((req, res) => {
     const form = new URLSearchParams(body);
     const bearer = (req.headers.authorization || '').replace(/^Bearer /, '');
 
-    if (url === `/oauth/tenant/${ORG}/token`) return json(404, { error: 'not here' }); // forces the /tm fallback
-    if (url === `/tm/oauth/tenant/${ORG}/token`) {
+    if (url.startsWith('/oauth/tenant/') && tenantOf(url, 'token')) return json(404, { error: 'not here' }); // forces the /tm fallback
+    if (url.startsWith('/tm/oauth/tenant/') && tenantOf(url, 'token')) {
       if (form.get('grant_type') === 'refresh_token') {
         refreshCalls.push({ rt: form.get('refresh_token'), clientId: form.get('client_id') });
         if (!validRefresh.has(form.get('refresh_token'))) return json(400, { error: 'invalid_grant' });
@@ -66,17 +69,17 @@ const server = http.createServer((req, res) => {
     }
     if (url === '/cloudapi/1.0.0/sessions' && req.method === 'POST') {
       sessionAttempts++;
-      const ok = req.headers.authorization === 'Basic ' + Buffer.from(`admin@${ORG}:secret`).toString('base64');
+      const ok = [...ORGS].some(o => req.headers.authorization === 'Basic ' + Buffer.from(`admin@${o}:secret`).toString('base64'));
       if (!ok) return json(401, { message: 'bad creds' });
       const at = `session-${++seq}`; validAccess.add(at);
       return json(200, { id: 's1', roles: ['Organization Administrator'] }, { 'x-vmware-vcloud-access-token': at, 'set-cookie': `vcloud_jwt=${at}; Path=/` });
     }
-    if (url === `/oauth/tenant/${ORG}/register`) {
+    if (tenantOf(url, 'register')) {
       if (!validAccess.has(bearer)) return json(401, {});
       const b = JSON.parse(body);
       return json(200, { client_id: `client-${b.client_name}`, scope: b.scope });
     }
-    if (url === `/oauth/tenant/${ORG}/device_authorization`) {
+    if (tenantOf(url, 'device_authorization')) {
       const dc = `dc-${++seq}`; devices[dc] = { granted: false, clientId: form.get('client_id') };
       return json(200, { device_code: dc, user_code: 'ABCD-1234', expires_in: 600, interval: 2 });
     }
@@ -115,7 +118,7 @@ try {
   const tokenFile1 = path.join(TMP, 'tokens-1.json');
   let c = await connect({ VCFA_API_TOKEN: 'seed-rt-1', VCFA_CLIENT_ID: 'my-client', VCFA_TOKEN_FILE: tokenFile1 });
   const { tools } = await c.listTools();
-  assert.equal(tools.length, 698 + 2); ok(`lists ${tools.length} tools (698 operations + 2 meta)`);
+  assert.equal(tools.length, 698 + 2); ok(`no VCFA_ORG_TYPE -> vm-apps: ${tools.length} tools (698 operations + 2 meta), as before 1.0.0`);
   assert(tools.every(t => /^[a-zA-Z0-9_-]{1,64}$/.test(t.name))); ok('all tool names valid (<=64, [a-z0-9_-])');
   assert.equal(new Set(tools.map(t => t.name)).size, tools.length); ok('tool names unique');
 
@@ -216,7 +219,60 @@ try {
   assert(r.isError); assert.equal(sessionAttempts, 1); ok('server login with a wrong password stops after 1 attempt');
   await c.close();
 
-  // ---- 7. static token ----
+  // ---- 7. All Apps org ----
+  // 7a. explicit VCFA_ORG_TYPE
+  c = await connect({ VCFA_ORG: ORG2, VCFA_ORG_TYPE: 'all-apps', VCFA_USERNAME: 'admin', VCFA_PASSWORD: 'secret', VCFA_TOKEN_FILE: path.join(TMP, 'none.json') });
+  let t3 = (await c.listTools()).tools;
+  assert.equal(t3.length, 421 + 2); ok(`VCFA_ORG_TYPE=all-apps -> ${t3.length} tools (421 operations + 2 meta)`);
+  const n3 = new Set(t3.map(t => t.name));
+  assert(!n3.has('abx_post_action_runs') && !n3.has('iaas_create_machine') && n3.has('provider_query_regions') && n3.has('project_get_auth_context'));
+  ok('all-apps catalogue: no ABX / VM Apps IaaS, has /cloudapi regions and RBAC auth context');
+  r = await c.callTool({ name: 'vcfa_connection_status', arguments: { test: true } });
+  let st3 = JSON.parse(txt(r));
+  assert.equal(st3.orgType, 'all-apps'); assert.equal(st3.orgTypeSource, 'VCFA_ORG_TYPE'); assert.match(st3.testCall, /rbac-service\/api\/auth-context/);
+  ok('vcfa_connection_status: all-apps from VCFA_ORG_TYPE, tests via /rbac-service/api/auth-context');
+  assert(log.some(l => l.url === '/project-service/api/projects?size=1')); ok('all-apps login probe uses /project-service (no /iaas/api/projects there)');
+  r = await c.callTool({ name: 'iaas_create_machine', arguments: {} });
+  assert(r.isError && /not an operation of this All Apps org/.test(txt(r))); ok('VM Apps-only tool on an All Apps server -> clear error');
+  await c.close();
+
+  // 7b. setup --org-type all-apps stores the type; the server picks it up with no VCFA_ORG_TYPE
+  const tokenFile4 = path.join(TMP, 'tokens-4.json');
+  const out4 = await execFileP(process.execPath, [CLI, 'setup', '--url', HOST, '--org', ORG2, '--org-type', 'all-apps', '--user', 'admin', '--name', 'Lab-VCFA-AllApps-MCP', '--password', 'secret'],
+    { env: { PATH: process.env.PATH, VCFA_TOKEN_FILE: tokenFile4 }, timeout: 60000 });
+  assert.match(out4.stdout, /Org type: all-apps/); assert.match(out4.stdout, /RBAC auth context/); assert.doesNotMatch(out4.stdout, /ABX/);
+  assert.match(out4.stdout, new RegExp(`"vcfa-${ORG2}"`)); assert.match(out4.stdout, /"VCFA_ORG_TYPE": "all-apps"/);
+  ok('setup --org-type all-apps: All Apps access check, config block named vcfa-<org> with VCFA_ORG_TYPE');
+  entry = JSON.parse(fs.readFileSync(tokenFile4, 'utf8'))[`${HOST.toLowerCase()}|${ORG2}`];
+  assert.equal(entry.orgType, 'all-apps'); ok('setup stores orgType with the token');
+  c = await connect({ VCFA_ORG: ORG2, VCFA_AUTH_MODE: 'api-token', VCFA_TOKEN_FILE: tokenFile4 });
+  t3 = (await c.listTools()).tools;
+  assert.equal(t3.length, 421 + 2);
+  r = await c.callTool({ name: 'vcfa_connection_status', arguments: { test: true } });
+  st3 = JSON.parse(txt(r));
+  assert.equal(st3.orgType, 'all-apps'); assert.equal(st3.orgTypeSource, 'setup'); ok('no VCFA_ORG_TYPE: org type taken from what setup stored');
+  r = await c.callTool({ name: 'project_get_all_projects', arguments: {} });
+  assert.match(echo(r).auth, /^Bearer at-/);
+  assert.equal(JSON.parse(fs.readFileSync(tokenFile4, 'utf8'))[`${HOST.toLowerCase()}|${ORG2}`].orgType, 'all-apps'); ok('rotated token keeps orgType');
+  await c.close();
+
+  // 7c. VM Apps and All Apps side by side in one token file: each server uses its own entry
+  await execFileP(process.execPath, [CLI, 'setup', '--url', HOST, '--org', ORG, '--user', 'admin', '--name', 'Lab-VCFA-MCP', '--password', 'secret'],
+    { env: { PATH: process.env.PATH, VCFA_TOKEN_FILE: tokenFile4 }, timeout: 60000 });
+  const both = JSON.parse(fs.readFileSync(tokenFile4, 'utf8'));
+  assert.equal(Object.keys(both).length, 2); assert.equal(both[`${HOST.toLowerCase()}|${ORG}`].orgType, 'vm-apps');
+  c = await connect({ VCFA_ORG: ORG, VCFA_AUTH_MODE: 'api-token', VCFA_TOKEN_FILE: tokenFile4, VCFA_SERVICES: 'vro' });
+  const cAll = await connect({ VCFA_ORG: ORG2, VCFA_AUTH_MODE: 'api-token', VCFA_TOKEN_FILE: tokenFile4, VCFA_SERVICES: 'vro' });
+  const [ra, rb] = await Promise.all([c.callTool({ name: 'vro_workflow_get_all', arguments: {} }), cAll.callTool({ name: 'vro_workflow_get_all', arguments: {} })]);
+  assert.match(echo(ra).auth, /^Bearer at-/); assert.match(echo(rb).auth, /^Bearer at-/); assert.notEqual(echo(ra).auth, echo(rb).auth);
+  ok('VM Apps + All Apps servers run side by side from one token file, each on its own token chain');
+  await c.close(); await cAll.close();
+
+  // 7d. bad VCFA_ORG_TYPE fails fast
+  const badType = await execFileP(process.execPath, [CLI], { env: { PATH: process.env.PATH, VCFA_HOST: HOST, VCFA_ORG: ORG, VCFA_ORG_TYPE: 'cloud-apps' }, timeout: 15000 }).catch(err => err);
+  assert.equal(badType.code, 1); assert.match(badType.stderr, /VCFA_ORG_TYPE must be vm-apps or all-apps/); ok('invalid VCFA_ORG_TYPE -> clear startup error');
+
+  // ---- 8. static token ----
   const at = `manual-${++seq}`; validAccess.add(at);
   c = await connect({ VCFA_TOKEN: at, VCFA_ORG: '', VCFA_SERVICES: 'vro', VCFA_TOKEN_FILE: path.join(TMP, 'none.json') });
   r = await c.callTool({ name: 'vro_workflow_get_all', arguments: {} });

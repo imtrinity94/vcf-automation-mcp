@@ -12,7 +12,7 @@ import { Agent, request } from 'undici';
 import { randomUUID } from 'node:crypto';
 import readline from 'node:readline';
 import { defaultTokenFile, saveToken, tokenKey } from './tokenStore.js';
-import { normaliseHost } from './config.js';
+import { DEFAULT_ORG_TYPE, normaliseHost, parseOrgType, type OrgType } from './config.js';
 
 interface Args {
   url?: string;
@@ -22,12 +22,14 @@ interface Args {
   role?: string;
   password?: string;
   clientId?: string;
+  orgType?: string;
   insecure?: boolean;
 }
 
 const USAGE =
-  'Usage: vcf-automation-mcp setup --url https://auto.example.lab --org <org> --user <user> --name <service account name> [--role "<role>[,<role>...]" (default: your own role)] [--password <pw>] [--insecure]\n' +
-  '   or: vcf-automation-mcp setup --url https://auto.example.lab --org <org> --client-id <service account client ID> [--insecure]\n' +
+  'Usage: vcf-automation-mcp setup --url https://auto.example.lab --org <org> [--org-type vm-apps|all-apps] --user <user> --name <service account name> [--role "<role>[,<role>...]" (default: your own role)] [--password <pw>] [--insecure]\n' +
+  '   or: vcf-automation-mcp setup --url https://auto.example.lab --org <org> [--org-type vm-apps|all-apps] --client-id <service account client ID> [--insecure]\n' +
+  '       --org-type defaults to vm-apps. It is stored with the token, so the MCP config does not need VCFA_ORG_TYPE.\n' +
   '       (service account created in the VCF Automation UI; you approve the access request in the UI, no password needed)\n' +
   'Without --password (or VCFA_PASSWORD) the password is asked for with a masked prompt. It is never stored.';
 
@@ -43,6 +45,7 @@ function parseArgs(argv: string[]): Args {
     else if (k === '--role') { a.role = v; i++; }
     else if (k === '--password') { a.password = v; i++; }
     else if (k === '--client-id') { a.clientId = v; i++; }
+    else if (k === '--org-type') { a.orgType = v; i++; }
     else if (k === '--insecure') a.insecure = true;
     else if (k === '--help' || k === '-h') { console.log(USAGE); process.exit(0); }
   }
@@ -102,23 +105,44 @@ function short(body: unknown): string {
   return (s ?? '').replace(/\s+/g, ' ').slice(0, 300);
 }
 
-/** APIs checked at the end of setup, so you can see which ones the service account's roles cover. */
-const CHECKS: [string, string][] = [
-  ['Projects', '/project-service/api/projects?size=1'],
-  ['IaaS', '/iaas/api/projects?$top=1'],
-  ['Catalog', '/catalog/api/items?size=1'],
-  ['Deployment', '/deployment/api/deployments?size=1'],
-  ['Blueprint', '/blueprint/api/blueprints?size=1'],
-  ['ABX', '/abx/api/resources/actions?size=1'],
-  ['Event Broker', '/event-broker/api/subscriptions?size=1'],
-  ['Orchestrator Gateway', '/vro/workflows?size=1'],
-  ['Provider Management (/cloudapi)', '/cloudapi/1.0.0/sessions/current']
-];
+/** APIs checked at the end of setup, so you can see which ones the service account's roles cover. Different per org type. */
+const CHECKS: Record<OrgType, [string, string][]> = {
+  'vm-apps': [
+    ['Projects', '/project-service/api/projects?size=1'],
+    ['IaaS', '/iaas/api/projects?$top=1'],
+    ['Catalog', '/catalog/api/items?size=1'],
+    ['Deployment', '/deployment/api/deployments?size=1'],
+    ['Blueprint', '/blueprint/api/blueprints?size=1'],
+    ['ABX', '/abx/api/resources/actions?size=1'],
+    ['Event Broker', '/event-broker/api/subscriptions?size=1'],
+    ['Orchestrator Gateway', '/vro/workflows?size=1'],
+    ['Provider Management (/cloudapi)', '/cloudapi/1.0.0/sessions/current']
+  ],
+  'all-apps': [
+    ['Projects', '/project-service/api/projects?size=1'],
+    ['RBAC auth context', '/rbac-service/api/auth-context'],
+    ['IaaS integrations', '/iaas/api/integrations?$top=1'],
+    ['Catalog', '/catalog/api/items?size=1'],
+    ['Deployment', '/deployment/api/deployments?size=1'],
+    ['Blueprint', '/blueprint/api/blueprints?size=1'],
+    ['Event Broker', '/event-broker/api/subscriptions?size=1'],
+    ['Orchestrator Gateway', '/vro/workflows?size=1'],
+    ['Org management (/cloudapi)', '/cloudapi/1.0.0/sessions/current'],
+    ['Regions (/cloudapi)', '/cloudapi/v1/regions?page=1&pageSize=1']
+  ]
+};
+
+const DEFAULT_SERVICES: Record<OrgType, string> = {
+  'vm-apps': 'catalog,deployment,blueprint,project,abx,vro,eventbroker',
+  'all-apps': 'catalog,deployment,blueprint,project,vro,eventbroker'
+};
 
 export async function runSetup(argv: string[]): Promise<void> {
   const a = parseArgs(argv);
   const url = normaliseHost(a.url || process.env.VCFA_HOST || (await ask('VCF Automation URL (e.g. https://auto.vmw.lab): ')));
   const org = a.org || process.env.VCFA_ORG || (await ask('Organization name: '));
+  const orgType: OrgType = parseOrgType(a.orgType ?? process.env.VCFA_ORG_TYPE, '--org-type') ?? DEFAULT_ORG_TYPE;
+  console.log(`Org type: ${orgType}${a.orgType || process.env.VCFA_ORG_TYPE ? '' : ' (default; pass --org-type all-apps for an All Apps org)'}`);
   const uiMode = !!a.clientId;
   const user = uiMode ? '' : a.user || process.env.VCFA_USERNAME || (await ask(`Username (without @${org}): `));
   const name = uiMode ? '' : a.name || (await ask('Service account name (shown in VCF Automation): '));
@@ -286,34 +310,42 @@ export async function runSetup(argv: string[]): Promise<void> {
 
   // Save before the checks: the refresh token is single-use and this is the only copy
   const file = defaultTokenFile();
-  saveToken(file, tokenKey(url, org), { seed: 'setup', refreshToken: tokens.refresh_token, clientId: clientId!, tokenEndpoint });
+  saveToken(file, tokenKey(url, org), { seed: 'setup', refreshToken: tokens.refresh_token, clientId: clientId!, tokenEndpoint, orgType });
 
   // Which automation APIs does the service account's role cover?
   console.log('\nAPI access check (403 = the service account role does not cover this API):');
   const auth = { Authorization: `Bearer ${tokens.access_token}`, Accept: 'application/json' };
   let ok = 0;
-  for (const [label, p] of CHECKS) {
+  const checks = CHECKS[orgType];
+  for (const [label, p] of checks) {
     const headers = p.startsWith('/cloudapi/') ? { ...auth, Accept: 'application/json;version=9.1.0' } : auth;
     const r = await req('GET', p, headers).catch((e: any) => ({ res: { status: 0 }, json: e.message } as any));
     const s = r.res.status;
     if (s >= 200 && s < 300) ok++;
     console.log(`  ${s >= 200 && s < 300 ? 'OK ' : '-- '} ${label.padEnd(32)} HTTP ${s || 'unreachable'}`);
   }
-  if (ok < CHECKS.length) {
+  if (ok < checks.length) {
     console.log('\n  Some APIs returned 403/404. 403: give the service account a broader role (e.g. Organization Owner / Organization Administrator)');
     console.log('  in Access Control > Service Accounts, then restart your MCP client. 404: that API is not on this host.');
   }
 
   console.log(`\nSaved to ${file}\n`);
   console.log('MCP client config (e.g. claude_desktop_config.json) - no token or password needed.');
-  console.log('Merge it into your existing "mcpServers" if you already have other servers:\n');
+  console.log('Merge it into your existing "mcpServers" if you already have other servers. Each org (VM Apps or All Apps) gets');
+  console.log('its own entry with its own service account: run setup once per org and add each block.\n');
   console.log(
     JSON.stringify(
       {
         mcpServers: {
-          'vcf-automation': {
+          [`vcfa-${org}`]: {
             command: 'vcf-automation-mcp',
-            env: { VCFA_HOST: url, VCFA_AUTH_MODE: 'api-token', VCFA_ORG: org, ...(insecure ? { VCFA_INSECURE: 'true' } : {}), VCFA_SERVICES: 'catalog,deployment,blueprint,project,abx,vro,eventbroker' }
+            env: {
+              VCFA_HOST: url, VCFA_AUTH_MODE: 'api-token', VCFA_ORG: org,
+              // stored with the token anyway; written out for all-apps so the config says what it is
+              ...(orgType === 'all-apps' ? { VCFA_ORG_TYPE: 'all-apps' } : {}),
+              ...(insecure ? { VCFA_INSECURE: 'true' } : {}),
+              VCFA_SERVICES: DEFAULT_SERVICES[orgType]
+            }
           }
         }
       },

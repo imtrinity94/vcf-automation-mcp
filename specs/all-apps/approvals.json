@@ -1,0 +1,2354 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "description": "This page describes the RESTful APIs for Approval Service. The APIs facilitate CRUD operations on the various resources and entities used throughout Approval service (Approval Requests , Approval Policy Data , Deployment limit policy Data , etc.) and allow operations on them (approving or rejecting the approval request, retrieving approval policy criteria and actions data etc.).\n\nThe APIs that list collections of resources  also support OData like implementation. Below query params can be used across Blueprint entities.\n\nExample:\n\n1. `sort` - returns a result with the rows being sorted by the values of provided attribute.\n\n    ```/approval/api/approvals?sort=deploymentName%2CDESC```\n\n2. `page`, `size` - page used in conjunction with `size` helps in pagination of resources.\n\n    ```/approval/api/approvals?page=0&size=20```\n",
+    "license": {
+      "name": "Copyright (c) 2025 Broadcom. All Rights Reserved. The term \"Broadcom\" refers to Broadcom Inc. and/or its subsidiaries",
+      "url": "https://www.vmware.com/cloud-solutions.html"
+    },
+    "title": "VCF Automation API",
+    "version": "2022-01-25"
+  },
+  "servers": [
+    {
+      "url": "https://vcfa.example.com",
+      "description": "Generated server url"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "description": "View/Execute action on approval request",
+      "name": "Approval Request"
+    },
+    {
+      "description": "Provides view and execute actions on work items",
+      "name": "Work Item Service"
+    }
+  ],
+  "paths": {
+    "/approval/api/about": {
+      "get": {
+        "description": "The page contains information about the supported API versions and the latest API version. The version parameter is optional but highly recommended.\nIf you do not specify explicitly an exact version, you will be calling the latest supported API version.\nHere is an example of a call which specifies the exact version you are using: GET /approval/api/approvals?apiVersion=2022-01-25",
+        "operationId": "getAbout",
+        "parameters": [
+          {
+            "description": "The version of the API in yyyy-MM-dd format (UTC). For versioning information refer to /approval/api/about",
+            "in": "query",
+            "name": "apiVersion",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "application/json"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/About"
+                  }
+                }
+              }
+            },
+            "description": "success"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "summary": "Get about page",
+        "tags": [
+          "About"
+        ]
+      }
+    },
+    "/approval/api/approvals": {
+      "get": {
+        "description": "Returns approval requests",
+        "operationId": "getApprovalRequestsV3",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "requestState",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "APPROVED",
+                "REJECTED",
+                "PENDING",
+                "EXPIRED",
+                "CANCELLED"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "approverState",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "APPROVED",
+                "REJECTED",
+                "PENDING",
+                "EXPIRED",
+                "CANCELLED"
+              ]
+            }
+          },
+          {
+            "description": "Searching is enabled on following attributes: deploymentId, deploymentName, projectId, projectName, requestedBy or action.",
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Flag for approval admin to filter the approval requests which has himself/herself as one of the approver",
+            "in": "query",
+            "name": "filterEntitledRequests",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "The version of the API in yyyy-MM-dd format (UTC). For versioning information refer to /approval/api/about",
+            "in": "query",
+            "name": "apiVersion",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Results page you want to retrieve (0..N)",
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Number of records per page.",
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. ",
+            "in": "query",
+            "name": "sort",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "application/json"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageDeploymentApprovalRequest"
+                }
+              }
+            },
+            "description": "Success - returns approval requests"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "Approval Request"
+        ]
+      }
+    },
+    "/approval/api/approvals/action": {
+      "post": {
+        "description": "Approves or Rejects the approval request",
+        "operationId": "executeActionOnApprovalRequest",
+        "parameters": [
+          {
+            "description": "The version of the API in yyyy-MM-dd format (UTC). For versioning information refer to /approval/api/about",
+            "in": "query",
+            "name": "apiVersion",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "application/json"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApprovalActionRequest"
+                }
+              }
+            },
+            "description": "Success - Successfully approved/rejected"
+          },
+          "400": {
+            "description": "Approval request is not in pending state or user already taken action(approve/reject) on the approval request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Access Denied - Doesn't have permission to approve/reject the specified approval request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "Approval Request"
+        ]
+      }
+    },
+    "/approval/api/approvals/userGroups": {
+      "get": {
+        "operationId": "getLoggedInUserGroups",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "application/json"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoggedInUserGroups"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Approval Request"
+        ]
+      }
+    },
+    "/approval/api/approvals/{id}": {
+      "get": {
+        "description": "Returns details of the approval request",
+        "operationId": "getApprovalRequestV3",
+        "parameters": [
+          {
+            "description": "approval request id",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "description": "The version of the API in yyyy-MM-dd format (UTC). For versioning information refer to /approval/api/about",
+            "in": "query",
+            "name": "apiVersion",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "application/json"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeploymentApprovalRequest"
+                }
+              }
+            },
+            "description": "success"
+          },
+          "401": {
+            "description": "unauthorized"
+          },
+          "403": {
+            "description": "access denied - doesn't have permission to view the specified approval request"
+          },
+          "404": {
+            "description": "not found"
+          }
+        },
+        "tags": [
+          "Approval Request"
+        ]
+      }
+    },
+    "/workitem/api/workitems": {
+      "get": {
+        "operationId": "getWorkItems",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "state",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "ANSWERED",
+                "REJECTED",
+                "EXPIRED"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "assigneeState",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "ANSWERED",
+                "REJECTED"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "MUI"
+              ]
+            }
+          },
+          {
+            "description": "Searching is enabled on following attributes: deploymentName, work item name and workflow details",
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Results page you want to retrieve (0..N)",
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Number of records per page.",
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. ",
+            "in": "query",
+            "name": "sort",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "application/json"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageWorkItem"
+                }
+              }
+            },
+            "description": "Success - returns work items for the logged in user"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "summary": "Returns work items for the logged in user",
+        "tags": [
+          "Work Item Service"
+        ]
+      }
+    },
+    "/workitem/api/workitems/deployment/{deploymentId}/workitems": {
+      "get": {
+        "operationId": "getWorkItemsForDeployment",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "state",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "ANSWERED",
+                "REJECTED",
+                "EXPIRED"
+              ]
+            }
+          },
+          {
+            "in": "path",
+            "name": "deploymentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "MUI"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "ids",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "in": "query",
+            "name": "expand",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Results page you want to retrieve (0..N)",
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Number of records per page.",
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. ",
+            "in": "query",
+            "name": "sort",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "application/json"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageDeploymentRequestWorkItem"
+                }
+              }
+            },
+            "description": "Success - returns all work items for a deployment"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "summary": "Returns all work items for a deployment",
+        "tags": [
+          "Work Item Service"
+        ]
+      }
+    },
+    "/workitem/api/workitems/external-resources": {
+      "get": {
+        "description": "Retrieve external resource object depending on namespace type and id",
+        "operationId": "lookupExternalResource",
+        "parameters": [
+          {
+            "description": "namespace in which the vRO type is placed",
+            "in": "query",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "type of the SDK object",
+            "in": "query",
+            "name": "type",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "unique id of the object",
+            "in": "query",
+            "name": "objectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "id of current project",
+            "in": "query",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VroResourceLink"
+                }
+              }
+            },
+            "description": "'Success' with external resource matching the search criteria"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VroResourceLink"
+                }
+              }
+            },
+            "description": "'Forbidden' no approval access rights"
+          }
+        },
+        "summary": "Retrieve external resource object",
+        "tags": [
+          "Work Item Service"
+        ]
+      },
+      "post": {
+        "description": "Retrieve external resource value depending on provided value source type",
+        "operationId": "lookupExternalResources",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FormExtValueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FormExtValueResponse"
+                }
+              }
+            },
+            "description": "'Success' with list of external resources matching search criteria"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FormExtValueResponse"
+                }
+              }
+            },
+            "description": "'Bad Request' if external value request is in invalid format"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FormExtValueResponse"
+                }
+              }
+            },
+            "description": "'Forbidden' no approval access rights"
+          }
+        },
+        "summary": "Retrieve external resource value",
+        "tags": [
+          "Work Item Service"
+        ]
+      }
+    },
+    "/workitem/api/workitems/external-validation": {
+      "post": {
+        "operationId": "performExternalValidation",
+        "parameters": [
+          {
+            "description": "The projectId of the project chosen for the request.",
+            "in": "query",
+            "name": "projectId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sourceId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExternalValidationContext"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FormValidationMessage"
+                  }
+                }
+              }
+            },
+            "description": "'Success' with list of validation messages"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FormValidationMessage"
+                  }
+                }
+              }
+            },
+            "description": "'Bad Request' if the external validation context body is not in specified format"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FormValidationMessage"
+                  }
+                }
+              }
+            },
+            "description": "'Forbidden' no approval access rights"
+          }
+        },
+        "summary": "Perform external validations for a form (for the UI)",
+        "tags": [
+          "Work Item Service"
+        ]
+      }
+    },
+    "/workitem/api/workitems/external-values": {
+      "post": {
+        "operationId": "executeExternalActions",
+        "parameters": [
+          {
+            "description": "The projectId of the project chosen for the request.",
+            "in": "query",
+            "name": "projectId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sourceId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/FormExternalDataRequest"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FormExternalDataResponse"
+                  }
+                }
+              }
+            },
+            "description": "'Success' with a list of external action results"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FormExternalDataResponse"
+                  }
+                }
+              }
+            },
+            "description": "'Bad Request' if RunnableItem is not in specified format"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FormExternalDataResponse"
+                  }
+                }
+              }
+            },
+            "description": "''Forbidden' no approval access rights."
+          }
+        },
+        "summary": "Execute multiple external actions to get a list of values (for the UI)",
+        "tags": [
+          "Work Item Service"
+        ]
+      }
+    },
+    "/workitem/api/workitems/{deploymentId}/{requestId}": {
+      "get": {
+        "operationId": "getWorkItemsForDeploymentRequest",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "state",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "ANSWERED",
+                "REJECTED",
+                "EXPIRED"
+              ]
+            }
+          },
+          {
+            "in": "path",
+            "name": "deploymentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "requestId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "MUI"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "ids",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "in": "query",
+            "name": "expand",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Results page you want to retrieve (0..N)",
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Number of records per page.",
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. ",
+            "in": "query",
+            "name": "sort",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "application/json"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageDeploymentRequestWorkItem"
+                }
+              }
+            },
+            "description": "Success - returns work items for a deployment request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "summary": "Returns work items for a deployment request",
+        "tags": [
+          "Work Item Service"
+        ]
+      }
+    },
+    "/workitem/api/workitems/{id}": {
+      "get": {
+        "operationId": "getWorkItemById",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "expand",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "application/json"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkItem"
+                }
+              }
+            },
+            "description": "Success - returns work item for a given id"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "summary": "Returns work item by id",
+        "tags": [
+          "Work Item Service"
+        ]
+      }
+    },
+    "/workitem/api/workitems/{id}/answer": {
+      "post": {
+        "operationId": "answerWorkItem",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "application/json"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkItemActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkItem"
+                }
+              }
+            },
+            "description": "Success - The work item is successfully answered"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "summary": "Answers the specified work item",
+        "tags": [
+          "Work Item Service"
+        ]
+      }
+    },
+    "/workitem/api/workitems/{id}/reject": {
+      "post": {
+        "operationId": "rejectWorkItem",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "application/json"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkItemActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkItem"
+                }
+              }
+            },
+            "description": "Success - The work item is successfully rejected"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "summary": "Rejects the specified work item",
+        "tags": [
+          "Work Item Service"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "About": {
+        "required": [
+          "latestApiVersion",
+          "supportedApis"
+        ],
+        "type": "object",
+        "properties": {
+          "latestApiVersion": {
+            "type": "string",
+            "description": "The latest version of the API in yyyy-MM-dd format (UTC)."
+          },
+          "supportedApis": {
+            "type": "array",
+            "description": "A collection of all currently supported api versions.",
+            "items": {
+              "$ref": "#/components/schemas/ApiDescription"
+            }
+          }
+        },
+        "description": "State object representing an about page that includes api versioning information"
+      },
+      "ActionParameter": {
+        "type": "object",
+        "properties": {
+          "$type": {
+            "$ref": "#/components/schemas/FormSchemaFieldType"
+          },
+          "parameterMap": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "ApiDescription": {
+        "required": [
+          "apiVersion",
+          "documentationLink"
+        ],
+        "type": "object",
+        "properties": {
+          "apiVersion": {
+            "type": "string",
+            "description": "The version of the API in yyyy-MM-dd format (UTC)."
+          },
+          "deprecationPolicy": {
+            "$ref": "#/components/schemas/DeprecationPolicy"
+          },
+          "documentationLink": {
+            "type": "string",
+            "description": "The link to the documentation of this api version"
+          }
+        },
+        "description": "A collection of all currently supported api versions."
+      },
+      "ApprovalActionRequest": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "Approval request action",
+            "enum": [
+              "APPROVE",
+              "REJECT",
+              "CANCEL",
+              "APPROVE, REJECT"
+            ]
+          },
+          "comment": {
+            "type": "string",
+            "description": "Approver comment on action"
+          },
+          "currentLevelApproval": {
+            "type": "boolean",
+            "description": "Flag for approval admin to approve only current level"
+          },
+          "fullApproval": {
+            "type": "boolean",
+            "description": "Flag for approval admin to provide full approval"
+          },
+          "itemId": {
+            "type": "string",
+            "description": "Approval request id"
+          }
+        },
+        "description": "approval request action"
+      },
+      "ApprovalAdminDetails": {
+        "type": "object",
+        "properties": {
+          "comment": {
+            "type": "string"
+          }
+        }
+      },
+      "Attribute": {
+        "type": "object",
+        "properties": {
+          "displayValue": {
+            "type": "object"
+          },
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "BlueprintDetails": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "CatalogDetails": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "ComplexTypeField": {
+        "type": "object",
+        "properties": {
+          "constraints": {
+            "$ref": "#/components/schemas/Constraints"
+          },
+          "default": {
+            "type": "object"
+          },
+          "description": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "placeholder": {
+            "type": "string"
+          },
+          "refresh": {
+            "$ref": "#/components/schemas/Refresh"
+          },
+          "shortValueName": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "signpost": {
+            "type": "string"
+          },
+          "step": {
+            "type": "number",
+            "format": "float"
+          },
+          "type": {
+            "$ref": "#/components/schemas/FormSchemaFieldType"
+          },
+          "valueList": {
+            "type": "object"
+          },
+          "valueTree": {
+            "type": "object"
+          }
+        }
+      },
+      "Constraints": {
+        "type": "object",
+        "properties": {
+          "constraints": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "matchConstraint": {
+            "$ref": "#/components/schemas/MatchConstraint"
+          }
+        }
+      },
+      "DeploymentApprovalRequest": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "adminActioned": {
+            "type": "boolean"
+          },
+          "adminDetails": {
+            "$ref": "#/components/schemas/ApprovalAdminDetails"
+          },
+          "adminName": {
+            "type": "string"
+          },
+          "autoApproval": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "currentLevel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "APPROVE",
+              "REJECT",
+              "NO_EXPIRY"
+            ]
+          },
+          "deploymentId": {
+            "type": "string"
+          },
+          "deploymentName": {
+            "type": "string"
+          },
+          "expired": {
+            "type": "boolean"
+          },
+          "expiryAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiryComment": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "lastUpdatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "levels": {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeploymentApprovalRequestLevel"
+            }
+          },
+          "orgId": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "projectName": {
+            "type": "string"
+          },
+          "requestDetails": {
+            "$ref": "#/components/schemas/DeploymentApprovalRequestDetails"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "requestedBy": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "APPROVED",
+              "REJECTED",
+              "PENDING",
+              "EXPIRED",
+              "CANCELLED"
+            ]
+          },
+          "totalLevels": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "DeploymentApprovalRequestAppliedPolicy": {
+        "type": "object",
+        "properties": {
+          "approvers": {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeploymentApprovalRequestPolicyApprover"
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "level": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "ANY_OF",
+              "ALL_OF"
+            ]
+          },
+          "policyId": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "APPROVED",
+              "REJECTED",
+              "PENDING",
+              "EXPIRED",
+              "CANCELLED"
+            ]
+          }
+        }
+      },
+      "DeploymentApprovalRequestDetails": {
+        "type": "object",
+        "properties": {
+          "blueprintDetails": {
+            "$ref": "#/components/schemas/BlueprintDetails"
+          },
+          "catalogDetails": {
+            "$ref": "#/components/schemas/CatalogDetails"
+          },
+          "deploymentDetails": {
+            "$ref": "#/components/schemas/DeploymentDetails"
+          },
+          "inputs": {
+            "type": "object"
+          },
+          "resourceDetails": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Resource"
+              }
+            }
+          }
+        }
+      },
+      "DeploymentApprovalRequestLevel": {
+        "type": "object",
+        "properties": {
+          "adminActioned": {
+            "type": "boolean"
+          },
+          "adminDetails": {
+            "$ref": "#/components/schemas/ApprovalAdminDetails"
+          },
+          "adminName": {
+            "type": "string"
+          },
+          "appliedPolicies": {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeploymentApprovalRequestAppliedPolicy"
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "lastUpdatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "level": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "APPROVED",
+              "REJECTED",
+              "PENDING",
+              "EXPIRED",
+              "CANCELLED"
+            ]
+          }
+        }
+      },
+      "DeploymentApprovalRequestPolicyApprover": {
+        "type": "object",
+        "properties": {
+          "actionedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actionedBy": {
+            "type": "string"
+          },
+          "approver": {
+            "type": "string"
+          },
+          "approverType": {
+            "type": "string",
+            "enum": [
+              "USER",
+              "GROUP"
+            ]
+          },
+          "comments": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "level": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "APPROVED",
+              "REJECTED",
+              "PENDING",
+              "EXPIRED",
+              "CANCELLED"
+            ]
+          }
+        }
+      },
+      "DeploymentDetails": {
+        "type": "object",
+        "properties": {
+          "currency": {
+            "type": "string"
+          },
+          "deploymentCreationCost": {
+            "type": "number"
+          }
+        }
+      },
+      "DeploymentRequestWorkItem": {
+        "type": "object",
+        "properties": {
+          "authorized": {
+            "type": "boolean"
+          },
+          "workItem": {
+            "$ref": "#/components/schemas/WorkItem"
+          }
+        }
+      },
+      "DeprecationPolicy": {
+        "type": "object",
+        "properties": {
+          "deprecatedAt": {
+            "type": "string",
+            "description": "The date the api was deprecated in yyyy-MM-dd format (UTC). Could be empty if the api is not deprecated."
+          },
+          "description": {
+            "type": "string",
+            "description": "A free text description that contains information about why this api is deprecated and how to migrate to a newer version."
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "The date the api support will be dropped in yyyy-MM-dd format (UTC). The api may still be available for use after that date but this is not guaranteed."
+          }
+        },
+        "description": "The deprecation policy may contain information whether the api is in deprecated state and when it expires."
+      },
+      "ExternalValidationContext": {
+        "type": "object",
+        "properties": {
+          "context": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FormElementContext"
+            }
+          },
+          "externalValidations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExternalValidationElement"
+            }
+          }
+        }
+      },
+      "ExternalValidationElement": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/ExternalValueSource"
+          },
+          "target": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ExternalValueSource": {
+        "type": "object",
+        "properties": {
+          "externalSourceProviderType": {
+            "type": "string",
+            "enum": [
+              "orchestrator",
+              "ABX"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "isPageable": {
+            "type": "boolean"
+          },
+          "parameters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActionParameter"
+            }
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "scriptAction",
+              "inventory",
+              "inventoryTree",
+              "systemAction",
+              "dynamic"
+            ]
+          }
+        }
+      },
+      "FormElementContext": {
+        "type": "object",
+        "properties": {
+          "dataType": {
+            "type": "string",
+            "enum": [
+              "string",
+              "secureString",
+              "integer",
+              "decimal",
+              "boolean",
+              "reference",
+              "complex",
+              "dateTime",
+              "file"
+            ]
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "FormExtValueItem": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "FormExtValueRequest": {
+        "type": "object",
+        "properties": {
+          "context": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FormElementContext"
+            }
+          },
+          "filter": {
+            "type": "string"
+          },
+          "item": {
+            "$ref": "#/components/schemas/FormExtValueItem"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "valueSource": {
+            "$ref": "#/components/schemas/ExternalValueSource"
+          },
+          "valueType": {
+            "$ref": "#/components/schemas/FormSchemaFieldType"
+          }
+        }
+      },
+      "FormExtValueResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "FormExternalDataError": {
+        "type": "object",
+        "properties": {
+          "detailsMessage": {
+            "type": "string"
+          },
+          "summaryMessage": {
+            "type": "string"
+          }
+        }
+      },
+      "FormExternalDataParameter": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "useResultFromRequestId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "FormExternalDataRequest": {
+        "type": "object",
+        "properties": {
+          "contextParameters": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "dataSource": {
+            "type": "string"
+          },
+          "externalSourceProviderType": {
+            "type": "string",
+            "enum": [
+              "orchestrator",
+              "ABX"
+            ]
+          },
+          "fieldType": {
+            "$ref": "#/components/schemas/FormSchemaFieldType"
+          },
+          "parameters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FormExternalDataParameter"
+            }
+          },
+          "requestId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "uri": {
+            "type": "string"
+          }
+        }
+      },
+      "FormExternalDataResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object"
+          },
+          "error": {
+            "$ref": "#/components/schemas/FormExternalDataError"
+          },
+          "requestId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "FormSchemaFieldType": {
+        "type": "object",
+        "properties": {
+          "dataType": {
+            "type": "string",
+            "enum": [
+              "string",
+              "secureString",
+              "integer",
+              "decimal",
+              "boolean",
+              "reference",
+              "complex",
+              "dateTime",
+              "file"
+            ]
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComplexTypeField"
+            }
+          },
+          "isMultiple": {
+            "type": "boolean"
+          },
+          "referenceType": {
+            "type": "string"
+          }
+        }
+      },
+      "FormValidationMessage": {
+        "type": "object",
+        "properties": {
+          "fieldId": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "error",
+              "warn",
+              "info"
+            ]
+          },
+          "validationType": {
+            "type": "string",
+            "enum": [
+              "MANDATORY_FIELD",
+              "ORPHAN_FIELD",
+              "CONSTRAINT_VIOLATION",
+              "DATA_TYPE_AND_DISPLAY_MISMATCH",
+              "FIELD_DEFINITION_MISMATCH",
+              "NOT_SUPPORTED_FIELD_TYPE",
+              "SCHEMA_AND_DEFAULT_VALUE_STRUCTURE_MISMATCH",
+              "EXTERNAL_VALIDATION",
+              "DEFAULT_VALUE_MISSING_REQUIRED_FIELDS"
+            ]
+          }
+        }
+      },
+      "LoggedInUserGroups": {
+        "type": "object",
+        "properties": {
+          "groups": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "MatchConstraint": {
+        "type": "object",
+        "properties": {
+          "match": {
+            "type": "object"
+          }
+        }
+      },
+      "PageDeploymentApprovalRequest": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeploymentApprovalRequest"
+            }
+          },
+          "empty": {
+            "type": "boolean"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PageDeploymentRequestWorkItem": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeploymentRequestWorkItem"
+            }
+          },
+          "empty": {
+            "type": "boolean"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PageWorkItem": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkItem"
+            }
+          },
+          "empty": {
+            "type": "boolean"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PageableObject": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "paged": {
+            "type": "boolean"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
+          },
+          "unpaged": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Refresh": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "Resource": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "SortObject": {
+        "type": "object",
+        "properties": {
+          "empty": {
+            "type": "boolean"
+          },
+          "sorted": {
+            "type": "boolean"
+          },
+          "unsorted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "VroResourceLink": {
+        "type": "object",
+        "properties": {
+          "attributes": {
+            "type": "array",
+            "description": "Array of attribute objects",
+            "items": {
+              "$ref": "#/components/schemas/Attribute"
+            }
+          },
+          "href": {
+            "type": "string",
+            "description": "URL reference"
+          }
+        },
+        "description": "vRO resource link with href and attributes"
+      },
+      "WorkItem": {
+        "type": "object",
+        "properties": {
+          "actionedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actionedBy": {
+            "type": "string"
+          },
+          "assignees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkItemAssignee"
+            }
+          },
+          "callbackURL": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deploymentId": {
+            "type": "string"
+          },
+          "deploymentName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "expiryAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "lastUpdatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "name": {
+            "type": "string"
+          },
+          "orgId": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "projectName": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "requestedBy": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "ANSWERED",
+              "REJECTED",
+              "EXPIRED"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "MUI"
+            ]
+          },
+          "workItemDetails": {
+            "$ref": "#/components/schemas/WorkItemDetails"
+          },
+          "workflowDetails": {
+            "$ref": "#/components/schemas/WorkflowDetails"
+          }
+        }
+      },
+      "WorkItemActionRequest": {
+        "type": "object",
+        "properties": {
+          "formEntries": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "WorkItemAssignee": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "USER",
+              "GROUP"
+            ]
+          }
+        }
+      },
+      "WorkItemDetails": {
+        "type": "object",
+        "properties": {
+          "formDetails": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "workItemData": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "WorkflowDetails": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "muiId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "runId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "bearerFormat": "JWT",
+        "name": "bearerAuth",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  }
+}

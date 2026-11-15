@@ -16,6 +16,8 @@ export interface StoredToken {
   refreshToken: string;
   clientId?: string;
   tokenEndpoint?: string;
+  /** Org type recorded by `setup --org-type`; used when VCFA_ORG_TYPE is not set */
+  orgType?: 'vm-apps' | 'all-apps';
   updatedAt: string;
 }
 

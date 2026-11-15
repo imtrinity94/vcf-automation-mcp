@@ -7,11 +7,27 @@
  *   auto          api-token if a token is configured or stored, else token, else vcfa-cloudapi, then vcfa
  */
 export type AuthMode = 'auto' | 'api-token' | 'token' | 'vcfa-cloudapi' | 'vcfa';
+
+/** VCF Automation 9 org types. They expose different API sets, so each has its own tool catalogue. */
+export type OrgType = 'vm-apps' | 'all-apps';
+export const ORG_TYPES: OrgType[] = ['vm-apps', 'all-apps'];
+export const DEFAULT_ORG_TYPE: OrgType = 'vm-apps';
+
+/** Accepts vm-apps / vmapps / vm / all-apps / allapps / all (any case); undefined for empty; throws on anything else. */
+export function parseOrgType(raw: string | undefined, source = 'VCFA_ORG_TYPE'): OrgType | undefined {
+  if (raw === undefined || raw.trim() === '') return undefined;
+  const v = raw.trim().toLowerCase().replace(/[\s_]+/g, '-');
+  if (['vm-apps', 'vmapps', 'vm', 'vm-apps-org'].includes(v)) return 'vm-apps';
+  if (['all-apps', 'allapps', 'all', 'all-apps-org'].includes(v)) return 'all-apps';
+  throw new Error(`${source} must be vm-apps or all-apps (got "${raw}")`);
+}
 export const AUTH_MODES: AuthMode[] = ['auto', 'api-token', 'token', 'vcfa-cloudapi', 'vcfa'];
 
 export interface Config {
   host: string;              // https://auto.vmw.lab
-  org?: string;              // VM Apps org name, e.g. vmapps-org ("System" for provider)
+  org?: string;              // org name, e.g. vmapps-org ("System" for provider)
+  /** Explicit VCFA_ORG_TYPE. When unset, the server uses the type `setup` stored for this org, else vm-apps. */
+  orgType?: OrgType;
   authMode: AuthMode;
   apiToken?: string;         // service account / API refresh token (seed)
   clientId?: string;         // service account client_id (stored by `setup`)
@@ -58,6 +74,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   return {
     host: normaliseHost(rawHost),
     org: (env.VCFA_ORG || env.VCFA_TENANT || '').trim() || undefined,
+    orgType: parseOrgType(env.VCFA_ORG_TYPE),
     authMode: mode,
     apiToken: env.VCFA_API_TOKEN || env.VCFA_REFRESH_TOKEN || undefined,
     clientId: env.VCFA_CLIENT_ID || undefined,

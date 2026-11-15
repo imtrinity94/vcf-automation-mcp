@@ -105,7 +105,9 @@ export class TokenProvider {
 
   /** Cheap protected call to check a token is accepted (403 still counts: the login worked, roles are a separate matter). */
   private async probe(header: string): Promise<number> {
-    const r = await rawRequest(this.dispatcher, `${this.cfg.host}/iaas/api/projects?$top=1`, {
+    // All Apps orgs have no /iaas/api/projects; the project service exists in both org types
+    const path = this.cfg.orgType === 'all-apps' ? '/project-service/api/projects?size=1' : '/iaas/api/projects?$top=1';
+    const r = await rawRequest(this.dispatcher, `${this.cfg.host}${path}`, {
       method: 'GET', headers: { Authorization: header, Accept: 'application/json' }
     }, this.cfg.timeoutMs);
     return r.status;
@@ -182,7 +184,7 @@ export class TokenProvider {
         this.expiresAt = ttl ? Date.now() + ttl * 1000 : ((jwtExpiry(data.access_token) ?? 0) * 1000 || undefined);
         const next = data.refresh_token && data.refresh_token !== rt ? data.refresh_token : rt;
         try {
-          saveToken(file, key, { seed: seed || stored?.seed || 'setup', refreshToken: next, clientId, tokenEndpoint: p });
+          saveToken(file, key, { seed: seed || stored?.seed || 'setup', refreshToken: next, clientId, tokenEndpoint: p, ...(stored?.orgType ? { orgType: stored.orgType } : {}) });
         } catch (e: any) {
           console.error(`[vcf-automation-mcp] could not save rotated refresh token to ${file}: ${e.message}`);
         }

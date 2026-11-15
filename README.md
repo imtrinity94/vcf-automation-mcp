@@ -2,39 +2,56 @@
 
 ![vcf-automation-mcp](.github/social-preview.png)
 
-MCP server for **VCF Automation 9** (VM Apps organization). Every REST operation in the VCF Automation API set becomes one MCP tool: **698 operation tools** across 16 services: 696 generated straight from the OpenAPI specs that VCF Automation serves at `https://<vcfa>/tenant/<org>/api-docs`, plus 2 Event Broker subscription calls those specs leave out (see [Event Broker subscriptions](#event-broker-subscriptions)).
+MCP server for **VCF Automation 9**, for both **VM Apps** and **All Apps** organizations. Every REST operation the org exposes becomes one MCP tool, generated straight from the OpenAPI specs that VCF Automation serves for that org type:
+
+- **VM Apps org: 698 tools** across 16 services
+- **All Apps org: 421 tools** across 12 services
+
+Both counts include 2 Event Broker subscription calls that the published specs leave out (see [Event Broker subscriptions](#event-broker-subscriptions)).
 
 Sister project of [vcf-orchestrator-mcp](https://github.com/imtrinity94/vcf-orchestrator-mcp).
 
+## VM Apps and All Apps orgs
+
+The two org types expose different API sets, so the server loads the tool catalogue that matches the org it talks to. Each server entry in your MCP client is **one org**: its own `VCFA_ORG`, its own service account and its own token chain. To work with both kinds of org, add one entry per org (see [step 3](#3-add-it-to-your-mcp-client)).
+
+The org type comes from, in this order:
+
+1. `VCFA_ORG_TYPE` (`vm-apps` or `all-apps`), if set
+2. the type `setup --org-type` stored for that org in the token file
+3. `vm-apps`
+
+Configs from before 1.0.0 have neither, so they keep loading the VM Apps tools exactly as before.
+
 ## Services and tools
 
-| Service key | Tools | API |
-|---|---:|---|
-| `abx` | 33 | ABX: actions, versions, secrets, action runs, flows |
-| `approvals` | 11 | Approvals and work items |
-| `metrics` | 5 | Deployment Metric (aggregator) and deployment limits |
-| `blueprint` | 40 | Blueprint / cloud templates: create, validate, version, release, provision |
-| `catalog` | 45 | Catalog items, sources, content sharing, requests, icons, notifications, pricing |
-| `deployment` | 38 | Deployments, resources, day-2 actions, requests |
-| `policy` | 9 | Policies and policy types |
-| `form` | 42 | Custom Forms |
-| `content` | 11 | Content Gateway (content sources, source control) |
-| `eventbroker` | 9 | Event Broker: events, topics, audit, subscriptions (list, create/update, get, delete) |
-| `iaas` | 265 | Provisioning Service (IaaS): cloud accounts, zones, mappings, networks, storage, machines |
-| `identity` | 53 | Identity Service (`/csp/gateway/am/api`) |
-| `onboarding` | 27 | Onboarding (relocation) plans, resources, deployments |
-| `vro` | 8 | Orchestrator Gateway: workflows and runs |
-| `project` | 11 | Project Service |
-| `provider` | 91 | Provider Management / Access Control (`/cloudapi`) |
+| Service key | VM Apps | All Apps | API |
+|---|---:|---:|---|
+| `abx` | 33 | – | ABX: actions, versions, secrets, action runs, flows |
+| `approvals` | 11 | 15 | Approvals and work items |
+| `metrics` | 5 | – | Deployment Metric (aggregator) and deployment limits |
+| `blueprint` | 40 | 33 | Blueprint / cloud templates: create, validate, version, release, provision |
+| `catalog` | 45 | 30 | Catalog items, sources, content sharing, requests, icons, notifications (pricing on VM Apps) |
+| `deployment` | 38 | 36 | Deployments, resources, day-2 actions, requests |
+| `policy` | 9 | 12 | Policies and policy types |
+| `form` | 42 | 38 | Custom Forms (All Apps also: custom resource types and resource actions) |
+| `content` | 11 | 11 | Content Gateway (content sources, source control) |
+| `eventbroker` | 9 | 9 | Event Broker: events, topics, audit, subscriptions (list, create/update, get, delete) |
+| `iaas` | 265 | 13 | Provisioning Service (IaaS). VM Apps: cloud accounts, zones, mappings, networks, storage, machines. All Apps: integrations, configuration properties, request tracker, certificates |
+| `identity` | 53 | – | Identity Service (`/csp/gateway/am/api`) |
+| `onboarding` | 27 | – | Onboarding (relocation) plans, resources, deployments |
+| `vro` | 8 | 8 | Orchestrator Gateway: workflows and runs |
+| `project` | 11 | 14 | Project Service (All Apps also: platform secrets and the RBAC auth context) |
+| `provider` | 91 | 202 | Org management (`/cloudapi`): users, groups, roles, rights, sessions, tokens, service accounts. All Apps adds regions, zones, namespaces, content libraries, VM and storage classes, infra policies, defined entities |
 
-Tool names follow `<service>_<operation>`, for example `deployment_get_deployments`, `catalog_request_catalog_item`, `iaas_create_machine`, `abx_post_action_runs`, `vro_run_workflow`, `provider_query_users`. Run `npx vcf-automation-mcp --list-tools` to see them all.
+Tool names follow `<service>_<operation>`, for example `deployment_get_deployments`, `catalog_request_catalog_item_instances`, `iaas_create_machine`, `abx_post_action_runs`, `vro_run_workflow`, `provider_query_users`. A service both org types share keeps the same tool names in both. Run `vcf-automation-mcp --list-tools --org-type all-apps` (or `vm-apps`) to see them all, or `--list-services` for the counts.
 
 There are also two helper tools:
 
-- `vcfa_connection_status`: shows the host, org, auth mode in use, token expiry and tool counts. Pass `test: true` to log in now and call `GET /iaas/api/about`.
+- `vcfa_connection_status`: shows the host, org, org type (and where it came from), auth mode in use, token expiry and tool counts. Pass `test: true` to log in now and make a test call: `GET /iaas/api/about` on a VM Apps org, `GET /rbac-service/api/auth-context` on an All Apps org.
 - `vcfa_describe_operation`: returns the full nested request-body schema for any tool. Tool input schemas are summarised past three levels of nesting to keep `tools/list` small.
 
-> **About 700 tools is a lot.** Some MCP clients cap or slow down with that many. Use `VCFA_SERVICES` to load only what you need, for example `VCFA_SERVICES=catalog,deployment,blueprint,abx,vro`.
+> **Hundreds of tools is a lot.** Some MCP clients cap or slow down with that many. Use `VCFA_SERVICES` to load only what you need, for example `VCFA_SERVICES=catalog,deployment,blueprint,abx,vro`.
 
 ## Quick start
 
@@ -55,6 +72,14 @@ vcf-automation-mcp setup --url "https://auto.vmw.lab" --org "vmapps-org" --user 
 ```
 
 This exact command was tested end to end against a VCF Automation 9 VM Apps org (Windows 11, Claude Desktop).
+
+For an **All Apps** org, add `--org-type all-apps` and use that org's name and one of its local users:
+
+```bash
+vcf-automation-mcp setup --url "https://auto.vmw.lab" --org "allapps-org-01" --org-type all-apps --user "admin" --name "Lab-VCFA-AllApps-MCP" --insecure
+```
+
+Setup stores the org type with the token, runs the API access check against the All Apps services, and prints a config block for that org. Run setup once per org; each org's token is kept separately in the same token file.
 
 **Role names must exist in your org exactly as typed.** Each name becomes a `urn:vcloud:role:<name>` scope. A name the org doesn't have fails registration with HTTP 500, for example:
 
@@ -82,6 +107,7 @@ It saves the refresh token to `~/.vcf-automation-mcp/tokens.json` (on Windows, `
 | `--name` | Service account display name (under Access Control > Service Accounts) |
 | `--role` | Comma-separated role names. Default: the role of the user you log in with |
 | `--password` | Skips the prompt (the password then ends up in your shell history) |
+| `--org-type` | `vm-apps` (default) or `all-apps`. Stored with the token, so the MCP config doesn't need `VCFA_ORG_TYPE` |
 | `--client-id` | Uses a service account created in the UI instead; you approve the access request there. Use this for SSO-only orgs |
 | `--insecure` | Accepts self-signed lab certificates |
 
@@ -89,10 +115,12 @@ It saves the refresh token to `~/.vcf-automation-mcp/tokens.json` (on Windows, `
 
 ### 3. Add it to your MCP client
 
+Setup prints the block for the org it set up. With one VM Apps org and one All Apps org, the config has one entry each:
+
 ```json
 {
   "mcpServers": {
-    "vcf-automation": {
+    "vcfa-vmapps-org": {
       "command": "vcf-automation-mcp",
       "env": {
         "VCFA_HOST": "https://auto.vmw.lab",
@@ -101,10 +129,23 @@ It saves the refresh token to `~/.vcf-automation-mcp/tokens.json` (on Windows, `
         "VCFA_INSECURE": "true",
         "VCFA_SERVICES": "catalog,deployment,blueprint,project,abx,vro,eventbroker"
       }
+    },
+    "vcfa-allapps-org-01": {
+      "command": "vcf-automation-mcp",
+      "env": {
+        "VCFA_HOST": "https://auto.vmw.lab",
+        "VCFA_AUTH_MODE": "api-token",
+        "VCFA_ORG": "allapps-org-01",
+        "VCFA_ORG_TYPE": "all-apps",
+        "VCFA_INSECURE": "true",
+        "VCFA_SERVICES": "catalog,deployment,blueprint,project,vro,eventbroker"
+      }
     }
   }
 }
 ```
+
+An existing entry named `vcf-automation` keeps working; the entry name is only a label.
 
 The config file is at `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS and `%APPDATA%\Claude\claude_desktop_config.json` on Windows. After editing it, quit Claude Desktop completely (on Windows, from the system tray) and reopen it.
 
@@ -118,14 +159,15 @@ Without a global install, `"command": "cmd"` with `"args": ["/c", "npx", "-y", "
 
 ### 4. Check the connection
 
-Ask your client to run `vcfa_connection_status` with `test: true`. A working setup shows `"modeInUse": "api-token"`, the token file under your home folder, and `GET /iaas/api/about -> HTTP 200 OK`. On VCF Automation 9 the token endpoint resolves to `/tm/oauth/tenant/<org>/token`. With the `VCFA_SERVICES` list above, 184 of the 698 tools load.
+Ask your client to run `vcfa_connection_status` with `test: true`. A working setup shows `"modeInUse": "api-token"`, the right `orgType`, the token file under your home folder, and an HTTP 200 test call (`GET /iaas/api/about` for VM Apps, `GET /rbac-service/api/auth-context` for All Apps). On VCF Automation 9 the token endpoint resolves to `/tm/oauth/tenant/<org>/token`. With the `VCFA_SERVICES` lists above, 184 of the 698 VM Apps tools and 130 of the 421 All Apps tools load.
 
 ## Configuration
 
 | Variable | Default | Description |
 |---|---|---|
 | `VCFA_HOST` | required | VCF Automation URL, e.g. `https://auto.vmw.lab` |
-| `VCFA_ORG` | `System` | VM Apps organization **name**, e.g. `vmapps-org` (`System` means provider) |
+| `VCFA_ORG` | `System` | Organization **name**, e.g. `vmapps-org` or `allapps-org-01` (`System` means provider) |
+| `VCFA_ORG_TYPE` | stored by setup, else `vm-apps` | `vm-apps` or `all-apps`: which API set (tool catalogue) to load |
 | `VCFA_AUTH_MODE` | `auto` | `api-token`, `token`, `vcfa-cloudapi`, `vcfa` (see below) |
 | `VCFA_API_TOKEN` | | Seeds a refresh-token chain yourself instead of running setup |
 | `VCFA_CLIENT_ID` | | Service account client ID, if you seed a token yourself |
@@ -167,7 +209,7 @@ Access tokens are renewed a minute before they expire, and once more after a `40
 
 ## Event Broker subscriptions
 
-The Event Broker spec published for VCF Automation 9 VM Apps orgs has only two subscription operations: get one by ID, and delete. It has no way to list or create subscriptions, although the VCF Automation UI does both. The UI uses the same endpoints as Aria Automation 8.x, so this server adds them from a small hand-written supplement (`specs/Event Broker - Subscriptions (extra).json`):
+The Event Broker spec published for VCF Automation 9 (VM Apps and All Apps orgs alike) has only two subscription operations: get one by ID, and delete. It has no way to list or create subscriptions, although the VCF Automation UI does both. The UI uses the same endpoints as Aria Automation 8.x, so this server adds them, for both org types, from a small hand-written supplement (`specs/supplements/Event Broker - Subscriptions (extra).json`):
 
 | Tool | Request |
 |---|---|
@@ -182,12 +224,12 @@ Because these two calls aren't in Broadcom's published API, their tool descripti
 
 ```bash
 npm install
-npm run generate   # specs/*.json|yaml -> data/operations.json
+npm run generate   # specs/<org type>/*.json|yaml -> data/operations-<org type>.json
 npm run build
 npm test           # mock VCFA server + real MCP client over stdio
 ```
 
-To refresh the specs, download each one from `https://<vcfa>/tenant/<org>/api-docs`, drop it into `specs/`, then run `npm run generate`. The file-to-service mapping lives at the top of `scripts/generate.mjs`.
+To refresh the specs, download each one from `https://<vcfa>/tenant/<org>/api-docs` of a VM Apps or an All Apps org, drop it into `specs/vm-apps/` or `specs/all-apps/`, then run `npm run generate`. The per-org-type file-to-service mapping lives at the top of `scripts/generate.mjs`; `specs/all-apps/_manifest.csv` lists where each All Apps spec was downloaded from.
 
 ## License
 

@@ -13,6 +13,6 @@ jobs:
           node-version: ${{ matrix.node }}
       - run: npm ci
       - run: npm run generate
-      - run: git diff --exit-code data/operations.json
+      - run: git diff --exit-code data/
       - run: npm run build
       - run: npm test

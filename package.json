@@ -1,7 +1,7 @@
 {
   "name": "vcf-automation-mcp",
-  "version": "0.3.0",
-  "description": "MCP server for VCF Automation 9 (VM Apps organization) — one MCP tool per REST operation across ABX, Approvals, Blueprint, Catalog, Deployment, Policies, Custom Forms, Content, Event Broker, IaaS, Identity, Onboarding, Orchestrator Gateway, Projects and Provider Management APIs.",
+  "version": "1.0.0",
+  "description": "MCP server for VCF Automation 9 (VM Apps and All Apps organizations) - one MCP tool per REST operation, generated from the org's OpenAPI specs: Catalog, Deployment, Blueprint, Projects, ABX, Event Broker, Orchestrator Gateway, IaaS, Custom Forms, Approvals, org management (/cloudapi) and more.",
   "keywords": [
     "mcp",
     "model-context-protocol",
@@ -11,7 +11,9 @@
     "vra",
     "aria-automation",
     "vmware",
-    "broadcom"
+    "broadcom",
+    "all-apps",
+    "vm-apps"
   ],
   "author": "imtrinity94",
   "license": "MIT",
@@ -22,7 +24,7 @@
   "main": "dist/cli.js",
   "files": [
     "dist",
-    "data/operations.json",
+    "data/operations-*.json",
     "README.md",
     "LICENSE",
     "CHANGELOG.md"

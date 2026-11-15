@@ -1,0 +1,2019 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Project Service API / Platform Service API / RBAC Service API",
+    "description": "Exposed REST APIs for Project Service, Platform Service, and RBAC Service, providing access to operations with projects, secrets, and users and roles.",
+    "license": {
+      "name": "Copyright (c) 2022-2025 Broadcom, Inc. All Rights Reserved.",
+      "url": "https://www.vmware.com/cloud-solutions.html"
+    },
+    "version": "2019-01-15"
+  },
+  "servers": [
+    {
+      "url": "https://vcfa.example.com",
+      "description": "Generated server url"
+    }
+  ],
+  "security": [
+    {
+      "Authorization": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Secrets",
+      "description": "Secrets related APIs"
+    },
+    {
+      "name": "Project",
+      "description": "Project related APIs"
+    }
+  ],
+  "paths": {
+    "/project-service/api/projects": {
+      "get": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Get all projects",
+        "description": "Get all projects with specified paging parameters.",
+        "operationId": "getAllProjects",
+        "parameters": [
+          {
+            "name": "excludeViewer",
+            "in": "query",
+            "description": "Filters projects based on the viewer role. When the value is true it will not return the projects in which the current user is only viewer and will ignore privileged roles: CodeStream:Developer and CodeStream:Executor, if the user has them. Else it will return all projects that the user can read. The default value is false.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "excludeSupervisor",
+            "in": "query",
+            "description": "Filters projects based on the supervisor role. When the value istrue it will not return the projects in which the current user is having only supervisor role",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "excludeNotSharedProjectsForMember",
+            "in": "query",
+            "description": "Filters projects based on the member role and the access to the resources of the project. When the value is true it will not return the projects in which the current user is only member and the project is not with shared resources.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "withAnyPermission",
+            "in": "query",
+            "description": "Optional permissions that, if granted to the users, allow them access to the proper set of projects. If the user actually has any of those permissions, the 'excludeViewer' parameter has no effect.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "$select",
+            "in": "query",
+            "description": "Select a subset of properties to include in the response. Possible values for this parameter are id, name, description, operationTimeout, constraints. Id will always be included in the response",
+            "schema": {
+              "type": "string"
+            },
+            "example": "id,name,constraints"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Results page you want to retrieve (0..N)",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            },
+            "example": 5
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Number of records per page.",
+            "schema": {
+              "type": "integer",
+              "default": 500
+            },
+            "example": 100
+          },
+          {
+            "name": "$orderby",
+            "in": "query",
+            "description": "Sorting criteria in the format: property (asc | desc). Default sort order is ascending.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format. For versioning information refer to /project-service/api/about.",
+            "schema": {
+              "type": "string",
+              "default": "2019-01-15"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "'Success' with projects on pages",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageOfProjects"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized, the user is not authenticated"
+          },
+          "403": {
+            "description": "Forbidden, the user lacks permissions"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Creates a project",
+        "operationId": "create",
+        "parameters": [
+          {
+            "name": "validatePrincipals",
+            "in": "query",
+            "description": "If true, a limit of 20 principals is enforced. Additionally each principal is validated in the Identity provider and important rules for group email formats are enforced.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format. For versioning information refer to /project-service/api/about.",
+            "schema": {
+              "type": "string",
+              "default": "2019-01-15"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The project to create.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectSpecification"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "'Created' with the newly created project",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Project"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Request - bad data"
+          },
+          "403": {
+            "description": "Forbidden, the user lacks permissions"
+          },
+          "409": {
+            "description": "Conflict, project with this name already exists"
+          }
+        }
+      }
+    },
+    "/platform/api/secrets": {
+      "get": {
+        "tags": [
+          "Secrets"
+        ],
+        "summary": "Get all secrets",
+        "description": "Get all secrets with specified paging parameters.",
+        "operationId": "getAllSecretsV2",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "query",
+            "description": "The id of the project",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format. For versioning information refer to /platform/api/about.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "2023-01-01"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "'Success' with secrets on pages",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageOfSecrets"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized, the user is not authenticated"
+          },
+          "403": {
+            "description": "Forbidden, the user lacks permissions"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Secrets"
+        ],
+        "summary": "Creates a secret",
+        "operationId": "createSecretV2",
+        "parameters": [
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format. For versioning information refer to /platform/api/about.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "2023-01-01"
+          }
+        ],
+        "requestBody": {
+          "description": "The variable to create",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SecretsV2Specification"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "'Created' with the newly created secret",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Secret"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized, the user is not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, the user lacks permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "'Conflict' if secret already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/project-service/api/projects/{id}/principals": {
+      "patch": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Modifies principals assigned to a project",
+        "description": "Modifies principals assigned to a project by id.",
+        "operationId": "modifyProjectPrincipals",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the project.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "validatePrincipals",
+            "in": "query",
+            "description": "If true, a limit of 20 principals is enforced. Additionally each principal is validated in the Identity provider and important rules for group email formats are enforced.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "syncPrincipals",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format. For versioning information refer to /project-service/api/about.",
+            "schema": {
+              "type": "string",
+              "default": "2019-01-15"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Principals",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectPrincipalsAssignment"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "'Success' with the Project",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Project"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Request - bad data"
+          },
+          "403": {
+            "description": "Forbidden, the user lacks permissions"
+          },
+          "404": {
+            "description": "'Not found' if no project with the provided id",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Project"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/project-service/api/projects/{id}/cost": {
+      "patch": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Modifies a project cost",
+        "description": "Modifies the cost of a project specified by id.",
+        "operationId": "modifyProjectCosts",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the project.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format. For versioning information refer to /project-service/api/about.",
+            "schema": {
+              "type": "string",
+              "default": "2019-01-15"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Project cost",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectCost"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "'Success' with the Project",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Project"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, the user lacks permissions"
+          },
+          "404": {
+            "description": "'Not found' if no project with the provided id"
+          }
+        }
+      }
+    },
+    "/project-service/api/projects/{id}": {
+      "get": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Retrieves a project",
+        "description": "Retrieves a project by id.",
+        "operationId": "getProject",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the project.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "withAnyPermission",
+            "in": "query",
+            "description": "Optional permissions that, if granted to the users, allow them access to the proper set of projects. If the user actually has any of those permissions, the 'excludeViewer' parameter has no effect.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format. For versioning information refer to /project-service/api/about.",
+            "schema": {
+              "type": "string",
+              "default": "2019-01-15"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "'Success' with the Project",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Project"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, the user lacks permissions"
+          },
+          "404": {
+            "description": "'Not found' if no project with the provided id"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Deletes a project",
+        "description": "Deletes a project by id.",
+        "operationId": "deleteProject",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the project.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format. For versioning information refer to /project-service/api/about.",
+            "schema": {
+              "type": "string",
+              "default": "2019-01-15"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "'Success'",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, the project is not deleted"
+          },
+          "403": {
+            "description": "Forbidden, the user lacks permissions"
+          },
+          "409": {
+            "description": "Conflict, when the project is in use"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Modifies a project",
+        "description": "Modifies a project by id. Fields that can be modified: name, description, constraints, properties, cost, operation timeout, shared resources.",
+        "operationId": "modifyProject",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the project.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format. For versioning information refer to /project-service/api/about.",
+            "schema": {
+              "type": "string",
+              "default": "2019-01-15"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Project",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProjectSpecification"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "'Success' with the Project",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Project"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden, the user lacks permissions"
+          },
+          "404": {
+            "description": "'Not found' if no project with the provided id"
+          }
+        }
+      }
+    },
+    "/platform/api/secrets/{id}": {
+      "patch": {
+        "tags": [
+          "Secrets"
+        ],
+        "summary": "Updates a secret",
+        "operationId": "updateSecretV2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "the id of the secret",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format. For versioning information refer to /platform/api/about.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "2023-01-01"
+          }
+        ],
+        "requestBody": {
+          "description": "Secret",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SecretUpdateSpecification"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "'Success' with the updated secret",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Secret"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized, the user is not authenticated"
+          },
+          "403": {
+            "description": "Forbidden, the user lacks permissions"
+          },
+          "404": {
+            "description": "'Not found' if no secret with the provided id"
+          }
+        }
+      }
+    },
+    "/rbac-service/api/auth-context": {
+      "get": {
+        "tags": [
+          "User Auth Context"
+        ],
+        "summary": "Retrieve the logged in user's auth context",
+        "operationId": "getAuthContext",
+        "parameters": [
+          {
+            "name": "excludeSupervisorRoleProjects",
+            "in": "query",
+            "description": "Filters projects based on the supervisor role. When this filter is true it will not include the projects in which the current user is having only supervisor role",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "includeGroups",
+            "in": "query",
+            "description": "Include Group information. When the flag is true it will include all the groups that has been added to the project and the user is a part of.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "includeProjects",
+            "in": "query",
+            "description": "Include Projects information. When the flag is true it will include project informationfor the user",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "2020-08-10"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "'Success' with the auth context",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthContext"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized, the user is not authenticated"
+          },
+          "403": {
+            "description": "Forbidden, the user lacks permissions"
+          }
+        }
+      }
+    },
+    "/platform/api/secrets/{id}/projects": {
+      "get": {
+        "tags": [
+          "Secrets"
+        ],
+        "summary": "Retrieves a paginated list of projects linked to a secret.",
+        "description": "Retrieves a paginated list of projects linked to a secret.",
+        "operationId": "getProjectsLinkedToSecret",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "the id of the secret",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format. For versioning information refer to /platform/api/about.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "2023-01-01"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "'Success' with a paginated list of linked projects",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized, the user is not authenticated"
+          },
+          "403": {
+            "description": "Forbidden, the user lacks permissions"
+          }
+        }
+      }
+    },
+    "/platform/api/secrets/projects": {
+      "get": {
+        "tags": [
+          "Secrets"
+        ],
+        "summary": "Retrieves a paginated list of projects mapped and unmapped to a secret.",
+        "description": "Retrieves a paginated list of projects mapped and unmapped to a secret.",
+        "operationId": "getProjects",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "The id of the secret",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageRequest",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Pageable"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format. For versioning information refer to /platform/api/about.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "2023-01-01"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "'Success' with a paginated list of linked projects",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized, the user is not authenticated"
+          },
+          "403": {
+            "description": "Forbidden, the user lacks permissions"
+          }
+        }
+      }
+    },
+    "/platform/api/secrets/project-secrets/{projectId}": {
+      "get": {
+        "tags": [
+          "Secrets"
+        ],
+        "summary": "Get secrets accessible to the current user for a project",
+        "description": "Returns secrets (both project-scoped and org-scoped) for the specified project if the user has PROJECT_ADMIN role. Returns only name and description of secrets.",
+        "operationId": "getProjectSecrets",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "description": "The id of the project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageRequest",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Pageable"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "The version of the API in yyyy-MM-dd format. For versioning information refer to /platform/api/about.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "2023-01-01"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "'Success' with accessible secrets",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized, the user is not authenticated"
+          },
+          "403": {
+            "description": "Forbidden, the user lacks PROJECT_ADMIN role in the project"
+          },
+          "404": {
+            "description": "Project not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Condition": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "TAG"
+            ]
+          },
+          "enforcement": {
+            "type": "string",
+            "enum": [
+              "HARD",
+              "SOFT"
+            ]
+          },
+          "occurrence": {
+            "type": "string",
+            "enum": [
+              "MUST_OCCUR",
+              "MUST_NOT_OCCUR"
+            ]
+          },
+          "expression": {
+            "$ref": "#/components/schemas/Tag"
+          }
+        },
+        "description": "Definition of a condition a constraint may have."
+      },
+      "Constraint": {
+        "type": "object",
+        "properties": {
+          "conditions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Condition"
+            }
+          }
+        },
+        "description": "Definition of a constraint that one resource may have.",
+        "example": {
+          "network": {
+            "conditions": [
+              {
+                "type": "TAG",
+                "enforcement": "HARD",
+                "occurrence": "MUST_OCCUR",
+                "expression": {
+                  "key": "key",
+                  "value": "value"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "Principal": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "The username of the user or display name of the group.\n When assigning a group, the email is expected to have the format displayName@domain.\n In the case where the display name in Identity provider is in the format:\n <li> name@domain - email should be written as name@domain@domain\n <li> name (and group has domain) - email should be written as name@domain\n <li> name (and group doesn't have domain) - email should be written as name@\n\nto ensure proper functioning.",
+            "example": "administrator@vmware.com"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of the principal. Currently supported 'user' (default) and 'group'.",
+            "example": "user"
+          }
+        },
+        "description": "A representation of a user or group.",
+        "example": [
+          {
+            "email": "advanceduser@vmware.com",
+            "type": "user"
+          }
+        ]
+      },
+      "ProjectCost": {
+        "type": "object",
+        "properties": {
+          "cost": {
+            "type": "number",
+            "description": "The cost of project."
+          },
+          "costSyncTime": {
+            "type": "string",
+            "description": "The date as of which project cost is calculated. Timestamp format: YYYY-MM-DDThh:mm:ss.SSSZ",
+            "example": "2011-12-03T10:15:30Z"
+          },
+          "costUnit": {
+            "type": "string",
+            "description": "The unit of cost of project. This is a 3 letter currency code.",
+            "example": "USD"
+          },
+          "message": {
+            "type": "string",
+            "description": "The message regarding the project cost."
+          },
+          "code": {
+            "type": "string",
+            "description": "The unique code for the message."
+          }
+        },
+        "description": "A representation of a project cost."
+      },
+      "ProjectSpecification": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "description": "A human-friendly name used as an identifier in APIs that support this option.",
+            "example": "my-name"
+          },
+          "description": {
+            "maxLength": 2000,
+            "minLength": 0,
+            "type": "string",
+            "description": "A human-friendly description.",
+            "example": "my-description"
+          },
+          "administrators": {
+            "type": "array",
+            "description": "List of administrator users associated with the project. Only administrators can manage project's configuration.",
+            "example": [
+              {
+                "email": "administrator@vmware.com",
+                "type": "user"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Principal"
+            }
+          },
+          "members": {
+            "type": "array",
+            "description": "List of member users associated with the project. ",
+            "example": [
+              {
+                "email": "member@vmware.com",
+                "type": "user"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Principal"
+            }
+          },
+          "viewers": {
+            "type": "array",
+            "description": "List of viewer users associated with the project. ",
+            "example": [
+              {
+                "email": "viewer@vmware.com",
+                "type": "user"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Principal"
+            }
+          },
+          "supervisors": {
+            "type": "array",
+            "description": "List of supervisor users associated with the project. ",
+            "example": [
+              {
+                "email": "supervisor@vmware.com",
+                "type": "user"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Principal"
+            }
+          },
+          "users": {
+            "type": "array",
+            "description": "List of users associated with the project. ",
+            "example": [
+              {
+                "email": "user@vmware.com",
+                "type": "user"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Principal"
+            }
+          },
+          "auditors": {
+            "type": "array",
+            "description": "List of auditor users associated with the project. ",
+            "example": [
+              {
+                "email": "auditor@vmware.com",
+                "type": "user"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Principal"
+            }
+          },
+          "advancedUsers": {
+            "type": "array",
+            "description": "List of advanced user users associated with the project. ",
+            "example": [
+              {
+                "email": "advanceduser@vmware.com",
+                "type": "user"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Principal"
+            }
+          },
+          "constraints": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Constraint"
+            },
+            "description": "List of constraints of the project.",
+            "example": {
+              "network": {
+                "conditions": [
+                  {
+                    "type": "TAG",
+                    "enforcement": "HARD",
+                    "occurrence": "MUST_OCCUR",
+                    "expression": {
+                      "key": "key",
+                      "value": "value"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "List of properties of the project, to be applied to any resource provisioned within the project.\n\nThe project placement policy is set through the property with key: __projectPlacementPolicy, which can take 1 of only 2 possible values DEFAULT or SPREAD. If not specified, it is set as DEFAULT.\n\nThe naming template of resources provisioned in this project can be specified through the property with key: __namingTemplate.\nHint: Avoid conflicting names by generating digits in names with ${######}\n\nYou can allow Terraform cloudzone mapping through the property with key: __allowTerraformCloudzoneMapping. It can be set to either true or false. By default, it is set to false.",
+              "example": "{\"myproperty\":\"enforcement\",\"__projectPlacementPolicy\":\"SPREAD\",\"__namingTemplate\":\"my-resource-template-${######}\",\"__allowTerraformCloudzoneMapping\":\"true\"}"
+            },
+            "description": "List of properties of the project, to be applied to any resource provisioned within the project.\n\nThe project placement policy is set through the property with key: __projectPlacementPolicy, which can take 1 of only 2 possible values DEFAULT or SPREAD. If not specified, it is set as DEFAULT.\n\nThe naming template of resources provisioned in this project can be specified through the property with key: __namingTemplate.\nHint: Avoid conflicting names by generating digits in names with ${######}\n\nYou can allow Terraform cloudzone mapping through the property with key: __allowTerraformCloudzoneMapping. It can be set to either true or false. By default, it is set to false.",
+            "example": {
+              "myproperty": "enforcement",
+              "__projectPlacementPolicy": "SPREAD",
+              "__namingTemplate": "my-resource-template-${######}",
+              "__allowTerraformCloudzoneMapping": "true"
+            }
+          },
+          "cost": {
+            "$ref": "#/components/schemas/ProjectCost"
+          },
+          "operationTimeout": {
+            "type": "integer",
+            "description": "The timeout that should be used for Blueprint operations and Provisioning tasks. The timeout is in seconds.",
+            "format": "int64"
+          },
+          "sharedResources": {
+            "type": "boolean",
+            "description": "Specifies whether the resources in this projects are shared or not. Only allowed for classic tenants."
+          }
+        },
+        "description": "The project to create."
+      },
+      "Tag": {
+        "required": [
+          "key"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Key of the object",
+            "example": "my-key"
+          },
+          "value": {
+            "type": "string",
+            "description": "Value of the object",
+            "example": "my-value"
+          }
+        },
+        "description": "A key value pair object."
+      },
+      "Project": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Id of the project."
+          },
+          "name": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "description": "A human-friendly name used as an identifier in APIs that support this option.",
+            "example": "my-name"
+          },
+          "description": {
+            "maxLength": 2000,
+            "minLength": 0,
+            "type": "string",
+            "description": "A human-friendly description.",
+            "example": "my-description"
+          },
+          "orgId": {
+            "type": "string",
+            "description": "The id of the org this project belongs to."
+          },
+          "administrators": {
+            "type": "array",
+            "description": "List of administrator users associated with the project. Only administrators can manage project's configuration.",
+            "example": [
+              {
+                "email": "administrator@vmware.com",
+                "type": "user"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Principal"
+            }
+          },
+          "members": {
+            "type": "array",
+            "description": "List of member users associated with the project. ",
+            "example": [
+              {
+                "email": "member@vmware.com",
+                "type": "user"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Principal"
+            }
+          },
+          "viewers": {
+            "type": "array",
+            "description": "List of viewer users associated with the project. ",
+            "example": [
+              {
+                "email": "viewer@vmware.com",
+                "type": "user"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Principal"
+            }
+          },
+          "supervisors": {
+            "type": "array",
+            "description": "List of supervisor users associated with the project. ",
+            "example": [
+              {
+                "email": "supervisor@vmware.com",
+                "type": "user"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Principal"
+            }
+          },
+          "users": {
+            "type": "array",
+            "description": "List of users associated with the project. ",
+            "example": [
+              {
+                "email": "user@vmware.com",
+                "type": "user"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Principal"
+            }
+          },
+          "auditors": {
+            "type": "array",
+            "description": "List of auditor users associated with the project. ",
+            "example": [
+              {
+                "email": "auditor@vmware.com",
+                "type": "user"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Principal"
+            }
+          },
+          "advancedUsers": {
+            "type": "array",
+            "description": "List of advanced user users associated with the project. ",
+            "example": [
+              {
+                "email": "advanceduser@vmware.com",
+                "type": "user"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Principal"
+            }
+          },
+          "constraints": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Constraint"
+            },
+            "description": "List of constraints of the project.",
+            "example": {
+              "network": {
+                "conditions": [
+                  {
+                    "type": "TAG",
+                    "enforcement": "HARD",
+                    "occurrence": "MUST_OCCUR",
+                    "expression": {
+                      "key": "key",
+                      "value": "value"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "List of properties of the project, to be applied to any resource provisioned within the project.\n\nThe property with key __projectPlacementPolicy shows what is the placement policy for the resources provisioned in this project, which can be 1 of only 2 possible values DEFAULT or SPREAD. If not specified, it is set as DEFAULT.\n\nThe property with key __namingTemplate specifies a custom naming template for resources provisioned in this project.\n\nThe property with key __allowTerraformCloudzoneMapping shows if the project allows Terraform cloudzone mapping. It can be set to either true or false. By default, it is set to false.",
+              "example": "{\"myproperty\":\"enforcement\",\"__projectPlacementPolicy\":\"SPREAD\",\"__namingTemplate\":\"my-resource-template\",\"__allowTerraformCloudzoneMapping\":\"true\"}"
+            },
+            "description": "List of properties of the project, to be applied to any resource provisioned within the project.\n\nThe property with key __projectPlacementPolicy shows what is the placement policy for the resources provisioned in this project, which can be 1 of only 2 possible values DEFAULT or SPREAD. If not specified, it is set as DEFAULT.\n\nThe property with key __namingTemplate specifies a custom naming template for resources provisioned in this project.\n\nThe property with key __allowTerraformCloudzoneMapping shows if the project allows Terraform cloudzone mapping. It can be set to either true or false. By default, it is set to false.",
+            "example": {
+              "myproperty": "enforcement",
+              "__projectPlacementPolicy": "SPREAD",
+              "__namingTemplate": "my-resource-template",
+              "__allowTerraformCloudzoneMapping": "true"
+            }
+          },
+          "cost": {
+            "$ref": "#/components/schemas/ProjectCost"
+          },
+          "operationTimeout": {
+            "type": "integer",
+            "description": "The timeout that should be used for Blueprint operations and Provisioning tasks. The timeout is in seconds.",
+            "format": "int64"
+          },
+          "sharedResources": {
+            "type": "boolean",
+            "description": "Specifies whether the resources in this projects are shared or not. Only allowed for classic tenants."
+          }
+        },
+        "description": "A Project is a group of users."
+      },
+      "SecretsV2Specification": {
+        "required": [
+          "name",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "description": "A human-friendly name used as an identifier for a secret. Secret name should not contain special characters.",
+            "example": "my-name"
+          },
+          "description": {
+            "type": "string",
+            "description": "A human-friendly description."
+          },
+          "value": {
+            "maxLength": 131072,
+            "minLength": 0,
+            "type": "string",
+            "description": "The value of secret.",
+            "example": "my-value"
+          },
+          "projectIdsToAdd": {
+            "type": "array",
+            "description": "A list of project IDs to add this secret to.",
+            "items": {
+              "type": "string",
+              "description": "A list of project IDs to add this secret to."
+            }
+          },
+          "orgScoped": {
+            "type": "boolean",
+            "description": "This boolean checks if the secret is org scope or project scope"
+          }
+        },
+        "description": "Represents a specification for Secrets"
+      },
+      "Secret": {
+        "required": [
+          "name",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "orgId": {
+            "type": "string",
+            "description": "The id of organization the secret belongs to. Can not be modified, only available in response."
+          },
+          "projectId": {
+            "type": "string",
+            "description": "The id of project the secret belongs to. Provided during create, can not be updated.",
+            "deprecated": true
+          },
+          "projectIds": {
+            "type": "array",
+            "description": "IDs of projects, associated with the secret. This is not a full list and is limited to 10 projects.",
+            "items": {
+              "type": "string",
+              "description": "IDs of projects, associated with the secret. This is not a full list and is limited to 10 projects."
+            }
+          },
+          "projectName": {
+            "type": "string",
+            "description": "The name of project the secret belongs to.",
+            "deprecated": true
+          },
+          "id": {
+            "type": "string",
+            "description": "The unique identifier of a secret.",
+            "example": "8365ef3b-8bf3-48aa-bd5d-7113fcff827c"
+          },
+          "name": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "description": "A human-friendly name used as an identifier for a secret.",
+            "example": "my-name"
+          },
+          "description": {
+            "type": "string",
+            "description": "A human-friendly description."
+          },
+          "value": {
+            "maxLength": 131072,
+            "minLength": 0,
+            "type": "string",
+            "description": "The value of secret.",
+            "example": "my-value"
+          },
+          "orgScoped": {
+            "type": "boolean",
+            "description": "To check if the secret is a org scope or project scope"
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "The user that created this secret. Can not be modified. only available in response.",
+            "example": "exampleuser"
+          },
+          "updatedBy": {
+            "type": "string",
+            "description": "The user that last updated this secret. Can not be modified. only available in response.",
+            "example": "exampleuser"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Date when the secret was created. The date is in ISO 8601 with time zone Can not be modified. only available in response.",
+            "example": "2019-09-16 09:25:38.065065+00"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Date when the secret was last updated. The date is in ISO 8601 with time zone. Can not be modified. only available in response.",
+            "example": "2019-09-16 09:25:38.065065+00"
+          }
+        },
+        "description": "A re-usable secret identified by a ordId, projectId and name."
+      },
+      "PrincipalRole": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID of the user or id of the group in CSP",
+            "example": "c493a95e-c4d1-4496-8595-e73902701c95:fe69d7ca-40a6-4de5-8f33-d462f4656938"
+          },
+          "email": {
+            "type": "string",
+            "description": "The username of the user or display name of the group.\n When assigning a group, the email is expected to have the format displayName@domain.\n In the case where the display name in Identity provider is in the format:\n <li> name@domain - email should be written as name@domain@domain\n <li> name (and group has domain) - email should be written as name@domain\n <li> name (and group doesn't have domain) - email should be written as name@\n\nto ensure proper functioning.",
+            "example": "administrator@vmware.com"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of the principal. Currently supported 'user' (default) and 'group'.",
+            "example": "user"
+          },
+          "role": {
+            "type": "string",
+            "description": "Role of this member. Currently supported 'member', 'viewer', 'administrator', 'supervisor'.",
+            "example": "member"
+          }
+        },
+        "description": "A representation of a user or group."
+      },
+      "ProjectPrincipalsAssignment": {
+        "type": "object",
+        "properties": {
+          "modify": {
+            "type": "array",
+            "description": "Principal to add or change role in project.",
+            "items": {
+              "$ref": "#/components/schemas/PrincipalRole"
+            }
+          },
+          "remove": {
+            "type": "array",
+            "description": "Principal to remove from project.",
+            "items": {
+              "$ref": "#/components/schemas/PrincipalRole"
+            }
+          }
+        }
+      },
+      "UpdateProjectSpecification": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "description": "A human-friendly name used as an identifier in APIs that support this option.",
+            "example": "my-name"
+          },
+          "description": {
+            "maxLength": 2000,
+            "minLength": 0,
+            "type": "string",
+            "description": "A human-friendly description.",
+            "example": "my-description"
+          },
+          "constraints": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Constraint"
+            },
+            "description": "List of constraints of the project.",
+            "example": {
+              "network": {
+                "conditions": [
+                  {
+                    "type": "TAG",
+                    "enforcement": "HARD",
+                    "occurrence": "MUST_OCCUR",
+                    "expression": {
+                      "key": "key",
+                      "value": "value"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "List of properties of the project, to be applied to any resource provisioned within the project.\n\nThe project placement policy is set through the property with key: __projectPlacementPolicy, which can take 1 of only 2 possible values DEFAULT or SPREAD. If not specified, it is set as DEFAULT.\n\nThe naming template of resources provisioned in this project can be specified through the property with key: __namingTemplate.\nHint: Avoid conflicting names by generating digits in names with ${######}\n\nYou can allow Terraform cloudzone mapping through the property with key: __allowTerraformCloudzoneMapping. It can be set to either true or false. By default, it is set to false.",
+              "example": "{\"myproperty\":\"enforcement\",\"__projectPlacementPolicy\":\"SPREAD\",\"__namingTemplate\":\"my-resource-template-${######}\",\"__allowTerraformCloudzoneMapping\":\"true\"}"
+            },
+            "description": "List of properties of the project, to be applied to any resource provisioned within the project.\n\nThe project placement policy is set through the property with key: __projectPlacementPolicy, which can take 1 of only 2 possible values DEFAULT or SPREAD. If not specified, it is set as DEFAULT.\n\nThe naming template of resources provisioned in this project can be specified through the property with key: __namingTemplate.\nHint: Avoid conflicting names by generating digits in names with ${######}\n\nYou can allow Terraform cloudzone mapping through the property with key: __allowTerraformCloudzoneMapping. It can be set to either true or false. By default, it is set to false.",
+            "example": {
+              "myproperty": "enforcement",
+              "__projectPlacementPolicy": "SPREAD",
+              "__namingTemplate": "my-resource-template-${######}",
+              "__allowTerraformCloudzoneMapping": "true"
+            }
+          },
+          "operationTimeout": {
+            "type": "integer",
+            "description": "The timeout that should be used for Blueprint operations and Provisioning tasks. The timeout is in seconds.",
+            "format": "int64"
+          },
+          "sharedResources": {
+            "type": "boolean",
+            "description": "Specifies whether the resources in this projects are shared or not. Only allowed for classic tenants."
+          }
+        },
+        "description": "Represents a specification for a updating a project."
+      },
+      "SecretUpdateSpecification": {
+        "required": [
+          "name",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "description": "A human-friendly name used as an identifier for a secret. Secret name should not contain special characters.",
+            "example": "my-name"
+          },
+          "description": {
+            "type": "string",
+            "description": "A human-friendly description."
+          },
+          "value": {
+            "maxLength": 131072,
+            "minLength": 0,
+            "type": "string",
+            "description": "The value of secret.",
+            "example": "my-value"
+          },
+          "orgScoped": {
+            "type": "boolean",
+            "description": "This boolean checks if the secret is org scope or project scope"
+          },
+          "projectIdsToAdd": {
+            "type": "array",
+            "description": "A list of project IDs to add this secret to.",
+            "items": {
+              "type": "string",
+              "description": "A list of project IDs to add this secret to."
+            }
+          },
+          "projectIdsToRemove": {
+            "type": "array",
+            "description": "A list of project IDs to remove this secret from.",
+            "items": {
+              "type": "string",
+              "description": "A list of project IDs to remove this secret from."
+            }
+          }
+        },
+        "description": "Specification for updating a secret"
+      },
+      "PageOfProjects": {
+        "type": "object",
+        "properties": {
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Project"
+            }
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/Sort"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PageableObject": {
+        "type": "object",
+        "properties": {
+          "paged": {
+            "type": "boolean"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "offset": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/Sort"
+          },
+          "unpaged": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Sort": {
+        "type": "object",
+        "properties": {
+          "sorted": {
+            "type": "boolean"
+          },
+          "empty": {
+            "type": "boolean"
+          },
+          "unsorted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AuthContext": {
+        "type": "object",
+        "properties": {
+          "userRoles": {
+            "type": "array",
+            "description": "A list of roles that the user has at organization level",
+            "readOnly": true,
+            "items": {
+              "type": "string",
+              "description": "A list of roles that the user has at organization level",
+              "readOnly": true
+            }
+          },
+          "userPermissions": {
+            "type": "array",
+            "description": "A list of permissions that the user has at organization level",
+            "readOnly": true,
+            "items": {
+              "type": "string",
+              "description": "A list of permissions that the user has at organization level",
+              "readOnly": true
+            }
+          },
+          "projects": {
+            "type": "array",
+            "description": "A list of projects this user is a member of",
+            "readOnly": true,
+            "items": {
+              "$ref": "#/components/schemas/ProjectInfo"
+            }
+          },
+          "id": {
+            "type": "string",
+            "description": "Principal id of the user",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Principal name of the user",
+            "readOnly": true
+          }
+        }
+      },
+      "Group": {
+        "required": [
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Group's Identity Provider ID",
+            "example": "c493a95e-c4d1-4496-8595-e73902701c95:fe69d7ca-40a6-4de5-8f33-d462f4656938"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "The account identifier string of the group.",
+            "example": "cloudadmin@coke.sqa-horizon.local"
+          },
+          "groupType": {
+            "type": "string",
+            "description": "The type of the group",
+            "example": "AD_GROUP, USER_GROUP"
+          },
+          "domain": {
+            "type": "string",
+            "description": "The domain of the group.",
+            "example": "vmware.com"
+          },
+          "usersCount": {
+            "type": "integer",
+            "description": "The number of users added in the group.",
+            "format": "int32",
+            "example": 1
+          }
+        },
+        "description": "A representation of a group",
+        "readOnly": true
+      },
+      "ProjectInfo": {
+        "type": "object",
+        "properties": {
+          "projectId": {
+            "type": "string",
+            "description": "The id of the project the user is a member of.",
+            "readOnly": true
+          },
+          "projectName": {
+            "type": "string",
+            "description": "The name of the project the user is a member of.",
+            "readOnly": true
+          },
+          "userRoles": {
+            "type": "array",
+            "description": "The roles this user has in the project.",
+            "readOnly": true,
+            "items": {
+              "type": "string",
+              "description": "The roles this user has in the project.",
+              "readOnly": true
+            }
+          },
+          "userPermissions": {
+            "type": "array",
+            "description": "The permissions this user has in the project.",
+            "readOnly": true,
+            "items": {
+              "type": "string",
+              "description": "The permissions this user has in the project.",
+              "readOnly": true
+            }
+          },
+          "sharedResources": {
+            "type": "boolean",
+            "description": "Specifies whether the resources in this projects are shared or not. Only allowed for classic tenants.",
+            "readOnly": true
+          },
+          "groups": {
+            "uniqueItems": true,
+            "type": "array",
+            "description": "A set of groups added to this project that user is a member of",
+            "readOnly": true,
+            "items": {
+              "$ref": "#/components/schemas/Group"
+            }
+          }
+        },
+        "description": "A list of projects this user is a member of",
+        "readOnly": true
+      },
+      "Page": {
+        "type": "object",
+        "properties": {
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/Sort"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Pageable": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PageOfSecrets": {
+        "type": "object",
+        "properties": {
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Secret"
+            }
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/Sort"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Authorization": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
+  }
+}
