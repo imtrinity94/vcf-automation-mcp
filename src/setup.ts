@@ -121,7 +121,7 @@ const CHECKS: Record<OrgType, [string, string][]> = {
   'all-apps': [
     ['Projects', '/project-service/api/projects?size=1'],
     ['RBAC auth context', '/rbac-service/api/auth-context'],
-    ['IaaS integrations', '/iaas/api/integrations?$top=1'],
+    ['IaaS integrations', '/iaas/api/integrations?apiVersion=2021-07-15&$top=1'], // apiVersion is required on All Apps
     ['Catalog', '/catalog/api/items?size=1'],
     ['Deployment', '/deployment/api/deployments?size=1'],
     ['Blueprint', '/blueprint/api/blueprints?size=1'],
@@ -206,8 +206,14 @@ export async function runSetup(argv: string[]): Promise<void> {
         if (res.ok && tok) {
           session = tok;
           jwtCookie = cookieOf(res, 'vcloud_jwt');
-          // default the service account role to the logged-in user's role (role names differ per org, e.g. "Organization Owner")
-          if (!role) role = (Array.isArray(json?.roles) && json.roles[0]) || json?.roleRefs?.[0]?.name || 'Organization Administrator';
+          // default the service account roles to ALL of the logged-in user's roles (role names differ per org).
+          // Taking only the first one gave an All Apps admin just "Organization Auditor" (read-only) -> 403s.
+          if (!role) {
+            const mine: string[] = Array.isArray(json?.roles) && json.roles.length
+              ? json.roles
+              : Array.isArray(json?.roleRefs) ? json.roleRefs.map((r: any) => r?.name).filter(Boolean) : [];
+            role = mine.length ? mine.join(',') : 'Organization Administrator';
+          }
           console.log(`1/5 Logged in as ${user}@${org} (${p}, role ${Array.isArray(json?.roles) ? json.roles.join(', ') : '?'})`);
           break outer;
         }

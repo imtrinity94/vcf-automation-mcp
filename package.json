@@ -1,6 +1,6 @@
 {
   "name": "vcf-automation-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server for VCF Automation 9 (VM Apps and All Apps organizations) - one MCP tool per REST operation, generated from the org's OpenAPI specs: Catalog, Deployment, Blueprint, Projects, ABX, Event Broker, Orchestrator Gateway, IaaS, Custom Forms, Approvals, org management (/cloudapi) and more.",
   "keywords": [
     "mcp",

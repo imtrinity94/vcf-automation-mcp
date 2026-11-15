@@ -27,7 +27,8 @@ const validAccess = new Set();
 const refreshCalls = [];
 let sessionAttempts = 0;
 let force401Once = true;
-const devices = {};                                   // device_code -> { granted, clientId }
+const devices = {};
+const registeredScopes = [];                                   // device_code -> { granted, clientId }
 const log = [];
 
 function issue(clientId) {
@@ -72,11 +73,12 @@ const server = http.createServer((req, res) => {
       const ok = [...ORGS].some(o => req.headers.authorization === 'Basic ' + Buffer.from(`admin@${o}:secret`).toString('base64'));
       if (!ok) return json(401, { message: 'bad creds' });
       const at = `session-${++seq}`; validAccess.add(at);
-      return json(200, { id: 's1', roles: ['Organization Administrator'] }, { 'x-vmware-vcloud-access-token': at, 'set-cookie': `vcloud_jwt=${at}; Path=/` });
+      return json(200, { id: 's1', roles: ['Organization Auditor', 'Organization Administrator'] }, { 'x-vmware-vcloud-access-token': at, 'set-cookie': `vcloud_jwt=${at}; Path=/` });
     }
     if (tenantOf(url, 'register')) {
       if (!validAccess.has(bearer)) return json(401, {});
       const b = JSON.parse(body);
+      registeredScopes.push(b.scope);
       return json(200, { client_id: `client-${b.client_name}`, scope: b.scope });
     }
     if (tenantOf(url, 'device_authorization')) {
@@ -243,6 +245,10 @@ try {
   assert.match(out4.stdout, /Org type: all-apps/); assert.match(out4.stdout, /RBAC auth context/); assert.doesNotMatch(out4.stdout, /ABX/);
   assert.match(out4.stdout, new RegExp(`"vcfa-${ORG2}"`)); assert.match(out4.stdout, /"VCFA_ORG_TYPE": "all-apps"/);
   ok('setup --org-type all-apps: All Apps access check, config block named vcfa-<org> with VCFA_ORG_TYPE');
+  assert.equal(registeredScopes.at(-1), 'urn:vcloud:role:Organization%20Auditor urn:vcloud:role:Organization%20Administrator');
+  assert.match(out4.stdout, /role Organization Auditor,Organization Administrator\)/);
+  ok('setup without --role gives the service account ALL of the user\'s roles, not just the first');
+  assert(log.some(l => l.url === '/iaas/api/integrations?apiVersion=2021-07-15&$top=1')); ok('All Apps IaaS access check sends the required apiVersion');
   entry = JSON.parse(fs.readFileSync(tokenFile4, 'utf8'))[`${HOST.toLowerCase()}|${ORG2}`];
   assert.equal(entry.orgType, 'all-apps'); ok('setup stores orgType with the token');
   c = await connect({ VCFA_ORG: ORG2, VCFA_AUTH_MODE: 'api-token', VCFA_TOKEN_FILE: tokenFile4 });
